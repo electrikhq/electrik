@@ -1,0 +1,40 @@
+{
+    "name": "electrik/electrik",
+    "description": "Starter kit for Laravel based SaaS projects",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "neerajsohal",
+            "email": "hello@neerajkumar.name"
+        }
+    ],
+	"require": {
+        "php": "^8.1"
+    },
+	"autoload": {
+        "psr-4": {
+            "Electrik\\Electrik\\": "src",
+            "Electrik\\Electrik\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Electrik\\Electrik\\Tests\\": "tests"
+        }
+    },
+	"config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Electrik\\Electrik\\ElectrikServiceProvider"
+            ],
+            "aliases": {
+                "Electrik": "Electrik\\Electrik\\Facades\\Electrik"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
