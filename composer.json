@@ -14,13 +14,13 @@
     },
 	"autoload": {
         "psr-4": {
-            "Electrik\\Electrik\\": "src",
-            "Electrik\\Electrik\\Database\\Factories\\": "database/factories"
+            "Electrik\\": "src",
+            "Electrik\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Electrik\\Electrik\\Tests\\": "tests"
+            "Electrik\\Tests\\": "tests"
         }
     },
 	"config": {
@@ -29,13 +29,16 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Electrik\\Electrik\\ElectrikServiceProvider"
+                "Electrik\\ElectrikServiceProvider"
             ],
             "aliases": {
-                "Electrik": "Electrik\\Electrik\\Facades\\Electrik"
+                "Electrik": "Electrik\\Facades\\Electrik"
             }
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "require-dev": {
+        "livewire/livewire": "^2.10"
+    }
 }
