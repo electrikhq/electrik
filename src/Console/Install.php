@@ -53,6 +53,7 @@ class Install extends Command {
 			"livewire/livewire:^2.10",
 			"rappasoft/laravel-livewire-tables:^2.8",
 			"neerajsohal/slate:dev-development",
+			"doctrine/dbal:^3.4",
 		]);
 
 		$this->updateNodePackages(function ($packages) {
@@ -72,6 +73,16 @@ class Install extends Command {
 		$this->runCommands(['php artisan vendor:publish --provider="Mpociot\Teamwork\TeamworkServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-migrations"']);
+
+
+		$timestamp = date('Y_m_d_His', time());
+
+		copy(__DIR__.'/../../database/migrations/2022_09_29_000000_add_cols_to_users_table.php', database_path('migrations/'.$timestamp.'_add_cols_to_users_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_000001_create_customer_columns.php', database_path('migrations/'.$timestamp.'_create_customer_columns.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_000002_update_subscriptions_table.php', database_path('migrations/'.$timestamp.'_update_subscriptions_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_063626_create_configurations_tables.php', database_path('migrations/'.$timestamp.'_create_configurations_tables.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/'.$timestamp.'_create_addresses_table.php'));
+
 		$this->runCommands(['npm install', 'npm run build']);
 
         $this->line('');

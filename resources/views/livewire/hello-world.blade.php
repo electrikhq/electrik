@@ -10,4 +10,5 @@
 	<p>
 		Hello {{ $name }}!
 	</p>
+	{{ dd(auth()->user()->currentTeam) }}
 </div>
