@@ -1,8 +1,9 @@
 <?php
 
-return [
+return ['providers' => [
 
-    'providers' => [
+
+	
         'users' => [
             'driver' => 'eloquent',
             'model' => Electrik\Models\User::class,
@@ -12,6 +13,5 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
-    ],
-
+    ]
 ];

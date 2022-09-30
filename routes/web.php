@@ -4,6 +4,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web'])->group(function($route) {
 
+	$route->get('plans', function() {
+		dd(config('plans'));
+	});
+	
+	$route->get('auth', function() {
+		dd(config('auth'));
+	});
+
 	$route->get('hello', \Electrik\Http\Livewire\HelloWorld::class)->name('hello-world');
 	$route->get('dashboard', \Electrik\Http\Livewire\Dashboard\Index::class)->name('dashboard.index');
 

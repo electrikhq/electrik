@@ -29,6 +29,8 @@ class Install extends Command {
      */
     public function handle() {
 
+		$this->components->info('Installing Electrik...');
+
         // Tailwind / Vite...
         copy(__DIR__.'/../../stubs/tailwind.config.js', base_path('tailwind.config.js'));
         copy(__DIR__.'/../../stubs/postcss.config.js', base_path('postcss.config.js'));
@@ -36,13 +38,7 @@ class Install extends Command {
         copy(__DIR__.'/../../stubs/resources/css/application.css', resource_path('css/application.css'));
         copy(__DIR__.'/../../stubs/resources/js/application.js', resource_path('js/application.js'));
 
-
-        // Configuration...
-		// copy(__DIR__.'/../../config/permission.php', config_path('permission.php'));
-		// copy(__DIR__.'/../../config/livewire.php', config_path('livewire.php'));
-		// copy(__DIR__.'/../../config/electrik.php', config_path('electrik.php'));
-		// copy(__DIR__.'/../../config/plans.php', config_path('plans.php'));
-
+		$this->components->info('Installed Configurations.');
 
 		$this->requireComposerPackages([
 			"mpociot/teamwork:^7.0",
@@ -55,6 +51,8 @@ class Install extends Command {
 			"neerajsohal/slate:dev-development",
 			"doctrine/dbal:^3.4",
 		]);
+
+		$this->components->info('Installed Composer Packages.');
 
 		$this->updateNodePackages(function ($packages) {
             return [
@@ -70,20 +68,40 @@ class Install extends Command {
             ] + $packages;
         });
 
+		$this->components->info('Installed Node Packages.');
+
 		$this->runCommands(['php artisan vendor:publish --provider="Mpociot\Teamwork\TeamworkServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-migrations"']);
 
+		$this->components->info('Published third-party package migrations and assets.');
+
+
+		$this->replaceInFile("'model' => App\Models\User::class,", "'model' => Electrik\Models\User::class,", config_path('auth.php'));
+		$this->replaceInFile("'permission' => Spatie\Permission\Models\Permission::class,", "'permission' => Electrik\Models\Permission::class,", config_path('permission.php'));
+		$this->replaceInFile("'role' => Spatie\Permission\Models\Role::class,", "'role' => Electrik\Models\Role::class,", config_path('permission.php'));
+		$this->replaceInFile("'user_model' => config('auth.providers.users.model', App\User::class),", "'user_model' => config('auth.providers.users.model', Electrik\Models\User::class),", config_path('teamwork.php'));
+		$this->replaceInFile("'team_model' => Mpociot\Teamwork\TeamworkTeam::class,", "'team_model' => Electrik\Models\Team::class,", config_path('teamwork.php'));
+		$this->replaceInFile("'invite_model' => Mpociot\Teamwork\TeamInvite::class,", "'invite_model' => Electrik\Models\TeamInvite::class,", config_path('teamwork.php'));
 
 		$timestamp = date('Y_m_d_His', time());
 
-		copy(__DIR__.'/../../database/migrations/2022_09_29_000000_add_cols_to_users_table.php', database_path('migrations/'.$timestamp.'_add_cols_to_users_table.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_000001_create_customer_columns.php', database_path('migrations/'.$timestamp.'_create_customer_columns.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_000002_update_subscriptions_table.php', database_path('migrations/'.$timestamp.'_update_subscriptions_table.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_063626_create_configurations_tables.php', database_path('migrations/'.$timestamp.'_create_configurations_tables.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/'.$timestamp.'_create_addresses_table.php'));
+		// sleep(3);
+
+		/* added x prefix to make sure our migrations run at the end */
+		copy(__DIR__.'/../../database/migrations/2022_09_29_000000_add_cols_to_users_table.php', database_path('migrations/'.$timestamp.'99_add_cols_to_users_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_000001_create_customer_columns.php', database_path('migrations/'.$timestamp.'99_create_customer_columns.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_000002_update_subscriptions_table.php', database_path('migrations/'.$timestamp.'99_update_subscriptions_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_063626_create_configurations_tables.php', database_path('migrations/'.$timestamp.'99_create_configurations_tables.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/'.$timestamp.'99_create_addresses_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_team_id_to_roles_table.php', database_path('migrations/'.$timestamp.'99_add_team_id_to_roles_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_cols_to_team_invites_table.php', database_path('migrations/'.$timestamp.'99_add_cols_to_team_invites_table.php'));
+
+		$this->components->info('Published Electrik migrations.');
 
 		$this->runCommands(['npm install', 'npm run build']);
+
+		$this->components->info('Built Electrik assets.');
 
         $this->line('');
         $this->components->info('Electrik installed successfully.');
@@ -152,4 +170,20 @@ class Install extends Command {
         });
     }
 
+	/**
+     * Replace a given string within a given file.
+     *
+     * @param  string  $search
+     * @param  string  $replace
+     * @param  string  $path
+     * @return void
+     */
+    protected function replaceInFile($search, $replace, $path) {
+
+        file_put_contents($path, str_replace($search, $replace, file_get_contents($path)));
+
+    }
+
+
 }
+
