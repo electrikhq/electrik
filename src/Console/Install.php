@@ -73,6 +73,7 @@ class Install extends Command {
 		$this->runCommands(['php artisan vendor:publish --provider="Mpociot\Teamwork\TeamworkServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-migrations"']);
+		$this->runCommands(['php artisan livewire:publish --config']);
 
 		$this->components->info('Published third-party package migrations and assets.');
 
@@ -83,19 +84,21 @@ class Install extends Command {
 		$this->replaceInFile("'user_model' => config('auth.providers.users.model', App\User::class),", "'user_model' => config('auth.providers.users.model', Electrik\Models\User::class),", config_path('teamwork.php'));
 		$this->replaceInFile("'team_model' => Mpociot\Teamwork\TeamworkTeam::class,", "'team_model' => Electrik\Models\Team::class,", config_path('teamwork.php'));
 		$this->replaceInFile("'invite_model' => Mpociot\Teamwork\TeamInvite::class,", "'invite_model' => Electrik\Models\TeamInvite::class,", config_path('teamwork.php'));
+		$this->replaceInFile("'class_namespace' => 'App\\Http\\Livewire',", "'class_namespace' => 'Electrik\\Http\\Livewire',", config_path('livewire.php'));
+		$this->replaceInFile("'layout' => 'layouts.app',", "'layout' => 'electrik::layouts.livewire.app',", config_path('livewire.php'));
 
 		$timestamp = date('Y_m_d_His', time());
 
 		// sleep(3);
 
 		/* added x prefix to make sure our migrations run at the end */
-		copy(__DIR__.'/../../database/migrations/2022_09_29_000000_add_cols_to_users_table.php', database_path('migrations/'.$timestamp.'99_add_cols_to_users_table.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_000001_create_customer_columns.php', database_path('migrations/'.$timestamp.'99_create_customer_columns.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_000002_update_subscriptions_table.php', database_path('migrations/'.$timestamp.'99_update_subscriptions_table.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_063626_create_configurations_tables.php', database_path('migrations/'.$timestamp.'99_create_configurations_tables.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/'.$timestamp.'99_create_addresses_table.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_team_id_to_roles_table.php', database_path('migrations/'.$timestamp.'99_add_team_id_to_roles_table.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_cols_to_team_invites_table.php', database_path('migrations/'.$timestamp.'99_add_cols_to_team_invites_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_000000_add_cols_to_users_table.php', database_path('migrations/'.$timestamp.'_xx_add_cols_to_users_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_000001_create_customer_columns.php', database_path('migrations/'.$timestamp.'_xx_create_customer_columns.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_000002_update_subscriptions_table.php', database_path('migrations/'.$timestamp.'_xx_update_subscriptions_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_063626_create_configurations_tables.php', database_path('migrations/'.$timestamp.'_xx_create_configurations_tables.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/'.$timestamp.'_xx_create_addresses_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_team_id_to_roles_table.php', database_path('migrations/'.$timestamp.'_xx_add_team_id_to_roles_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_cols_to_team_invites_table.php', database_path('migrations/'.$timestamp.'_xx_add_cols_to_team_invites_table.php'));
 
 		$this->components->info('Published Electrik migrations.');
 

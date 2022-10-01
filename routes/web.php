@@ -4,16 +4,18 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web'])->group(function($route) {
 
-	$route->get('plans', function() {
-		dd(config('plans'));
-	});
-	
-	$route->get('auth', function() {
-		dd(config('auth'));
+
+	$route->middleware(['guest'])->group(function($route) {
+
+		$route->get('login', Electrik\Http\Livewire\Auth\Login::class)->name('login');
+		$route->get('forgot-password', Electrik\Http\Livewire\Auth\ForgotPassword::class)->name('forgot-password');
+		$route->get('reset-password/{token?}', Electrik\Http\Livewire\Auth\ResetPassword::class)->name('password.reset');
+
 	});
 
-	$route->get('hello', \Electrik\Http\Livewire\HelloWorld::class)->name('hello-world');
-	$route->get('dashboard', \Electrik\Http\Livewire\Dashboard\Index::class)->name('dashboard.index');
+
+	$route->get('hello', Electrik\Http\Livewire\HelloWorld::class)->name('hello-world');
+	$route->get('dashboard', Electrik\Http\Livewire\Dashboard\Index::class)->name('dashboard.index');
 
 
 

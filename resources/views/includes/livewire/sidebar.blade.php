@@ -125,13 +125,13 @@
 		@endif
 			
 		<div class="py-6 space-y-2 font-semibold">
-			<x-slate::link color="black" :href="route('teams.settings')" class="flex items-center">
+			<x-slate::link color="black" class="flex items-center">
 				<x-slate::icon color="black" icon="carbon-settings" size="xs" /> Settings
 			</x-slate::link>
-			<x-slate::link color="black" :href="route('settings.personal')" class="flex items-center">
+			<x-slate::link color="black" class="flex items-center">
 				<x-slate::icon color="black" icon="carbon-user" size="xs" /> Your account
 			</x-slate::link>
-			<x-slate::link color="black" :href="route('billing.index')" class="flex items-center">
+			<x-slate::link color="black" class="flex items-center">
 				<x-slate::icon color="black" icon="carbon-purchase" size="xs" /> Billing
 			</x-slate::link>
 		</div>
@@ -143,7 +143,7 @@
 		</div>
 		<hr />
 		<div class="py-6 font-semibold">
-			<x-slate::link :href="route('logout')" class="flex items-center">
+			<x-slate::link  class="flex items-center">
 				<x-slate::icon icon="carbon-logout" size="xs" /> Logout
 			</x-slate::link>
 		</div>
@@ -161,14 +161,14 @@
 
 			@foreach (auth()->user()->teams as $team)
 				<div class="p-2">
-					<x-slate::link :href="route('teams.switch', $team)">{{ $team->name }}</x-slate::link>
+					<x-slate::link >{{ $team->name }}</x-slate::link>
 				</div>
 			@endforeach	
 
 		@endif
 	</div>
 	<div class="">
-		<x-slate::link :href="route('teams.settings')">Manage Team</x-slate::link>
+		<x-slate::link >Manage Team</x-slate::link>
 	</div>
 	</div>
 </template>
