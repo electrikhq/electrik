@@ -2,11 +2,11 @@
 
 namespace Electrik\Http\Livewire\Auth\Teams;
 
-use App\Models\Team;
+use Electrik\Models\Team;
 use Livewire\Component;
 
-use App\Models\Role;
-use App\Models\User;
+use Electrik\Models\Role;
+use Electrik\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

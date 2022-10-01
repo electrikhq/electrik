@@ -4,7 +4,7 @@ namespace Electrik\Http\Livewire\Auth\Teams;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use App\Models\Role;
+use Electrik\Models\Role;
 use Mpociot\Teamwork\Facades\Teamwork;
 
 class Login extends Component

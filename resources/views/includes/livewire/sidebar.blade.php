@@ -34,7 +34,7 @@
 							:color="((request()->routeIs(['settings.*', 'billing.*', 'teams.*']))) ? 'primary' : ''"
 							size="md" 
 							type="link" 
-
+							:link="route('settings.personal')" 
 						/>
 					</div>
 				</div>
@@ -61,36 +61,36 @@
 				<div class="flex flex-col py-4 px-4 space-y-0">
 					<x-slate::heading tag="h2" font-bold class="my-4">Settings</x-slate::heading>
 					<x-slate::sidebar-dropdown title="General" title-bold :active="request()->routeIs('settings.*')">
-						<x-slate::sidebar-item >
+						<x-slate::sidebar-item :link="route('settings.personal')">
 							Your account
 						</x-slate::sidebar-item>
 						
 					</x-slate::sidebar-dropdown>
 					
 					<x-slate::sidebar-dropdown title="Billing" title-bold :active="request()->routeIs('billing.*')" >
-							<x-slate::sidebar-item>
+							<x-slate::sidebar-item :link="route('billing.index')">
 								General
 							</x-slate::sidebar-item>
-							<x-slate::sidebar-item>
+							<x-slate::sidebar-item :link="route('billing.invoices')">
 								Invoices
 							</x-slate::sidebar-item>
-							<x-slate::sidebar-item>
+							<x-slate::sidebar-item :link="route('billing.subscription')">
 								Subscriptions
 							</x-slate::sidebar-item>
 						</x-slate::sidebar-dropdown>
 
 					<x-slate::sidebar-dropdown title="Team" title-bold :active="request()->routeIs('teams.*')">
-						<x-slate::sidebar-item  :active="request()->routeIs('teams.settings')">
+						<x-slate::sidebar-item :link="route('teams.settings')" :active="request()->routeIs('teams.settings')">
 							General Settings
 						</x-slate::sidebar-item>
 
-						<x-slate::sidebar-item >
+						<x-slate::sidebar-item :link="route('teams.members.index')">
 							Team members
 						</x-slate::sidebar-item>
-						<x-slate::sidebar-item >
+						<x-slate::sidebar-item :link="route('teams.members.invited')">
 							Invited team members
 						</x-slate::sidebar-item>
-						<x-slate::sidebar-item >
+						<x-slate::sidebar-item :link="route('teams.roles.index')">
 							Team roles
 						</x-slate::sidebar-item>
 					</x-slate::sidebar-dropdown>
@@ -108,7 +108,7 @@
 <template id="one">
 	<div class="w-80 bg-white p-2 px-6 font-medium pointer-events-auto">
 		<div class="py-3">
-			<strong>{{ (auth()->user()) ? auth()->user()->name : " " }}</strong>
+			<strong>{{ auth()->user()->name }}</strong>
 		</div>
 		<hr />
 		@if(auth()->user()->teams()->exists())
@@ -125,13 +125,13 @@
 		@endif
 			
 		<div class="py-6 space-y-2 font-semibold">
-			<x-slate::link color="black" class="flex items-center">
+			<x-slate::link color="black" :href="route('teams.settings')" class="flex items-center">
 				<x-slate::icon color="black" icon="carbon-settings" size="xs" /> Settings
 			</x-slate::link>
-			<x-slate::link color="black" class="flex items-center">
+			<x-slate::link color="black" :href="route('settings.personal')" class="flex items-center">
 				<x-slate::icon color="black" icon="carbon-user" size="xs" /> Your account
 			</x-slate::link>
-			<x-slate::link color="black" class="flex items-center">
+			<x-slate::link color="black" :href="route('billing.index')" class="flex items-center">
 				<x-slate::icon color="black" icon="carbon-purchase" size="xs" /> Billing
 			</x-slate::link>
 		</div>
@@ -143,7 +143,7 @@
 		</div>
 		<hr />
 		<div class="py-6 font-semibold">
-			<x-slate::link  class="flex items-center">
+			<x-slate::link :href="route('logout')" class="flex items-center">
 				<x-slate::icon icon="carbon-logout" size="xs" /> Logout
 			</x-slate::link>
 		</div>
@@ -161,14 +161,14 @@
 
 			@foreach (auth()->user()->teams as $team)
 				<div class="p-2">
-					<x-slate::link >{{ $team->name }}</x-slate::link>
+					<x-slate::link :href="route('teams.switch', $team)">{{ $team->name }}</x-slate::link>
 				</div>
 			@endforeach	
 
 		@endif
 	</div>
 	<div class="">
-		<x-slate::link >Manage Team</x-slate::link>
+		<x-slate::link :href="route('teams.settings')">Manage Team</x-slate::link>
 	</div>
 	</div>
 </template>
