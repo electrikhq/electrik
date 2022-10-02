@@ -1,3 +1,15 @@
 <div>
-	Hello World!
+	<x-slate::header full-width color="white" shadow>
+		<x-slot name="title">
+			<div class="flex items-center space-x-2">
+				<x-slate::icon icon="carbon-dashboard" color="black" />
+				<x-slate::heading tag="h1" font-bold>
+					dashboard
+				</x-slate::heading>
+			</div>
+		</x-slot>
+	</x-slate::header>
+	<div class="p-5">
+		<x-slate::heading>Hello Electrik!</x-slate::heading>
+	</div>
 </div>
