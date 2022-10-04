@@ -87,6 +87,27 @@ class Install extends Command {
 		$this->replaceInFile("'class_namespace' => 'App\\Http\\Livewire',", "'class_namespace' => 'Electrik\\Http\\Livewire',", config_path('livewire.php'));
 		$this->replaceInFile("'layout' => 'layouts.app',", "'layout' => 'electrik::layouts.livewire.app',", config_path('livewire.php'));
 
+		file_put_contents(app_path() . '/../routes/web.php', <<<EOF
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+	return redirect()->route('dashboard.index');
+});
+EOF);
+
 		$timestamp = date('Y_m_d_His', time());
 
 		// sleep(3);

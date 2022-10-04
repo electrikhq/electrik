@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web'])->group(function($route) {
 
-
 	$route->middleware(['guest'])->group(function($route) {
 
 		$route->get('login', Electrik\Http\Livewire\Auth\Login::class)->name('login');

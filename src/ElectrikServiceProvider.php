@@ -23,7 +23,7 @@ class ElectrikServiceProvider extends ServiceProvider {
 
 
 		if (class_exists(Livewire::class)) {
-				
+
 			$this->loadRoutesFrom(__DIR__.'/../routes/web.php');
 			$this->loadViewsFrom(__DIR__.'/../resources/views', 'electrik');
 			// $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
