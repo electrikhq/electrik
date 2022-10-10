@@ -38,7 +38,7 @@ class MakeCommand extends GeneratorCommand {
 		
 		if (!is_dir(dirname(resource_path().'/views/livewire/'.strtolower(str_replace("\\","/",$this->getNameInput()).'.blade.php')))) {
 			// dir doesn't exist, make it
-			mkdir(dirname(resource_path().'/views/livewire/'.strtolower(str_replace("\\","/",$this->getNameInput()).'.blade.php')));
+			mkdir(dirname(resource_path().'/views/livewire/'.strtolower(str_replace("\\","/",$this->getNameInput()).'.blade.php')), 0755, true);
 		}
 
 		  

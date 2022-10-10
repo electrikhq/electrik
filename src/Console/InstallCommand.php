@@ -108,6 +108,18 @@ Route::get('/', function () {
 });
 EOF);
 
+file_put_contents(base_path().'/.env',
+<<<EOF
+
+STRIPE_KEY=
+STRIPE_SECRET=
+
+CASHIER_TAX_RATE_SGST=
+CASHIER_TAX_RATE_CGST=
+CASHIER_TAX_RATE_IGST=
+
+EOF, FILE_APPEND);
+
 		$timestamp = date('Y_m_d_His', time());
 
 		// sleep(3);
