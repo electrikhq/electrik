@@ -50,7 +50,8 @@ class ElectrikServiceProvider extends ServiceProvider {
 
 
 			$this->commands([
-				\Electrik\Console\Install::class,
+				\Electrik\Console\InstallCommand::class,
+				\Electrik\Console\MakeCommand::class,
 			]);
 
 		}

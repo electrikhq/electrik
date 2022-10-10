@@ -7,7 +7,7 @@ use RuntimeException;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
-class Install extends Command {
+class InstallCommand extends Command {
     /**
      * The name and signature of the console command.
      *
