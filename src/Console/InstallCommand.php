@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 use RuntimeException;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\File;  
+
 
 class InstallCommand extends Command {
     /**
@@ -74,6 +76,7 @@ class InstallCommand extends Command {
 		$this->runCommands(['php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-migrations"']);
 		$this->runCommands(['php artisan livewire:publish --config']);
+		File::copyDirectory(__DIR__.'/../../resources/views/vendor/', resource_path('views/vendor'));
 
 		$this->components->info('Published third-party package migrations and assets.');
 
