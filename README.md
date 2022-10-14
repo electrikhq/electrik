@@ -48,3 +48,10 @@ php artisan serve
 
 That's all! Now goto [https://localhost:8000/dashboard](https://localhost:8000/dashboard) and enjoy!
 
+
+## Sponsors
+
+Electrik would not have been possible without our generous sponsors:
+
+* [Netsouls](https://www.studionetsouls.com/)
+* [Quick Brown Fox](https://qbf.company/)
