@@ -6,8 +6,10 @@ use Illuminate\Console\Command;
 use RuntimeException;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\File;  
 
-class Install extends Command {
+
+class InstallCommand extends Command {
     /**
      * The name and signature of the console command.
      *
@@ -74,6 +76,7 @@ class Install extends Command {
 		$this->runCommands(['php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-migrations"']);
 		$this->runCommands(['php artisan livewire:publish --config']);
+		File::copyDirectory(__DIR__.'/../../resources/views/vendor/', resource_path('views/vendor'));
 
 		$this->components->info('Published third-party package migrations and assets.');
 
@@ -86,6 +89,39 @@ class Install extends Command {
 		$this->replaceInFile("'invite_model' => Mpociot\Teamwork\TeamInvite::class,", "'invite_model' => Electrik\Models\TeamInvite::class,", config_path('teamwork.php'));
 		$this->replaceInFile("'class_namespace' => 'App\\Http\\Livewire',", "'class_namespace' => 'Electrik\\Http\\Livewire',", config_path('livewire.php'));
 		$this->replaceInFile("'layout' => 'layouts.app',", "'layout' => 'electrik::layouts.livewire.app',", config_path('livewire.php'));
+
+		file_put_contents(app_path() . '/../routes/web.php', <<<EOF
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+	return redirect()->route('dashboard.index');
+});
+EOF);
+
+file_put_contents(base_path().'/.env',
+<<<EOF
+
+STRIPE_KEY=
+STRIPE_SECRET=
+
+CASHIER_TAX_RATE_SGST=
+CASHIER_TAX_RATE_CGST=
+CASHIER_TAX_RATE_IGST=
+
+EOF, FILE_APPEND);
 
 		$timestamp = date('Y_m_d_His', time());
 
