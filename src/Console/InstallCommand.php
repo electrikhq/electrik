@@ -89,6 +89,7 @@ class InstallCommand extends Command {
 		$this->replaceInFile("'invite_model' => Mpociot\Teamwork\TeamInvite::class,", "'invite_model' => Electrik\Models\TeamInvite::class,", config_path('teamwork.php'));
 		$this->replaceInFile("'class_namespace' => 'App\\Http\\Livewire',", "'class_namespace' => 'Electrik\\Http\\Livewire',", config_path('livewire.php'));
 		$this->replaceInFile("'layout' => 'layouts.app',", "'layout' => 'electrik::layouts.livewire.app',", config_path('livewire.php'));
+		$this->replaceInFile("'teams' => false,", "'teams' => true,", config_path('permission.php'));
 
 		file_put_contents(app_path() . '/../routes/web.php', <<<EOF
 <?php
