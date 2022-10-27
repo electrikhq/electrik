@@ -1,0 +1,81 @@
+name: CI/CD workflow
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: passw0rd
+          MYSQL_DATABASE: laravel
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+      - name: Clean directory
+#        run: ls -als && cd .. && ls -als && rm -Rf electrik && ls -als && mkdir electrik && cd electrik && ls -als
+        run: pwd && ls -als && cd .. && ls -als && rm -Rf electrik && ls -als && mkdir /home/runner/work/electrik/electrik
+      - name: Install Laravel
+        run: composer create-project laravel/laravel . --prefer-dist
+      - name: Check installation
+        run: pwd && ls -als
+      - name: Copy .env file
+        run: cp .env.example .env
+      - name: Require Electrik
+        run: composer require electrik/electrik
+      - name: Check PHP
+        run: php -v
+      - name: Check artisan
+        run: ls -al
+      - name: Generate key
+        run: php artisan key:generate
+      - name: Storage Permission
+        run: chmod -R 777 storage bootstrap/cache
+      - name: Database Setup
+        env:
+          DB_CONNECTION: mysql
+          DB_DATABASE: laravel
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: passw0rd
+        run: php artisan migrate:fresh
+#       - name: Execute tests (Unit and Feature tests) via PHPUnit
+#         env:
+#           DB_CONNECTION: mysql
+#           DB_DATABASE: laravel
+#           DB_PORT: 3306
+#           DB_USER: root
+#           DB_PASSWORD: passw0rd
+#         run: php artisan test
+  
+      - name: Compile assets
+        run: |
+          npm install
+          npm run build
+#      - name: Commit files
+#        run: |
+#          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+#          git config --local user.name "github-actions[bot]"
+#          git commit -m "Updated assets" -a
+#      - name: Push changes
+#        uses: ad-m/github-push-action@master
+#        with:
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          branch: production
+#          force: true
