@@ -77,6 +77,9 @@ class InstallCommand extends Command {
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-migrations"']);
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-config"']);
 		$this->runCommands(['php artisan livewire:publish --config']);
+		
+		File::copyDirectory(__DIR__.'/../models/', app_path('models'));
+
 		File::copyDirectory(__DIR__.'/../../resources/views/vendor/', resource_path('views/vendor'));
 
 		$this->components->info('Published third-party package migrations and assets.');
@@ -124,6 +127,39 @@ CASHIER_TAX_RATE_CGST=
 CASHIER_TAX_RATE_IGST=
 
 EOF, FILE_APPEND);
+file_put_contents(app_path().'/Providers/AppServiceProvider.php',
+<<<EOF
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Laravel\Cashier\Cashier;
+use Electrik\Models\Team;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+		Cashier::useCustomerModel(Team::class);
+    }
+}
+EOF);
 
 		$timestamp = date('Y_m_d_His', time());
 
