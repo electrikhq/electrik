@@ -85,7 +85,7 @@
 		
 		x-init="() => {
 
-			const stripe = Stripe('{{ config('services.stripe.key') }}');
+			const stripe = Stripe('{{ env('STRIPE_KEY') }}');
 			
 			@if(!$defaultPaymentMethod)
 				const elements = stripe.elements();
