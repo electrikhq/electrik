@@ -2,7 +2,7 @@
     "name": "electrik/electrik",
     "description": "Starter kit for Laravel based SaaS projects",
     "license": "MIT",
-	"version": "0.0.3",
+	"version": "0.0.4",
     "authors": [
         {
             "name": "neerajsohal",
@@ -11,6 +11,7 @@
     ],
 	"require": {
         "php": "^8.1",
+		"ext-bcmath": "*",
         "illuminate/support": "^9.31"
     },
 	"autoload": {
