@@ -171,7 +171,6 @@ EOF);
 		copy(__DIR__.'/../../database/migrations/2022_09_29_000002_update_subscriptions_table.php', database_path('migrations/'.$timestamp.'_xx_update_subscriptions_table.php'));
 		copy(__DIR__.'/../../database/migrations/2022_09_29_063626_create_configurations_tables.php', database_path('migrations/'.$timestamp.'_xx_create_configurations_tables.php'));
 		copy(__DIR__.'/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/'.$timestamp.'_xx_create_addresses_table.php'));
-		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_team_id_to_roles_table.php', database_path('migrations/'.$timestamp.'_xx_add_team_id_to_roles_table.php'));
 		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_cols_to_team_invites_table.php', database_path('migrations/'.$timestamp.'_xx_add_cols_to_team_invites_table.php'));
 
 		$this->components->info('Published Electrik migrations.');
