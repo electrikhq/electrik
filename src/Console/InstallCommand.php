@@ -175,7 +175,7 @@ EOF);
 
 		$this->components->info('Published Electrik migrations.');
 
-		$this->runCommands(['npm install', 'npm run build']);
+		$this->runCommands(['npm install --dev', 'npm run build']);
 
 		$this->components->info('Built Electrik assets.');
 
