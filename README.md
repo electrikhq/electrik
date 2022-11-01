@@ -2,6 +2,8 @@
 
 Electrik is a full-featured and open-source stater-kit for for your next SaaS application. It's built on top of Laravel, Livewire, neerajsohal/slate, Tailwind. 
 
+[![CI/CD workflow](https://github.com/electrikhq/electrik/actions/workflows/ci.yml/badge.svg)](https://github.com/electrikhq/electrik/actions/workflows/ci.yml) ![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/electrikhq/electrik?include_prereleases) ![GitHub all releases](https://img.shields.io/github/downloads/electrikhq/electrik/total) ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/electrikhq/electrik) ![GitHub](https://img.shields.io/github/license/electrikhq/electrik)
+
 ![Dashboard](art/dashboard.png "Dashboard after succeffsulll installation").
 
 Electrik supports:
