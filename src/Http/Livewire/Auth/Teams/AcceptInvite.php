@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Auth\Teams;
+namespace App\Http\Livewire\Auth\Teams;
 
 use Livewire\Component;
 use Mpociot\Teamwork\Facades\Teamwork;
@@ -59,6 +59,6 @@ class AcceptInvite extends Component {
     }
 
     public function render() {
-        return view('electrik::livewire.auth.teams.accept-invite');
+        return view('livewire.auth.teams.accept-invite');
     }
 }

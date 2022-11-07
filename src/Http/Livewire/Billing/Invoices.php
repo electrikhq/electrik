@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Billing;
+namespace App\Http\Livewire\Billing;
 
 use Livewire\Component;
 use Usernotnull\Toast\Concerns\WireToast;
@@ -21,7 +21,7 @@ class Invoices extends Component {
 	}
 
     public function render() {
-        return view('electrik::livewire.billing.invoices');
+        return view('livewire.billing.invoices');
     }
 
 }

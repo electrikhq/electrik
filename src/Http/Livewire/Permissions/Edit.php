@@ -1,8 +1,8 @@
 <?php
 
-namespace Electrik\Http\Livewire\Permissions;
+namespace App\Http\Livewire\Permissions;
 
-use Electrik\Models\Permission;
+use App\Models\Permission;
 use Livewire\Component;
 use Usernotnull\Toast\Concerns\WireToast;
 
@@ -35,6 +35,6 @@ class Edit extends Component {
 	}
 
     public function render() {
-        return view('electrik::livewire.permissions.edit', ['permission' => $this->permission]);
+        return view('livewire.permissions.edit', ['permission' => $this->permission]);
     }
 }

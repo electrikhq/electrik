@@ -14,6 +14,7 @@ module.exports = {
     	'./vendor/usernotnull/tall-toasts/resources/views/**/*.blade.php',
 		'./vendor/rappasoft/laravel-livewire-tables/resources/views/**/*.blade.php',
 		'./vendor/wire-elements/modal/resources/views/**/*.blade.php',
+		'./vendor/electrik/electrik/resources/**/*.blade.php',
     ],
 
     theme: {

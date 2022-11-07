@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Teams;
+namespace App\Http\Livewire\Teams;
 
 use Illuminate\Support\Facades\Artisan;
 use Livewire\Component;
@@ -50,6 +50,6 @@ class Create extends Component {
 	}
 
     public function render() {
-        return view('electrik::livewire.teams.create');
+        return view('livewire.teams.create');
     }
 }

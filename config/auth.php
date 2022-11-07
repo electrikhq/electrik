@@ -6,7 +6,7 @@ return ['providers' => [
 	
         'users' => [
             'driver' => 'eloquent',
-            'model' => Electrik\Models\User::class,
+            'model' => App\Models\User::class,
         ],
 
         // 'users' => [

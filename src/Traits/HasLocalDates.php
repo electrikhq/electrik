@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Traits;
+namespace App\Traits;
 
 use DateTimeInterface;
 use Illuminate\Support\Carbon;

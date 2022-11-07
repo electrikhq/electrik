@@ -9,7 +9,7 @@ return [
     | This is the Auth model used by Teamwork.
     |
     */
-    'user_model' => config('auth.providers.users.model', Electrik\Models\User::class),
+    'user_model' => config('auth.providers.users.model', App\Models\User::class),
 
     /*
     |--------------------------------------------------------------------------
@@ -30,7 +30,7 @@ return [
     | the team if it is in a different namespace.
     |
     */
-    'team_model' => Electrik\Models\Team::class,
+    'team_model' => App\Models\Team::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -69,7 +69,7 @@ return [
     | Update the team if it is in a different namespace.
     |
     */
-    'invite_model' => Electrik\Models\TeamInvite::class,
+    'invite_model' => App\Models\TeamInvite::class,
 
     /*
     |--------------------------------------------------------------------------

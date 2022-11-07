@@ -1,8 +1,8 @@
 <?php
 
-namespace Electrik\Http\Livewire\Onboarding;
+namespace App\Http\Livewire\Onboarding;
 
-use Electrik\Models\Address;
+use App\Models\Address;
 use GuzzleHttp\RedirectMiddleware;
 use Laravel\Cashier\Exceptions\IncompletePayment;
 use Livewire\Component;
@@ -154,9 +154,9 @@ class Confirm extends Component {
 	}
 
     public function render() {
-        return view('electrik::livewire.onboarding.confirm')
+        return view('livewire.onboarding.confirm')
 		->with('allIndianStates', getIndiaStateCodesArray())
-		->layout('electrik::layouts.livewire.onboarding')
+		->layout('layouts.livewire.onboarding')
 		;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Permissions;
+namespace App\Http\Livewire\Permissions;
 
 use Livewire\Component;
 use Usernotnull\Toast\Concerns\WireToast;
@@ -17,6 +17,6 @@ class Index extends Component {
 
     public function render()
     {
-        return view('electrik::livewire.permissions.index');
+        return view('livewire.permissions.index');
     }
 }

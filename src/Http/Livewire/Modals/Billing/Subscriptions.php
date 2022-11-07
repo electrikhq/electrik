@@ -1,9 +1,9 @@
 <?php
 
-namespace Electrik\Http\Livewire\Modals\Billing;
+namespace App\Http\Livewire\Modals\Billing;
 
-use Electrik\Models\Address;
-use Electrik\Models\Team;
+use App\Models\Address;
+use App\Models\Team;
 use Laravel\Cashier\Exceptions\IncompletePayment;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
@@ -143,7 +143,7 @@ class Subscriptions  extends ModalComponent {
 
 
 	public function render() {
-        return view('electrik::livewire.modals.billing.subscriptions', [
+        return view('livewire.modals.billing.subscriptions', [
             'intent' => $this->team->createSetupIntent(),
         ])->with('allIndianStates', getIndiaStateCodesArray())
 		;

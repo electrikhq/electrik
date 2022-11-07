@@ -1,10 +1,10 @@
 <?php
 
-namespace Electrik\Http\Livewire\Auth\Teams;
+namespace App\Http\Livewire\Auth\Teams;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Electrik\Models\Role;
+use App\Models\Role;
 use Mpociot\Teamwork\Facades\Teamwork;
 
 class Login extends Component
@@ -69,6 +69,6 @@ class Login extends Component
 
     public function render()
     {
-        return view('electrik::livewire.auth.teams.login')->layout('electrik::layouts.livewire.guest');
+        return view('livewire.auth.teams.login')->layout('layouts.livewire.guest');
     }
 }

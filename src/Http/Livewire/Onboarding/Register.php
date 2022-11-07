@@ -1,13 +1,13 @@
 <?php
 
-namespace Electrik\Http\Livewire\Onboarding;
+namespace App\Http\Livewire\Onboarding;
 
-use Electrik\Models\Team;
-use Electrik\Models\Permission;
-use Electrik\Models\Role;
+use App\Models\Team;
+use App\Models\Permission;
+use App\Models\Role;
 use Livewire\Component;
 
-use Electrik\Models\User;
+use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -113,6 +113,6 @@ class Register extends Component {
 
     public function render()
     {
-        return view('electrik::livewire.onboarding.register')->layout('electrik::layouts.livewire.onboarding');
+        return view('livewire.onboarding.register')->layout('layouts.livewire.onboarding');
     }
 }
