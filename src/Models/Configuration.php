@@ -1,8 +1,8 @@
 <?php
 
-namespace Electrik\Models;
+namespace App\Models;
 
-use Electrik\Traits\HasLocalDates;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

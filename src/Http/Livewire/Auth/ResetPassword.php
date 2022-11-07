@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Auth;
+namespace App\Http\Livewire\Auth;
 
 use Livewire\Component;
 
@@ -75,7 +75,7 @@ class ResetPassword extends Component {
     }
 
 	public function render() {
-        return view('electrik::livewire.auth.reset-password')->layout('electrik::layouts.livewire.guest');
+        return view('livewire.auth.reset-password')->layout('layouts.livewire.guest');
     }
 
 }

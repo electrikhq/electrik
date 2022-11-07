@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Onboarding;
+namespace App\Http\Livewire\Onboarding;
 
 use Livewire\Component;
 use Usernotnull\Toast\Concerns\WireToast;
@@ -15,7 +15,7 @@ class ChoosePlan extends Component {
 	
     public function render() {
 
-        return view('electrik::livewire.onboarding.choose-plan')->layout('electrik::layouts.livewire.onboarding');
+        return view('livewire.onboarding.choose-plan')->layout('layouts.livewire.onboarding');
 
     }
 	

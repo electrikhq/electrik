@@ -226,7 +226,7 @@
 			</div>
 		</div>
 		<div class="w-1/4 bg-info-50 p-4">
-			@include('electrik::livewire.onboarding.plan-details')
+			@include('livewire.onboarding.plan-details')
 		</div>
 	</div>
 </div>

@@ -7,6 +7,8 @@ use RuntimeException;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\File;  
+use Illuminate\Filesystem\Filesystem;
+
 
 
 class InstallCommand extends Command {
@@ -33,7 +35,7 @@ class InstallCommand extends Command {
 
 		$this->components->info('Installing Electrik...');
 
-        // Tailwind / Vite...
+
         copy(__DIR__.'/../../stubs/tailwind.config.js', base_path('tailwind.config.js'));
         copy(__DIR__.'/../../stubs/postcss.config.js', base_path('postcss.config.js'));
         copy(__DIR__.'/../../stubs/vite.config.js', base_path('vite.config.js'));
@@ -78,43 +80,41 @@ class InstallCommand extends Command {
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-config"']);
 		$this->runCommands(['php artisan livewire:publish --config']);
 		
-		File::copyDirectory(__DIR__.'/../models/', app_path('models'));
+		File::copyDirectory(__DIR__.'/../Models/', app_path('Models'));
+		
+		(new Filesystem)->ensureDirectoryExists(app_path('Http/Livewire'));
+		File::copyDirectory(__DIR__.'/../Http/Livewire', app_path('Http/Livewire'));
+		
+		(new Filesystem)->ensureDirectoryExists(app_path('Listeners'));
+		File::copyDirectory(__DIR__.'/../Listeners', app_path('Listeners'));
+		
+		(new Filesystem)->ensureDirectoryExists(app_path('Notifications'));
+		File::copyDirectory(__DIR__.'/../Notifications', app_path('Notifications'));
+		
+		(new Filesystem)->ensureDirectoryExists(app_path('Traits'));
+		File::copyDirectory(__DIR__.'/../Traits', app_path('Traits'));
 
 		File::copyDirectory(__DIR__.'/../../resources/views/vendor/', resource_path('views/vendor'));
+		File::copyDirectory(__DIR__.'/../../resources/views/includes', resource_path('views/includes'));
+		File::copyDirectory(__DIR__.'/../../resources/views/layouts', resource_path('views/layouts'));
+		File::copyDirectory(__DIR__.'/../../resources/views/livewire', resource_path('views/livewire'));
+		
+		File::copy(__DIR__.'/../../config/plans.php', base_path().'/config/plans.php');
+		File::copy(__DIR__.'/../../routes/web.php', base_path().'/routes/web.php');
 
 		$this->components->info('Published third-party package migrations and assets.');
 
 
-		$this->replaceInFile("'model' => App\Models\User::class,", "'model' => Electrik\Models\User::class,", config_path('auth.php'));
-		$this->replaceInFile("'permission' => Spatie\Permission\Models\Permission::class,", "'permission' => Electrik\Models\Permission::class,", config_path('permission.php'));
-		$this->replaceInFile("'role' => Spatie\Permission\Models\Role::class,", "'role' => Electrik\Models\Role::class,", config_path('permission.php'));
-		$this->replaceInFile("'user_model' => config('auth.providers.users.model', App\User::class),", "'user_model' => config('auth.providers.users.model', Electrik\Models\User::class),", config_path('teamwork.php'));
-		$this->replaceInFile("'team_model' => Mpociot\Teamwork\TeamworkTeam::class,", "'team_model' => Electrik\Models\Team::class,", config_path('teamwork.php'));
-		$this->replaceInFile("'invite_model' => Mpociot\Teamwork\TeamInvite::class,", "'invite_model' => Electrik\Models\TeamInvite::class,", config_path('teamwork.php'));
+		$this->replaceInFile("'model' => App\Models\User::class,", "'model' => App\Models\User::class,", config_path('auth.php'));
+		$this->replaceInFile("'permission' => Spatie\Permission\Models\Permission::class,", "'permission' => App\Models\Permission::class,", config_path('permission.php'));
+		$this->replaceInFile("'role' => Spatie\Permission\Models\Role::class,", "'role' => App\Models\Role::class,", config_path('permission.php'));
+		$this->replaceInFile("'user_model' => config('auth.providers.users.model', App\User::class),", "'user_model' => config('auth.providers.users.model', App\Models\User::class),", config_path('teamwork.php'));
+		$this->replaceInFile("'team_model' => Mpociot\Teamwork\TeamworkTeam::class,", "'team_model' => App\Models\Team::class,", config_path('teamwork.php'));
+		$this->replaceInFile("'invite_model' => Mpociot\Teamwork\TeamInvite::class,", "'invite_model' => App\Models\TeamInvite::class,", config_path('teamwork.php'));
 		$this->replaceInFile("'class_namespace' => 'App\\Http\\Livewire',", "'class_namespace' => 'Electrik\\Http\\Livewire',", config_path('livewire.php'));
-		$this->replaceInFile("'layout' => 'layouts.app',", "'layout' => 'electrik::layouts.livewire.app',", config_path('livewire.php'));
+		$this->replaceInFile("'layout' => 'layouts.app',", "'layout' => 'layouts.livewire.app',", config_path('livewire.php'));
 		$this->replaceInFile("'teams' => false,", "'teams' => true,", config_path('permission.php'));
 
-		file_put_contents(app_path() . '/../routes/web.php', <<<EOF
-<?php
-
-use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
-Route::get('/', function () {
-	return redirect()->route('dashboard.index');
-});
-EOF);
 
 file_put_contents(base_path().'/.env',
 <<<EOF
@@ -127,6 +127,7 @@ CASHIER_TAX_RATE_CGST=
 CASHIER_TAX_RATE_IGST=
 
 EOF, FILE_APPEND);
+
 file_put_contents(app_path().'/Providers/AppServiceProvider.php',
 <<<EOF
 <?php
@@ -135,7 +136,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
-use Electrik\Models\Team;
+use App\Models\Team;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -162,8 +163,6 @@ class AppServiceProvider extends ServiceProvider
 EOF);
 
 		$timestamp = date('Y_m_d_His', time());
-
-		// sleep(3);
 
 		/* added x prefix to make sure our migrations run at the end */
 		copy(__DIR__.'/../../database/migrations/2022_09_29_000000_add_cols_to_users_table.php', database_path('migrations/'.$timestamp.'_xx_add_cols_to_users_table.php'));

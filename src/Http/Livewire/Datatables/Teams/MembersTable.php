@@ -1,11 +1,11 @@
 <?php
 
-namespace Electrik\Http\Livewire\Datatables\Teams;
+namespace App\Http\Livewire\Datatables\Teams;
 
 use App\Events\UserDeleted;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Electrik\Models\User;
+use App\Models\User;
 use Usernotnull\Toast\Concerns\WireToast;
 
 class MembersTable extends DataTableComponent {
@@ -32,13 +32,13 @@ class MembersTable extends DataTableComponent {
                 ->sortable(),
 			Column::make('Role')
 				->label( function($row, Column $column) {
-					return view('electrik::livewire.datatables.teams.members-table.columns.role')
+					return view('livewire.datatables.teams.members-table.columns.role')
 							->with('row', $row)
 							->with('column', $column);
 				}),
 			Column::make('Actions')
 				->label( function($row, Column $column) {
-					return view('electrik::livewire.datatables.teams.members-table.columns.action')
+					return view('livewire.datatables.teams.members-table.columns.action')
 							->with('row', $row)
 							->with('column', $column);
 				}),

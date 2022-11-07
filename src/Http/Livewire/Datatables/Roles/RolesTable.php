@@ -1,10 +1,10 @@
 <?php
 
-namespace Electrik\Http\Livewire\Datatables\Roles;
+namespace App\Http\Livewire\Datatables\Roles;
 
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Electrik\Models\Role;
+use App\Models\Role;
 
 class RolesTable extends DataTableComponent
 {
@@ -26,7 +26,7 @@ class RolesTable extends DataTableComponent
                 ->sortable(),
 			Column::make('Permissions')
 				->label( function($row, Column $column) {
-					return view('electrik::livewire.datatables.roles.roles-table.columns.permission')
+					return view('livewire.datatables.roles.roles-table.columns.permission')
 							->with('row', $row)
 							->with('column', $column);
 				}),
@@ -34,7 +34,7 @@ class RolesTable extends DataTableComponent
                 ->sortable(),
 			Column::make('Actions')
 				->label( function($row, Column $column) {
-					return view('electrik::livewire.datatables.roles.roles-table.columns.action')
+					return view('livewire.datatables.roles.roles-table.columns.action')
 							->with('row', $row)
 							->with('column', $column);
 				}),

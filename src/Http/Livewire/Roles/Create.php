@@ -1,11 +1,11 @@
 <?php
 
-namespace Electrik\Http\Livewire\Roles;
+namespace App\Http\Livewire\Roles;
 
-use Electrik\Models\Permission;
+use App\Models\Permission;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
-use Electrik\Models\Role;
+use App\Models\Role;
 use Illuminate\Validation\Rule;
 use Usernotnull\Toast\Concerns\WireToast;
 
@@ -72,6 +72,6 @@ class Create extends Component {
 	}
 
     public function render() {
-        return view('electrik::livewire.roles.create-edit');
+        return view('livewire.roles.create-edit');
     }
 }

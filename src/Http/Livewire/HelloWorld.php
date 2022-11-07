@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire;
+namespace App\Http\Livewire;
 
 use Livewire\Component;
 
@@ -13,6 +13,6 @@ class HelloWorld extends Component {
 	}
 
 	public function render() {
-		return view('electrik::livewire.hello-world');
+		return view('livewire.hello-world');
 	}
 }

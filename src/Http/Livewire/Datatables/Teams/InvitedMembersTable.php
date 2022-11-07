@@ -1,11 +1,11 @@
 <?php
 
-namespace Electrik\Http\Livewire\Datatables\Teams;
+namespace App\Http\Livewire\Datatables\Teams;
 
-use Electrik\Models\TeamInvite;
+use App\Models\TeamInvite;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Electrik\Models\User;
+use App\Models\User;
 use Mpociot\Teamwork\Events\UserInvitedToTeam;
 use Usernotnull\Toast\Concerns\WireToast;
 
@@ -31,7 +31,7 @@ class InvitedMembersTable extends DataTableComponent {
 				->sortable(),
 			Column::make('Actions')
 				->label(function($row, Column $column) {
-					return view('electrik::livewire.datatables.teams.invited-members-table.columns.action', [
+					return view('livewire.datatables.teams.invited-members-table.columns.action', [
 						'row' => $row,
 						'column' => $column,
 					]);

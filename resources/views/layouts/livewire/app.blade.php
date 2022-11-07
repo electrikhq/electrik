@@ -33,7 +33,7 @@
 
 		
 		<x-slot name="sidebar">
-			@include('electrik::includes.livewire.sidebar')
+			@include('includes.livewire.sidebar')
 		</x-slot>
 
 		<div class="overflow-y-auto h-full shadow-xl shadow-stone-400 z-10">

@@ -1,7 +1,7 @@
 <?php
-namespace Electrik\Models;
+namespace App\Models;
 
-use Electrik\Traits\HasLocalDates;
+use App\Traits\HasLocalDates;
 use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Mpociot\Teamwork\TeamworkTeam;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Teams\Members;
+namespace App\Http\Livewire\Teams\Members;
 
 use Livewire\Component;
 
@@ -36,6 +36,6 @@ class Invited extends Component {
 
     public function render()
     {
-        return view('electrik::livewire.teams.members.invited');
+        return view('livewire.teams.members.invited');
     }
 }

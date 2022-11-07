@@ -1,8 +1,8 @@
 <?php
 
-namespace Electrik\Http\Livewire\Billing;
+namespace App\Http\Livewire\Billing;
 
-use Electrik\Models\Address;
+use App\Models\Address;
 use Livewire\Component;
 use Usernotnull\Toast\Concerns\WireToast;
 
@@ -140,7 +140,7 @@ class Index extends Component {
 
     public function render() {
 		// if(!$this->team->subscriptions) {
-			return view('electrik::livewire.billing.index')
+			return view('livewire.billing.index')
 			->with('allIndianStates', getIndiaStateCodesArray())
 			;
 		// }

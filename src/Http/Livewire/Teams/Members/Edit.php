@@ -1,9 +1,9 @@
 <?php
 
-namespace Electrik\Http\Livewire\Teams\Members;
+namespace App\Http\Livewire\Teams\Members;
 
-use Electrik\Models\Role;
-use Electrik\Models\User;
+use App\Models\Role;
+use App\Models\User;
 use Livewire\Component;
 use Usernotnull\Toast\Concerns\WireToast;
 
@@ -32,7 +32,7 @@ class Edit extends Component {
 	}
 
     public function render() {
-        return view('electrik::livewire.teams.members.edit', [
+        return view('livewire.teams.members.edit', [
 			'allRoles' => Role::all(),
 		]);
     }

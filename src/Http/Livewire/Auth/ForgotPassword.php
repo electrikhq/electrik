@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Auth;
+namespace App\Http\Livewire\Auth;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -40,6 +40,6 @@ class ForgotPassword extends Component {
 	
 	public function render() {
 
-        return view('electrik::livewire.auth.forgot-password')->layout('electrik::layouts.livewire.guest');
+        return view('livewire.auth.forgot-password')->layout('layouts.livewire.guest');
     }
 }

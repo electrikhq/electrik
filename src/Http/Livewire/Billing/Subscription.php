@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Billing;
+namespace App\Http\Livewire\Billing;
 
 use Livewire\Component;
 use Usernotnull\Toast\Concerns\WireToast;
@@ -40,9 +40,9 @@ class Subscription extends Component {
     public function render() {
 
 		if(count($this->subscriptions))
-        	return view('electrik::livewire.billing.subscription');
+        	return view('livewire.billing.subscription');
 		else 
-			return view('electrik::livewire.billing.billing-not-found');
+			return view('livewire.billing.billing-not-found');
 
 
     }

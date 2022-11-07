@@ -1,10 +1,10 @@
 <?php
 
-namespace Electrik\Http\Livewire\Modals\Teams;
+namespace App\Http\Livewire\Modals\Teams;
 
-use Electrik\Models\Role;
-use Electrik\Models\Team;
-use Electrik\Models\TeamInvite;
+use App\Models\Role;
+use App\Models\Team;
+use App\Models\TeamInvite;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Mail;
 use LivewireUI\Modal\ModalComponent;
@@ -80,7 +80,7 @@ class Invite extends ModalComponent {
 	}
 
     public function render() {
-        return view('electrik::livewire.modals.teams.invite', [
+        return view('livewire.modals.teams.invite', [
 			'allRoles' => Role::all(),
         ]);
     }

@@ -1,12 +1,12 @@
 <?php
 
-namespace Electrik\Http\Livewire\Auth\Teams;
+namespace App\Http\Livewire\Auth\Teams;
 
-use Electrik\Models\Team;
+use App\Models\Team;
 use Livewire\Component;
 
-use Electrik\Models\Role;
-use Electrik\Models\User;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -77,6 +77,6 @@ class Register extends Component {
 	}
 
     public function render() {
-        return view('electrik::livewire.auth.teams.register')->layout('electrik::layouts.livewire.guest');
+        return view('livewire.auth.teams.register')->layout('layouts.livewire.guest');
     }
 }

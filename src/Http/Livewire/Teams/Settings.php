@@ -1,8 +1,8 @@
 <?php
 
-namespace Electrik\Http\Livewire\Teams;
+namespace App\Http\Livewire\Teams;
 
-use Electrik\Models\Team;
+use App\Models\Team;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
@@ -41,7 +41,7 @@ class Settings extends Component {
 	}
 	
     public function render() {
-        return view('electrik::livewire.teams.settings');
+        return view('livewire.teams.settings');
     }
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Roles;
+namespace App\Http\Livewire\Roles;
 
 use Livewire\Component;
 
@@ -14,6 +14,6 @@ class Index extends Component {
 
     public function render() {
 
-        return view('electrik::livewire.roles.index');
+        return view('livewire.roles.index');
     }
 }

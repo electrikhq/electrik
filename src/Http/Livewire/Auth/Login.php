@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Auth;
+namespace App\Http\Livewire\Auth;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -40,6 +40,6 @@ class Login extends Component {
 
 	public function render() {
 
-        return view('electrik::livewire.auth.login')->layout('electrik::layouts.livewire.guest');
+        return view('livewire.auth.login')->layout('layouts.livewire.guest');
     }
 }

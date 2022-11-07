@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Settings;
+namespace App\Http\Livewire\Settings;
 
 use Livewire\Component;
 
@@ -55,6 +55,6 @@ class Store extends Component
 		if(!$this->store) 
 			return view('empty-state');
 			
-        return view('electrik::livewire.settings.store');
+        return view('livewire.settings.store');
     }
 }

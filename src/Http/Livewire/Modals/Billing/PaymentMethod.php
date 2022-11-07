@@ -1,8 +1,8 @@
 <?php
 
-namespace Electrik\Http\Livewire\Modals\Billing;
+namespace App\Http\Livewire\Modals\Billing;
 
-use Electrik\Models\Team;
+use App\Models\Team;
 use LivewireUI\Modal\ModalComponent;
 use Usernotnull\Toast\Concerns\WireToast;
 
@@ -67,7 +67,7 @@ class PaymentMethod extends ModalComponent {
 
 
     public function render() {
-        return view('electrik::livewire.modals.billing.payment-method', [
+        return view('livewire.modals.billing.payment-method', [
             'intent' => $this->team->createSetupIntent(),
         ]);
     }

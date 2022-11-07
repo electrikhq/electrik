@@ -39,6 +39,6 @@ return [
     |
     */
 
-    'layout' => 'electrik::layouts.livewire.app',
+    'layout' => 'layouts.livewire.app',
 
 ];

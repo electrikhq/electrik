@@ -1,8 +1,8 @@
 <?php
 
-namespace Electrik\Http\Livewire\Settings;
+namespace App\Http\Livewire\Settings;
 
-use Electrik\Models\Domain;
+use App\Models\Domain;
 use Livewire\Component;
 
 class Email extends Component {
@@ -26,6 +26,6 @@ class Email extends Component {
 		toast()->info('All done')->push();
 	}
     public function render() {
-        return view('electrik::livewire.settings.email');
+        return view('livewire.settings.email');
     }
 }

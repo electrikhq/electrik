@@ -1,6 +1,6 @@
 <?php
 
-namespace Electrik\Http\Livewire\Teams\Members;
+namespace App\Http\Livewire\Teams\Members;
 
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Mail;
@@ -127,6 +127,6 @@ class Index extends Component {
 
     public function render()
     {
-        return view('electrik::livewire.teams.members.index');
+        return view('livewire.teams.members.index');
     }
 }
