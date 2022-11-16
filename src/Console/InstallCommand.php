@@ -33,6 +33,23 @@ class InstallCommand extends Command {
      */
     public function handle() {
 
+		$this->info('
+    ________          __       _ __  
+   / ____/ /__  _____/ /______(_) /__
+  / __/ / / _ \/ ___/ __/ ___/ / //_/
+ / /___/ /  __/ /__/ /_/ /  / / ,<   
+/_____/_/\___/\___/\__/_/  /_/_/|_|  
+										 
+	');
+
+		$this->warn('IMPORTANT NOTE');
+		$this->warn('1. Electrik is meant to be installed on a fresh Laravel project.');
+		$this->warn('2. If you install it on existing project, unwanted issues may happen!');
+		$this->warn('3. During installation, Electrik will also delete all existing tables in your database and install a fresh set!');
+		if (!$this->confirm('Do you wish to continue?')) {
+			$this->line('Aborting...');
+		}
+
 		$this->components->info('Installing Electrik...');
 
 
@@ -105,13 +122,11 @@ class InstallCommand extends Command {
 		$this->components->info('Published third-party package migrations and assets.');
 
 
-		$this->replaceInFile("'model' => App\Models\User::class,", "'model' => App\Models\User::class,", config_path('auth.php'));
 		$this->replaceInFile("'permission' => Spatie\Permission\Models\Permission::class,", "'permission' => App\Models\Permission::class,", config_path('permission.php'));
 		$this->replaceInFile("'role' => Spatie\Permission\Models\Role::class,", "'role' => App\Models\Role::class,", config_path('permission.php'));
 		$this->replaceInFile("'user_model' => config('auth.providers.users.model', App\User::class),", "'user_model' => config('auth.providers.users.model', App\Models\User::class),", config_path('teamwork.php'));
 		$this->replaceInFile("'team_model' => Mpociot\Teamwork\TeamworkTeam::class,", "'team_model' => App\Models\Team::class,", config_path('teamwork.php'));
 		$this->replaceInFile("'invite_model' => Mpociot\Teamwork\TeamInvite::class,", "'invite_model' => App\Models\TeamInvite::class,", config_path('teamwork.php'));
-		$this->replaceInFile("'class_namespace' => 'App\\Http\\Livewire',", "'class_namespace' => 'Electrik\\Http\\Livewire',", config_path('livewire.php'));
 		$this->replaceInFile("'layout' => 'layouts.app',", "'layout' => 'layouts.livewire.app',", config_path('livewire.php'));
 		$this->replaceInFile("'teams' => false,", "'teams' => true,", config_path('permission.php'));
 
@@ -174,13 +189,13 @@ EOF);
 
 		$this->components->info('Published Electrik migrations.');
 
-		if(env('APP_ENV') == 'production' || env('APP_ENV') == 'prod')
+		
 		$this->runCommands(['npm install', 'npm run build']);
-		else
-		$this->runCommands(['npm install --dev', 'npm run build']);
-
+		
 		$this->components->info('Built Electrik assets.');
-
+		$this->runCommands(['php artisan migrate:fresh']);
+        $this->components->info('Database installed.');
+		
         $this->line('');
         $this->components->info('Electrik installed successfully.');
 

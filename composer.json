@@ -16,8 +16,7 @@
     },
 	"autoload": {
         "psr-4": {
-            "Electrik\\": "src",
-            "Electrik\\Database\\Factories\\": "database/factories"
+            "Electrik\\": "src"
         },
 		"files": [
 			"src/helpers.php"

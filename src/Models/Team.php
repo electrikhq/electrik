@@ -148,8 +148,8 @@ class Team extends TeamworkTeam {
 		return $this->hasMany(Store::class);
 	}
 
-	public function properties() {
-		return $this->hasMany(Property::class);
+	public function integrations() {
+		return $this->belongsToMany(Integration::class);
 	}
 	
 	public function reminders() {
