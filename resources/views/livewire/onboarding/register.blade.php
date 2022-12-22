@@ -11,13 +11,13 @@
 			<a class="text-lg font-medium text-gray-600" href="#" onclick="return false;">3. Confrim Details</a>
 		</div>
 	</div>
-	<div class="flex h-full bg-stone-900">
+	<div class="flex h-full dark:bg-stone-900">
 		<div class="flex-1 flex bg--50 items-center">
 			<div class="flex-1 mx-12 xs:mx-12 sm:mx-24 md:mx-24 ">
-				<x-slate::content>
-					<h1>Create your account</h1>
+				
+					<x-slate::heading>Create your account</x-slate::heading>
 					<p>Fill the form below to get started</p>
-				</x-slate::content>
+				
 				<x-slate::form wire:submit.prevent="submit" class="">
 					<x-slate::input
 						wire:model.defer="name"

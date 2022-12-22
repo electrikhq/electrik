@@ -31,9 +31,9 @@ return [
 						],
 					],
 					'features' => [
-						'Up to 50 monthly orders',
-						'Product review request emails',
-						'Reviews management',
+						'Lorem ipsum dolor sit amet',
+						'consectetur adipiscing elit',
+						'Mauris lacinia mollis metus',
 					],
 				],
 				[
@@ -61,10 +61,10 @@ return [
 						],
 					],
 					'features' => [
-						'Up to 2000 monthly orders',
-						'Product review request emails',
-						'Reviews management',
-						'Video & Photo Reviews'
+						'Aenean condimentum ex eget',
+						'sem dictum gravida. Interdum',
+						'et malesuada fam',
+						'Maecenas hendrerit arcu'
 					],
 				],
 				[
@@ -92,11 +92,11 @@ return [
 						],
 					],
 					'features' => [
-						'Up to 4500 monthly orders',
-						'Product review request emails',
-						'Reviews management',
-						'Video & Photo Reviews',
-						'custom templates'
+						'it amet dignissim eros',
+						'tellus nulla imperdiet tortor',
+						'Duis non congue quam',
+						'nulla augue vestibulum quam',
+						'iaculis turpis nulla vel sapien'
 					],
 				],
 			],
