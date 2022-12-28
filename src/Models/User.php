@@ -14,7 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-	use UserHasTeams; // Add this trait to your model
+	use UserHasTeams;
 	use HasRoles;
 
     /**

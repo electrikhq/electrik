@@ -47,7 +47,6 @@ class InvitedToTeamNotification extends Notification implements ShouldQueue {
 					->greeting('You have been invited!')
                     ->line($this->invite->user->name . ' has invited you to join ' .  $this->invite->team->name . '.')
                     ->action('Join ' . $this->invite->team->name, url('teams/accept/'.$this->invite->accept_token));
-                    // ->line('Thank you for using our application!');
     }
 
     /**
