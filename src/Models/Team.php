@@ -102,15 +102,12 @@ class Team extends TeamworkTeam {
 			$stripeEmail = $this->owner()->first()->email;
 		}
 
-		// dd($stripeEmail);
 		return $stripeEmail;
 		
 	}
 
 	public function stripeAddress() {
-		// dd('here');
 		if($this->billingAddress()->exists()) {
-			// dd($this->billingAddress()->first());
 			return [
 			    'line1' => $this->billingAddress()->first()->address_1,
 			    'line2' => $this->billingAddress()->first()->address_2,
@@ -133,7 +130,7 @@ class Team extends TeamworkTeam {
 		/**
 		 * @todo fix this
 		 */
-		return 'https://getsparrow.io/wp-content/uploads/2020/10/cropped-sparrow-icon-black-192x192.png';
+		return env("APP_LOGO_URL", 'https://unsplash.it/100/100');
 	}
 
 	function billingAddress() {
@@ -161,14 +158,9 @@ class Team extends TeamworkTeam {
     }
 	
 	public function customers() {
-        // return $this->hasMany(Customer::class);
         return $this->hasManyThrough(Customer::class, Store::class);
     }
 	
-	// public function audiences() {
-    //     return $this->hasMany(Audience::class);
-    // }
-
 	public function segments() {
         return $this->hasMany(Segment::class);
     }

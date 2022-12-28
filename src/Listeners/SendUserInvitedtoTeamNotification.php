@@ -32,13 +32,8 @@ class SendUserInvitedtoTeamNotification implements ShouldQueue {
     public function handle(EventsUserInvitedToTeam $event) {
         
         $invitation = $event->getInvite();
-        // $teamId = $event->getTeamId();
 
 		Notification::route('mail', $invitation->email)
-            // ->route('nexmo', '5555555555')
-            // ->route('slack', 'https://hooks.slack.com/services/...')
             ->notify(new InvitedToTeamNotification($invitation));
-
-        // Do something with the user and team ID.
     }
 }

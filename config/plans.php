@@ -8,8 +8,8 @@ return [
 			'plans' => [
 				[
 					'id' => 'prod_MOurX66bBOn5oD',
-					'slug' => 'sprrw.core',
-					'name' => 'Core',
+					'slug' => 'lorem',
+					'name' => 'Lorem',
 					'short_description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
 					'trial_days' => 0,
 					'prices' => [
@@ -38,8 +38,8 @@ return [
 				],
 				[
 					'id' => 'prod_MOusxp1eEFI6CM',
-					'slug' => 'sprrw.growth',
-					'name' => 'Growth',
+					'slug' => 'ipsum',
+					'name' => 'Ipsum',
 					'short_description' => 'Phasellus mollis, leo at elementum dictum, massa lorem maximus est',
 					'trial_days' => 14,
 					'prices' => [
@@ -69,8 +69,8 @@ return [
 				],
 				[
 					'id' => 'prod_MOutUnhEHIT9YC',
-					'slug' => 'sprrw.accelerate',
-					'name' => 'Accelerate',
+					'slug' => 'dolor',
+					'name' => 'Dolor',
 					'short_description' => 'sed egestas tellus tellus in diam',
 					'trial_days' => 14,
 					'prices' => [
