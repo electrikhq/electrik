@@ -69,7 +69,7 @@ class InstallCommand extends Command {
 			"laravel/cashier:^14.1",
 			"livewire/livewire:^2.10",
 			"rappasoft/laravel-livewire-tables:^2.8",
-			"neerajsohal/slate:dev-development",
+			"electrik/slate:dev-development",
 			"doctrine/dbal:^3.4",
 		]);
 

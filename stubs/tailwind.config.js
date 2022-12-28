@@ -9,7 +9,7 @@ module.exports = {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         './resources/views/vendor/**/*.blade.php',
-		'./vendor/neerajsohal/slate/resources/views/components/**/*.blade.php',
+		'./vendor/electrik/slate/resources/views/components/**/*.blade.php',
 		'./vendor/usernotnull/tall-toasts/config/**/*.php',
     	'./vendor/usernotnull/tall-toasts/resources/views/**/*.blade.php',
 		'./vendor/rappasoft/laravel-livewire-tables/resources/views/**/*.blade.php',

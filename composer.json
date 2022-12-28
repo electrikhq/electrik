@@ -44,6 +44,6 @@
     "prefer-stable": true,
     "require-dev": {
         "livewire/livewire": "^2.10",
-		"neerajsohal/slate": "dev-development"
+		"electrik/slate": "dev-development"
     }
 }
