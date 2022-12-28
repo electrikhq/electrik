@@ -35,31 +35,8 @@ class ElectrikServiceProvider extends ServiceProvider {
 
 	public function register() {
 
-		// $this->mergeConfigFrom(__DIR__.'/../config/plans.php', 'plans');
+		$this->mergeConfigFrom(__DIR__.'/../config/electrik.php', 'electrik');
 		
 	}
-	
-
-	// protected function registerLivewireComponentDirectory($directory, $namespace, string $aliasPrefix = '') {
-
-    //     collect((new Filesystem)->allFiles($directory))
-    //         ->map(function (SplFileInfo $file) use ($namespace) {
-    //             return (string) Str::of($namespace)
-    //                 ->append('\\', $file->getRelativePathname())
-    //                 ->replace(['/', '.php'], ['\\', '']);
-    //         })
-    //         ->each(function ($class) use ($namespace, $aliasPrefix) {
-    //             $alias = Str::of($class)
-    //                 ->after($namespace . '\\')
-    //                 ->replace(['/', '\\'], '.')
-    //                 ->prepend($aliasPrefix)
-    //                 ->explode('.')
-    //                 ->map([Str::class, 'kebab'])
-    //                 ->implode('.');
-
-    //             Livewire::component($alias, $class);
-    //         });
-	// }
-
 
 }
