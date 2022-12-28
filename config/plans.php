@@ -10,7 +10,7 @@ return [
 					'id' => 'prod_MOurX66bBOn5oD',
 					'slug' => 'sprrw.core',
 					'name' => 'Core',
-					'short_description' => 'Everything required, for entrepreneurs just starting out',
+					'short_description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
 					'trial_days' => 0,
 					'prices' => [
 						'in' => [
@@ -31,16 +31,16 @@ return [
 						],
 					],
 					'features' => [
-						'Up to 50 monthly orders',
-						'Product review request emails',
-						'Reviews management',
+						'Lorem ipsum dolor sit amet',
+						'consectetur adipiscing elit',
+						'Mauris lacinia mollis metus',
 					],
 				],
 				[
 					'id' => 'prod_MOusxp1eEFI6CM',
 					'slug' => 'sprrw.growth',
 					'name' => 'Growth',
-					'short_description' => 'Businesses with traction who need a professional reviews platform',
+					'short_description' => 'Phasellus mollis, leo at elementum dictum, massa lorem maximus est',
 					'trial_days' => 14,
 					'prices' => [
 						'in' => [
@@ -61,17 +61,17 @@ return [
 						],
 					],
 					'features' => [
-						'Up to 2000 monthly orders',
-						'Product review request emails',
-						'Reviews management',
-						'Video & Photo Reviews'
+						'Aenean condimentum ex eget',
+						'sem dictum gravida. Interdum',
+						'et malesuada fam',
+						'Maecenas hendrerit arcu'
 					],
 				],
 				[
 					'id' => 'prod_MOutUnhEHIT9YC',
 					'slug' => 'sprrw.accelerate',
 					'name' => 'Accelerate',
-					'short_description' => 'For businesses who are looking to multiply their growth',
+					'short_description' => 'sed egestas tellus tellus in diam',
 					'trial_days' => 14,
 					'prices' => [
 						'in' => [
@@ -92,11 +92,11 @@ return [
 						],
 					],
 					'features' => [
-						'Up to 4500 monthly orders',
-						'Product review request emails',
-						'Reviews management',
-						'Video & Photo Reviews',
-						'custom templates'
+						'it amet dignissim eros',
+						'tellus nulla imperdiet tortor',
+						'Duis non congue quam',
+						'nulla augue vestibulum quam',
+						'iaculis turpis nulla vel sapien'
 					],
 				],
 			],

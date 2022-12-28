@@ -27,6 +27,4 @@
 	</table>
 </div>
 <p class="text-sm my-6">Your total may also include usage charges and taxes, if applicable.</p>
-<p class="text-sm my-6">You will be charged in USD or INR based on your geogrpahic location and final billing details.</p>
-<h3>Nearly 95% of shoppers read online reviews before making a purchase</h3>
-<p>Spiegel Research Center, 2017</p>
+<p class="text-sm my-6">You will be charged in USD or INR based on your geographic location and final billing details.</p>
