@@ -14,7 +14,7 @@ class Confirm extends Component {
 
 	public $defaultPaymentMethod;
 	public $team;
-	public $currentSubscription;
+	public $currentSubscription = null;
 
 	public Address $billingAddress;
 
@@ -46,16 +46,21 @@ class Confirm extends Component {
 
 		$this->team = auth()->user()->currentTeam;
 
-		if($this->team->subscribed('sprrw')) {
-			$this->currentSubscription = $this->team->subscription('sprrw');
+		if($this->team->subscribed(config('electrik.default_subscription_name'))) {
+			$this->currentSubscription = $this->team->subscription(config('electrik.default_subscription_name'));
+			// $this->currentSubscription = null;
+		}
+
+		$this->selectedPlan = collect(config('plans.billables.team.plans'))->where('slug', (auth()->user()->original_plan) ? auth()->user()->original_plan  : config('electrik.fallback_plan_id'))->first();
+		
+		if($this->selectedPlan == null) $this->selectedPlan = collect(config('plans.billables.team.plans'))->where('slug', config('electrik.fallback_plan_id'))->first();
+
+		if(config('electrik.cc_required_for_free_plan') && ($this->selectedPlan['id'] == config('electrik.free_plan_id'))) {
+			return redirect()->route('dashboard.index');
 		}
 
 		$this->defaultPaymentMethod = ($this->team->defaultPaymentMethod()) ? $this->team->defaultPaymentMethod()->toArray() : null;
 		$this->billingAddress = $this->team->billingAddress()->exists() ? $this->team->billingAddress()->first() : new Address;
-
-		$this->selectedPlan = collect(config('plans.billables.team.plans'))->where('slug', (auth()->user()->original_plan) ? auth()->user()->original_plan  : 'sprrw.core')->first();
-		
-		if($this->selectedPlan == null) $this->selectedPlan = collect(config('plans.billables.team.plans'))->where('slug', 'sprrw.core')->first();
 
 		$this->showIndianStates = $this->billingAddress->country == 'IN';
 
@@ -98,12 +103,12 @@ class Confirm extends Component {
 
 		try {
 			if(!$this->currentSubscription) {
-				$this->team->newSubscription('sprrw', ($this->selectedPlan['prices'][strtolower(($this->team->billingAddress()->first()->country == 'IN' ) ? 'in': 'us')]['monthly']['id']))->create();
+				$this->team->newSubscription(config('electrik.default_subscription_name'), ($this->selectedPlan['prices'][strtolower(($this->team->billingAddress()->first()->country == 'IN' ) ? 'in': 'us')]['monthly']['id']))->create();
 			} else {
-				$this->team->subscription('sprrw')->skipTrial()->swapAndInvoice($this->selectedPlan['prices'][strtolower(($this->team->billingAddress()->first()->country == 'IN' ) ? 'in': 'us')]['monthly']['id']);
+				$this->team->subscription(config('electrik.default_subscription_name'))->skipTrial()->swapAndInvoice($this->selectedPlan['prices'][strtolower(($this->team->billingAddress()->first()->country == 'IN' ) ? 'in': 'us')]['monthly']['id']);
 			}
 
-			$this->currentSubscription = $this->team->subscription('sprrw');
+			$this->currentSubscription = $this->team->subscription(config('electrik.default_subscription_name'));
 			
 		} catch (IncompletePayment $exception) {
 			return redirect()->route( 'cashier.payment', [$exception->payment->id, 'redirect' => route('home')] ); 
