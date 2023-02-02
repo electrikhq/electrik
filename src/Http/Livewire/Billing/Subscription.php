@@ -27,9 +27,8 @@ class Subscription extends Component {
 			return redirect()->route('billing.subscription');
 		}
 
-		// dd($this->team->subscribed('sprrw'), $this->team->subscriptions()->active()->get());
-		if($this->team->subscribed('sprrw')) {
-			$this->team->subscription('sprrw')->cancelNow();
+		if($this->team->subscribed(config('electrik.default_subscription_name'))) {
+			$this->team->subscription(config('electrik.default_subscription_name'))->cancelNow();
 			toast()->success('Subscription cancelled successfully')->pushOnNextPage();
 			return redirect()->route('billing.subscription');
 		} else {

@@ -36,10 +36,10 @@ class Register extends Component {
 
 	public function mount() {
 
-		$this->selectedPlan = collect(config('plans.billables.team.plans'))->where('slug', (request()->plan) ? request()->plan : 'sprrw.core')->first();
+		$this->selectedPlan = collect(config('plans.billables.team.plans'))->where('id', (request()->plan) ? request()->plan : config('electrik.fallback_plan_id'))->first();
 
 		if(!$this->selectedPlan) {
-			$this->selectedPlan = collect(config('plans.billables.team.plans'))->where('slug', 'sprrw.core')->first();
+			$this->selectedPlan = collect(config('plans.billables.team.plans'))->where('id', config('electrik.fallback_plan_id'))->first();
 		}
 
 	}

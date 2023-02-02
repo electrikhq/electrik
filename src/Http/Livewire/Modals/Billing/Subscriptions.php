@@ -43,7 +43,7 @@ class Subscriptions  extends ModalComponent {
 		$this->team = Team::find($data['team']);
 		$this->currentStep = 1;
 
-		if($this->team->subscribed('sprrw')) {
+		if($this->team->subscribed(config('electrik.default_subscription_name'))) {
 		$this->currentSubscription = $this->team->subscription();
 		}
 
@@ -121,13 +121,13 @@ class Subscriptions  extends ModalComponent {
 	public function swapSubscription() {
 
 		try {
-			if(!$this->team->subscribed('sprrw')) {
-				$this->team->newSubscription('sprrw', ($this->selectedPlan['prices'][strtolower(($this->team->billingAddress()->first()->country == 'IN' ) ? 'in': 'us')]['monthly']['id']))->create();
+			if(!$this->team->subscribed(config('electrik.default_subscription_name'))) {
+				$this->team->newSubscription(config('electrik.default_subscription_name'), ($this->selectedPlan['prices'][strtolower(($this->team->billingAddress()->first()->country == 'IN' ) ? 'in': 'us')]['monthly']['id']))->create();
 			} else {
-				$this->team->subscription('sprrw')->noProrate()->swap($this->selectedPlan['prices'][strtolower(($this->team->billingAddress()->first()->country == 'IN' ) ? 'in': 'us')]['monthly']['id']);
+				$this->team->subscription(config('electrik.default_subscription_name'))->noProrate()->swap($this->selectedPlan['prices'][strtolower(($this->team->billingAddress()->first()->country == 'IN' ) ? 'in': 'us')]['monthly']['id']);
 			}
 
-			$this->currentSubscription = $this->team->subscription('sprrw');
+			$this->currentSubscription = $this->team->subscription(config('electrik.default_subscription_name'));
 			
 		} catch (IncompletePayment $exception) {
 			return redirect()->route( 'cashier.payment', [$exception->payment->id, 'redirect' => route('billing.subscription')] ); 
