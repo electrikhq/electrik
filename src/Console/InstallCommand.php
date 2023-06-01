@@ -52,7 +52,6 @@ class InstallCommand extends Command {
 
 		$this->components->info('Installing Electrik...');
 
-
         copy(__DIR__.'/../../stubs/tailwind.config.js', base_path('tailwind.config.js'));
         copy(__DIR__.'/../../stubs/postcss.config.js', base_path('postcss.config.js'));
         copy(__DIR__.'/../../stubs/vite.config.js', base_path('vite.config.js'));
@@ -117,6 +116,7 @@ class InstallCommand extends Command {
 		File::copyDirectory(__DIR__.'/../../resources/views/livewire', resource_path('views/livewire'));
 		
 		File::copy(__DIR__.'/../../config/plans.php', base_path().'/config/plans.php');
+		File::copy(__DIR__.'/../../config/electrik.php', base_path().'/config/electrik.php');
 		File::copy(__DIR__.'/../../routes/web.php', base_path().'/routes/web.php');
 
 		$this->components->info('Published third-party package migrations and assets.');
@@ -186,6 +186,7 @@ EOF);
 		copy(__DIR__.'/../../database/migrations/2022_09_29_063626_create_configurations_tables.php', database_path('migrations/'.$timestamp.'_xx_create_configurations_tables.php'));
 		copy(__DIR__.'/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/'.$timestamp.'_xx_create_addresses_table.php'));
 		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_cols_to_team_invites_table.php', database_path('migrations/'.$timestamp.'_xx_add_cols_to_team_invites_table.php'));
+		copy(__DIR__.'/../../database/migrations/2022_10_02_1950170_add_display_names_to_roles_and_permissions.php', database_path('migrations/'.$timestamp.'_xx_add_display_names_to_roles_and_permissions.php'));
 
 		$this->components->info('Published Electrik migrations.');
 

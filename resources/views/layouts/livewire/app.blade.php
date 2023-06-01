@@ -21,7 +21,7 @@
 	</div>
 
 
-	@if(!auth()->user()->currentTeam->subscribed('sprrw'))
+	@if(!auth()->user()->currentTeam->subscribed(config('electrik.default_subscription_name')))
 		<x-slate::banner dismissable color="info" full-width>
 			<strong>You are not subscribed to any plan.</strong><br/>You must subscribe to a plan to unlock and use {{ env('APP_NAME')}}
 			<x-slot name="actions">

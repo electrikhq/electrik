@@ -29,7 +29,7 @@
 								@endforeach
 							</ul>
 
-							@if ($team->subscribedToProduct($plan['id'], 'sprrw'))
+							@if ($team->subscribedToProduct($plan['id'], config('electrik.default_subscription_name')))
 								<x-slate::button 
 									class="mt-5"
 									full-width
