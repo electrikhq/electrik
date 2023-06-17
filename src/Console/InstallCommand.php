@@ -53,7 +53,8 @@ class InstallCommand extends Command {
 		$this->components->info('Installing Electrik...');
 
         copy(__DIR__.'/../../stubs/tailwind.config.js', base_path('tailwind.config.js'));
-        copy(__DIR__.'/../../stubs/postcss.config.js', base_path('postcss.config.js'));
+		/* .js is not working with vite 4.3.9. workaround ref: https://github.com/BuilderIO/qwik/issues/836 */
+        copy(__DIR__.'/../../stubs/postcss.config.js', base_path('postcss.config.cjs'));
         copy(__DIR__.'/../../stubs/vite.config.js', base_path('vite.config.js'));
         copy(__DIR__.'/../../stubs/resources/css/application.css', resource_path('css/application.css'));
         copy(__DIR__.'/../../stubs/resources/js/application.js', resource_path('js/application.js'));
