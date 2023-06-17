@@ -61,15 +61,15 @@ class InstallCommand extends Command {
 		$this->components->info('Installed Configurations.');
 
 		$this->requireComposerPackages([
-			"mpociot/teamwork:^7.0",
-			"spatie/laravel-permission:^5.5",
-			"usernotnull/tall-toasts:^1.5",
+			"mpociot/teamwork:^8.1",
+			"spatie/laravel-permission:^5.10",
+			"usernotnull/tall-toasts:^1.7",
 			"wire-elements/modal:^1.0",
-			"laravel/cashier:^14.1",
-			"livewire/livewire:^2.10",
-			"rappasoft/laravel-livewire-tables:^2.8",
-			"electrik/slate:dev-development",
-			"doctrine/dbal:^3.4",
+			"laravel/cashier:^14.12",
+			"livewire/livewire:^2.12",
+			"rappasoft/laravel-livewire-tables:^2.14",
+			"electrik/slate:^0.1",
+			"doctrine/dbal:^3.6",
 		]);
 
 		$this->components->info('Installed Composer Packages.');
