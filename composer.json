@@ -2,7 +2,7 @@
     "name": "electrik/electrik",
     "description": "Starter kit for Laravel based SaaS projects",
     "license": "MIT",
-    "version": "0.0.13",
+    "version": "1.0.0",
     "authors": [
         {
             "name": "neerajsohal",
@@ -12,7 +12,7 @@
 	"require": {
         "php": "^8.1",
 		"ext-bcmath": "*",
-        "illuminate/support": "^9.31"
+        "illuminate/support": "^10.13"
     },
 	"autoload": {
         "psr-4": {
@@ -43,7 +43,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "livewire/livewire": "^2.10",
+        "livewire/livewire": "^2.13",
 		"electrik/slate": "dev-development"
     }
 }
