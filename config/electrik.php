@@ -23,7 +23,7 @@ return [
 	 * It is used in case the identufy a plan as a free plan in the system
 	 */
 
-	'free_plan_id' => 'prod_MOurX66bBOn5oD',
+	'free_plan_id' => null,
 
 	/**
 	 * This is your fallback plan id defined in plans.php config file. 

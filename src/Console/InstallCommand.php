@@ -138,10 +138,6 @@ file_put_contents(base_path().'/.env',
 STRIPE_KEY=
 STRIPE_SECRET=
 
-CASHIER_TAX_RATE_SGST=
-CASHIER_TAX_RATE_CGST=
-CASHIER_TAX_RATE_IGST=
-
 EOF, FILE_APPEND);
 
 file_put_contents(app_path().'/Providers/AppServiceProvider.php',

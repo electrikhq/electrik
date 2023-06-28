@@ -32,41 +32,41 @@ class Team extends TeamworkTeam {
 		}));
 	}
 
-    public function taxRates() {
-        \Log::info('checking applicable tax raates');
-        if($this->billingAddress()->first()->country == "IN") {
-            \Log::info('india found');
-            if($this->billingAddress()->first()->state == "UP") {
-                \Log::info('delhi found');
-				\Log::info(env('CASHIER_TAX_RATE_SGST'));
-				\Log::info(env('CASHIER_TAX_RATE_CGST'));
-                return [
-                    env('CASHIER_TAX_RATE_SGST'),
-                    env('CASHIER_TAX_RATE_CGST')
-                ];
-            } else {
-                \Log::info('outside delhi found');
-                return [
-                    env('CASHIER_TAX_RATE_IGST'),
-                ];
-            }
-        } else {
-            if($this->billingAddress()->first()->country == "") {
-                \Log::info('no country found');
-                \Log::info('applying sgst' . env('CASHIER_TAX_RATE_SGST'));
-                \Log::info('applying cgst' . env('CASHIER_TAX_RATE_CGST'));
-                return [
-                    env('CASHIER_TAX_RATE_SGST'),
-                    env('CASHIER_TAX_RATE_CGST')
-                ];
-            } else {
-                \Log::info('outside india found');
-                return [
-                    env('CASHIER_TAX_RATE_IGST'),
-                ];
-            }
-        }
-    }
+    // public function taxRates() {
+    //     \Log::info('checking applicable tax raates');
+    //     if($this->billingAddress()->first()->country == "IN") {
+    //         \Log::info('india found');
+    //         if($this->billingAddress()->first()->state == "UP") {
+    //             \Log::info('delhi found');
+	// 			\Log::info(env('CASHIER_TAX_RATE_SGST'));
+	// 			\Log::info(env('CASHIER_TAX_RATE_CGST'));
+    //             return [
+    //                 env('CASHIER_TAX_RATE_SGST'),
+    //                 env('CASHIER_TAX_RATE_CGST')
+    //             ];
+    //         } else {
+    //             \Log::info('outside delhi found');
+    //             return [
+    //                 env('CASHIER_TAX_RATE_IGST'),
+    //             ];
+    //         }
+    //     } else {
+    //         if($this->billingAddress()->first()->country == "") {
+    //             \Log::info('no country found');
+    //             \Log::info('applying sgst' . env('CASHIER_TAX_RATE_SGST'));
+    //             \Log::info('applying cgst' . env('CASHIER_TAX_RATE_CGST'));
+    //             return [
+    //                 env('CASHIER_TAX_RATE_SGST'),
+    //                 env('CASHIER_TAX_RATE_CGST')
+    //             ];
+    //         } else {
+    //             \Log::info('outside india found');
+    //             return [
+    //                 env('CASHIER_TAX_RATE_IGST'),
+    //             ];
+    //         }
+    //     }
+    // }
     
 	/**
 	 * Get the customer name that should be synced to Stripe.
