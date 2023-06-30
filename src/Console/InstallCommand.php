@@ -138,8 +138,8 @@ class InstallCommand extends Command {
 file_put_contents(base_path().'/.env',
 <<<EOF
 
-STRIPE_KEY=$stripeKey
-STRIPE_SECRET=$stripeSecret
+STRIPE_KEY="$stripeKey"
+STRIPE_SECRET="$stripeSecret"
 
 EOF, FILE_APPEND);
 

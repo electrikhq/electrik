@@ -1,5 +1,5 @@
 @import url("https://unpkg.com/tippy.js@6/dist/tippy.css");
-@import url("https://unpkg.com/tippy.js@6/themes/light.css" );
+@import url("https://unpkg.com/tippy.js@6/themes/light.css");
 
 @tailwind base;
 @tailwind components;
