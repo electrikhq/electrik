@@ -131,12 +131,15 @@ class InstallCommand extends Command {
 		$this->replaceInFile("'layout' => 'layouts.app',", "'layout' => 'layouts.livewire.app',", config_path('livewire.php'));
 		$this->replaceInFile("'teams' => false,", "'teams' => true,", config_path('permission.php'));
 
+		$stripeKey = $this->ask('Please enter your stripe key');
+		$stripeSecret = $this->ask('Please enter your stripe secret');
+
 
 file_put_contents(base_path().'/.env',
 <<<EOF
 
-STRIPE_KEY=
-STRIPE_SECRET=
+STRIPE_KEY=$stripeKey
+STRIPE_SECRET=$stripeSecret
 
 EOF, FILE_APPEND);
 
