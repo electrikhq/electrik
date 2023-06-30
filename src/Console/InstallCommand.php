@@ -53,7 +53,8 @@ class InstallCommand extends Command {
 		$this->components->info('Installing Electrik...');
 
         copy(__DIR__.'/../../stubs/tailwind.config.js', base_path('tailwind.config.js'));
-        copy(__DIR__.'/../../stubs/postcss.config.js', base_path('postcss.config.js'));
+		/* .js is not working with vite 4.3.9. workaround ref: https://github.com/BuilderIO/qwik/issues/836 */
+        copy(__DIR__.'/../../stubs/postcss.config.js', base_path('postcss.config.cjs'));
         copy(__DIR__.'/../../stubs/vite.config.js', base_path('vite.config.js'));
         copy(__DIR__.'/../../stubs/resources/css/application.css', resource_path('css/application.css'));
         copy(__DIR__.'/../../stubs/resources/js/application.js', resource_path('js/application.js'));
@@ -61,15 +62,15 @@ class InstallCommand extends Command {
 		$this->components->info('Installed Configurations.');
 
 		$this->requireComposerPackages([
-			"mpociot/teamwork:^7.0",
-			"spatie/laravel-permission:^5.5",
-			"usernotnull/tall-toasts:^1.5",
+			"mpociot/teamwork:^8.1",
+			"spatie/laravel-permission:^5.10",
+			"usernotnull/tall-toasts:^1.7",
 			"wire-elements/modal:^1.0",
-			"laravel/cashier:^14.1",
-			"livewire/livewire:^2.10",
-			"rappasoft/laravel-livewire-tables:^2.8",
-			"electrik/slate:dev-development",
-			"doctrine/dbal:^3.4",
+			"laravel/cashier:^14.12",
+			"livewire/livewire:^2.12",
+			"rappasoft/laravel-livewire-tables:^2.14",
+			"electrik/slate:^0.1",
+			"doctrine/dbal:^3.6",
 		]);
 
 		$this->components->info('Installed Composer Packages.');
@@ -137,10 +138,6 @@ file_put_contents(base_path().'/.env',
 STRIPE_KEY=
 STRIPE_SECRET=
 
-CASHIER_TAX_RATE_SGST=
-CASHIER_TAX_RATE_CGST=
-CASHIER_TAX_RATE_IGST=
-
 EOF, FILE_APPEND);
 
 file_put_contents(app_path().'/Providers/AppServiceProvider.php',
@@ -198,8 +195,12 @@ EOF);
         $this->components->info('Database installed.');
 		
         $this->line('');
-        $this->components->info('Electrik installed successfully.');
-
+        $this->components->warn('Note: Do not forget to update the following for this app to run properly:');
+        $this->components->warn('1. electrik.php and plans.php in config folder');
+        $this->components->warn('2. CASHIER keys in your .env file');
+        $this->line('');
+		$this->components->info('Electrik installed successfully.');
+        
         return 0;
     }
 

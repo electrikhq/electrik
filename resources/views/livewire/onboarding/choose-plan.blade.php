@@ -38,7 +38,7 @@
 							</li>
 							@endforeach
 						</ul>
-						<x-slate::button :link="route('onboarding.register', ['plan' => $plan['slug']])" >Get started</x-slate::button>
+						<x-slate::button :link="route('onboarding.register', ['plan' => $plan['id']])" >Get started</x-slate::button>
 					</div>
 				@endforeach
 
