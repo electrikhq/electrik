@@ -195,8 +195,12 @@ EOF);
         $this->components->info('Database installed.');
 		
         $this->line('');
-        $this->components->info('Electrik installed successfully.');
-
+        $this->components->warn('Note: Do not forget to update the following for this app to run properly:');
+        $this->components->warn('1. electrik.php and plans.php in config folder');
+        $this->components->warn('2. CASHIER keys in your .env file');
+        $this->line('');
+		$this->components->info('Electrik installed successfully.');
+        
         return 0;
     }
 
