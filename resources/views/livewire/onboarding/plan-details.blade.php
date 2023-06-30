@@ -1,4 +1,3 @@
-
 <x-slate::heading tag="h1" class="">Your Trial Details.</x-slate::heading>
 <div class="bg-white rounded-lg shadow-md p-4 mt-4">
 	<x-slate::heading tag="h2">{{ $selectedPlan['name'] }}</x-slate::heading>

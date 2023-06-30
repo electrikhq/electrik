@@ -51,9 +51,9 @@ class Confirm extends Component {
 			// $this->currentSubscription = null;
 		}
 
-		$this->selectedPlan = collect(config('plans.billables.team.plans'))->where('slug', (auth()->user()->original_plan) ? auth()->user()->original_plan  : config('electrik.fallback_plan_id'))->first();
+		$this->selectedPlan = collect(config('plans.billables.team.plans'))->where('id', (auth()->user()->original_plan) ? auth()->user()->original_plan  : config('electrik.fallback_plan_id'))->first();
 		
-		if($this->selectedPlan == null) $this->selectedPlan = collect(config('plans.billables.team.plans'))->where('slug', config('electrik.fallback_plan_id'))->first();
+		if($this->selectedPlan == null) $this->selectedPlan = collect(config('plans.billables.team.plans'))->where('id', config('electrik.fallback_plan_id'))->first();
 
 		if(config('electrik.cc_required_for_free_plan') && ($this->selectedPlan['id'] == config('electrik.free_plan_id'))) {
 			return redirect()->route('dashboard.index');
