@@ -73,7 +73,7 @@ class InstallCommand extends Command {
 			"doctrine/dbal:^3.6",
 			"bacon/bacon-qr-code:^2.0",
 			"pragmarx/google2fa-laravel:^2.1",
-			"pragmarx/recovery:^0.2.2",
+			"pragmarx/recovery:^0.2.1",
 		]);
 
 		$this->components->info('Installed Composer Packages.');
