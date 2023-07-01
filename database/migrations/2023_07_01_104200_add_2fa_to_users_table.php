@@ -15,6 +15,8 @@ return new class extends Migration
     {
 		Schema::table('users', function (Blueprint $table) {
             $table->text('google2fa_secret')->nullable()->after('remember_token');
+            $table->json('google2fa_recovery_codes')->nullable()->after('google2fa_secret');
+
         });
 		
     }
@@ -29,6 +31,7 @@ return new class extends Migration
 		
 		Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('google2fa_secret');
+            $table->dropColumn('google2fa_recovery_codes');
         });
 		
 
