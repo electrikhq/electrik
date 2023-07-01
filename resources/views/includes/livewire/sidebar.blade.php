@@ -64,6 +64,9 @@
 						<x-slate::sidebar-item :link="route('settings.personal')">
 							Your account
 						</x-slate::sidebar-item>
+						<x-slate::sidebar-item :link="route('settings.2fa')">
+							Two Factor Auth
+						</x-slate::sidebar-item>
 						
 					</x-slate::sidebar-dropdown>
 					

@@ -11,9 +11,24 @@ Route::middleware(['web'])->group(function($route) {
 		$route->get('login', App\Http\Livewire\Auth\Login::class)->name('login');
 		$route->get('forgot-password', App\Http\Livewire\Auth\ForgotPassword::class)->name('forgot-password');
 		$route->get('reset-password/{token?}', App\Http\Livewire\Auth\ResetPassword::class)->name('password.reset');
+		$route->post('auth/2fa', function(Request $request) {
+			dd('here');
+		})->name('auth.2fa');
+	
 
 	});
 
+	$route->get('logout', function(Request $request) {
+		
+		Auth::guard('web')->logout();
+		$request->session()->invalidate();
+		$request->session()->regenerateToken();
+		return redirect('/');
+
+	})->name('logout');
+
+
+	
 	$route->get('dashboard', App\Http\Livewire\Dashboard\Index::class)->name('dashboard.index');
 
 	$route->name('onboarding.')->prefix('onboarding')->group(function($route) {
@@ -32,7 +47,7 @@ Route::middleware(['web'])->group(function($route) {
 
 
 
-	$route->middleware(['auth'])->group(function($route) {
+	$route->middleware(['auth', '2fa'])->group(function($route) {
 
 		$route->get('/', function () {
 			return redirect()->route('dashboard.index');
@@ -43,6 +58,7 @@ Route::middleware(['web'])->group(function($route) {
 		$route->name('settings.')->prefix('settings')->group(function($route){
 			$route->get('personal', App\Http\Livewire\Settings\Personal::class)->name('personal');
 			$route->get('email', App\Http\Livewire\Settings\Email::class)->name('email');
+			$route->get('2fa', App\Http\Livewire\Settings\TwoFactor::class)->name('2fa');
 		});
 
 		$route->name('billing.')->prefix('billing')->group(function($route) {
@@ -98,14 +114,5 @@ Route::middleware(['web'])->group(function($route) {
 
 
 	});
-
-	$route->get('logout', function(Request $request) {
-		
-		Auth::guard('web')->logout();
-		$request->session()->invalidate();
-		$request->session()->regenerateToken();
-		return redirect('/');
-
-	})->name('logout');
 
 });

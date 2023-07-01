@@ -1,0 +1,9 @@
+<div>
+
+	{{ $secretKey }}
+
+
+		{!! $qrCode !!}
+
+
+</div>

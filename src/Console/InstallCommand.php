@@ -71,6 +71,8 @@ class InstallCommand extends Command {
 			"rappasoft/laravel-livewire-tables:^2.14",
 			"electrik/slate:^0.1",
 			"doctrine/dbal:^3.6",
+			"bacon/bacon-qr-code:^2.0",
+			"pragmarx/google2fa-laravel:^2.1",
 		]);
 
 		$this->components->info('Installed Composer Packages.');
@@ -93,6 +95,7 @@ class InstallCommand extends Command {
 
 		$this->runCommands(['php artisan vendor:publish --provider="Mpociot\Teamwork\TeamworkServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"']);
+		$this->runCommands(['php artisan vendor:publish --provider="PragmaRX\Google2FALaravel\ServiceProvider"']);
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-migrations"']);
 		$this->runCommands(['php artisan vendor:publish --tag="cashier-config"']);
 		$this->runCommands(['php artisan livewire:publish --config']);
@@ -118,6 +121,8 @@ class InstallCommand extends Command {
 		
 		File::copy(__DIR__.'/../../config/plans.php', base_path().'/config/plans.php');
 		File::copy(__DIR__.'/../../config/electrik.php', base_path().'/config/electrik.php');
+		File::copy(__DIR__.'/../../src/Http/Kernel.php', base_path().'/app/Http/Kernel.php');
+		
 		File::copy(__DIR__.'/../../routes/web.php', base_path().'/routes/web.php');
 
 		$this->components->info('Published third-party package migrations and assets.');
@@ -187,6 +192,7 @@ EOF);
 		copy(__DIR__.'/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/'.$timestamp.'_xx_create_addresses_table.php'));
 		copy(__DIR__.'/../../database/migrations/2022_09_29_090000_add_cols_to_team_invites_table.php', database_path('migrations/'.$timestamp.'_xx_add_cols_to_team_invites_table.php'));
 		copy(__DIR__.'/../../database/migrations/2022_10_02_1950170_add_display_names_to_roles_and_permissions.php', database_path('migrations/'.$timestamp.'_xx_add_display_names_to_roles_and_permissions.php'));
+		copy(__DIR__.'/../../database/migrations/2023_07_01_104200_add_2fa_to_users_table.php', database_path('migrations/'.$timestamp.'_xx_add_2fa_to_users_table.php'));
 
 		$this->components->info('Published Electrik migrations.');
 

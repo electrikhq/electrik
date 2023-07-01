@@ -6,6 +6,7 @@ return [
 	 * 
 	 * If you want to collect credit cards for free plans, set this value to true.
 	 * If set false, it will not ask for credit card and billing details for the free plan defined in 'free_plan_id' config value in this file.
+	 * For this to work, please specify free_plan_id param
 	 * 
 	 */
 	'cc_required_for_free_plan' => false,
@@ -22,7 +23,6 @@ return [
 	 * This is your free plan id defined in plans.php config file. 
 	 * It is used in case the identufy a plan as a free plan in the system
 	 */
-
 	'free_plan_id' => null,
 
 	/**
@@ -31,6 +31,5 @@ return [
 	 * 
 	 * This is the product id defined in Stripe dashboard.
 	 */
-
 	'fallback_plan_id' => 'prod_MOurX66bBOn5oD',
 ];
