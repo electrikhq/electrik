@@ -4,6 +4,12 @@ Electrik is a full-featured and open-source stater-kit for for your next SaaS ap
 
 [![CI/CD workflow](https://github.com/electrikhq/electrik/actions/workflows/ci.yml/badge.svg)](https://github.com/electrikhq/electrik/actions/workflows/ci.yml) ![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/electrikhq/electrik?include_prereleases) ![Packagist Downloads](https://img.shields.io/packagist/dt/electrik/electrik)  ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/electrikhq/electrik) ![GitHub](https://img.shields.io/github/license/electrikhq/electrik) 
 
+**IMPORTANT NOTE**
+
+>Since Laravel 10 has been released, I am working on making Electrik compatible with L10.x. Currently, the packages Electrik uses as dependencies; some of them have not released 10x support. Hence, the current version 2.x of Electik is unstable. Till the time this issue is not resolved, I would suggest you either wait for the full 10.x support of use L9.x
+
+<br/>
+
 ![Dashboard](art/dashboard.png "Dashboard after succeffsulll installation").
 
 Electrik supports:
