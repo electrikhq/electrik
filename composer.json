@@ -43,7 +43,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "livewire/livewire": "^2.13",
+        "livewire/livewire": "^2.12",
 		"electrik/slate": "dev-development"
     }
 }
