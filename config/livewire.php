@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'class_namespace' => 'Electrik\\Http\\Livewire',
+    'class_namespace' => 'Electrik\\Livewire',
 
     /*
     |--------------------------------------------------------------------------

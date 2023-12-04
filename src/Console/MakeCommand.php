@@ -23,7 +23,7 @@ class MakeCommand extends GeneratorCommand {
 
     protected function getDefaultNamespace($rootNamespace)
     {
-		return $rootNamespace . '\Http\Livewire';
+		return $rootNamespace . '\Livewire';
     }
 
     public function handle()

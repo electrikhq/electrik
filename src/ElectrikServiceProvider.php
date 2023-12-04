@@ -2,7 +2,7 @@
 
 namespace Electrik;
 
-use App\Http\Livewire\HelloWorld;
+use App\Livewire\HelloWorld;
 use App\Models\Team;
 use Illuminate\Contracts\Support\CanBeEscapedWhenCastToString;
 use Illuminate\Filesystem\Filesystem;
