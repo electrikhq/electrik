@@ -11,7 +11,7 @@
 	"require": {
         "php": "^8.1",
         "ext-bcmath": "*",
-        "illuminate/support": "^10.10"
+        "illuminate/support": "^11.0.8"
     },
 	"autoload": {
         "psr-4": {
@@ -24,7 +24,10 @@
     "autoload-dev": {
         "psr-4": {
             "Electrik\\Tests\\": "tests"
-        }
+        },
+        "files": [
+            "src/Helpers/timezones.php"
+        ]
     },
 	"config": {
         "sort-packages": true
