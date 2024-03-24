@@ -18,16 +18,13 @@
             "Electrik\\": "src"
         },
 		"files": [
-			"src/helpers.php"
-		]
+            "src/Helpers/timezones.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
             "Electrik\\Tests\\": "tests"
-        },
-        "files": [
-            "src/Helpers/timezones.php"
-        ]
+        }
     },
 	"config": {
         "sort-packages": true

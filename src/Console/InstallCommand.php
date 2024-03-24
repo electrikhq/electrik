@@ -10,9 +10,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Filesystem\Filesystem;
 
 
+class InstallCommand extends Command {
 
-class InstallCommand extends Command
-{
     /**
      * The name and signature of the console command.
      *
@@ -194,6 +193,7 @@ EOF
         copy(__DIR__ . '/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/' . $timestamp . '_xx_create_addresses_table.php'));
         copy(__DIR__ . '/../../database/migrations/2022_09_29_090000_add_cols_to_team_invites_table.php', database_path('migrations/' . $timestamp . '_xx_add_cols_to_team_invites_table.php'));
         copy(__DIR__ . '/../../database/migrations/2022_10_02_1950170_add_display_names_to_roles_and_permissions.php', database_path('migrations/' . $timestamp . '_xx_add_display_names_to_roles_and_permissions.php'));
+        copy(__DIR__ . '/../../database/migrations/2024_03_24_105924_create_world_database.php', database_path('migrations/' . $timestamp . '_xx_create_world_database.php'));
 
         $this->components->info('Published Electrik migrations.');
 
@@ -203,6 +203,10 @@ EOF
         $this->components->info('Built Electrik assets.');
         $this->runCommands(['php artisan migrate:fresh']);
         $this->components->info('Database installed.');
+        $this->components->info('Running database seeders.');
+        $this->runCommands(['php artisan db:seed --class=WorldDataSeeder']);
+        $this->components->info('Seeders installed.');
+
 
         $this->line('');
         $this->components->warn('Note: Do not forget to update the following for this app to run properly:');
@@ -214,8 +218,7 @@ EOF
         return 0;
     }
 
-    protected function updateNodePackages(callable $callback, $dev = true)
-    {
+    protected function updateNodePackages(callable $callback, $dev = true) {
         if (!file_exists(base_path('package.json'))) {
             return;
         }
@@ -243,8 +246,7 @@ EOF
      * @param  mixed  $packages
      * @return void
      */
-    protected function requireComposerPackages($packages)
-    {
+    protected function requireComposerPackages($packages) {
         $command = ['composer', 'require'];
 
         $command = array_merge($command, is_array($packages) ? $packages : func_get_args());
@@ -262,8 +264,7 @@ EOF
         }
     }
 
-    protected function runCommands($commands)
-    {
+    protected function runCommands($commands) {
         $process = Process::fromShellCommandline(implode(' && ', $commands), null, null, null, null);
 
         if ('\\' !== DIRECTORY_SEPARATOR && file_exists('/dev/tty') && is_readable('/dev/tty')) {
@@ -287,11 +288,8 @@ EOF
      * @param  string  $path
      * @return void
      */
-    protected function replaceInFile($search, $replace, $path)
-    {
-
+    protected function replaceInFile($search, $replace, $path) {
         file_put_contents($path, str_replace($search, $replace, file_get_contents($path)));
-
     }
 
 
