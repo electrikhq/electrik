@@ -9,9 +9,17 @@
         }
     ],
 	"require": {
-        "php": "^8.1",
+        "php": "^8.1|^8.2|^8.3",
         "ext-bcmath": "*",
-        "illuminate/support": "^11.0.8"
+        "electrik/slate": "dev-development",
+        "illuminate/support": "^11.0.8",
+        "laravel/cashier": "^15.3",
+        "livewire/livewire": "^3.4",
+        "mpociot/teamwork": "dev-l11-compatibility as 8.1.0",
+        "rappasoft/laravel-livewire-tables": "^3.2",
+        "spatie/laravel-permission": "^6.4",
+        "usernotnull/tall-toasts": "^2.1",
+        "wire-elements/modal": "^2.0"
     },
 	"autoload": {
         "psr-4": {
@@ -39,10 +47,12 @@
             }
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/laravel-shift/teamwork.git"
+        }
+    ],
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "require-dev": {
-        "electrik/slate": "dev-development",
-        "livewire/livewire": "^3.2"
-    }
+    "prefer-stable": true
 }

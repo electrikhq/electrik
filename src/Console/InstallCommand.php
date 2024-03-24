@@ -62,19 +62,6 @@ class InstallCommand extends Command {
 
         $this->components->info('Installed Configurations.');
 
-        $this->requireComposerPackages([
-            "mpociot/teamwork:^8.1",
-            "spatie/laravel-permission:^6.1",
-            "usernotnull/tall-toasts:^2.0",
-            "wire-elements/modal:^2.0",
-            "laravel/cashier:^14",
-            "livewire/livewire:^3.2",
-            "rappasoft/laravel-livewire-tables:^3.1",
-            "electrik/slate:^0.1"
-        ]);
-
-        $this->components->info('Installed Composer Packages.');
-
         $this->updateNodePackages(function ($packages) {
             return [
                 "@tailwindcss/forms" => "^0.5.2",
@@ -238,30 +225,6 @@ EOF
             base_path('package.json'),
             json_encode($packages, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL
         );
-    }
-
-    /**
-     * Installs the given Composer Packages into the application.
-     *
-     * @param  mixed  $packages
-     * @return void
-     */
-    protected function requireComposerPackages($packages) {
-        $command = ['composer', 'require'];
-
-        $command = array_merge($command, is_array($packages) ? $packages : func_get_args());
-
-        $process = new Process($command, base_path(), ['COMPOSER_MEMORY_LIMIT' => '-1']);
-        $process->setTimeout(null);
-
-        try {
-            $process->mustRun(function ($type, $output) {
-                $this->output->write($output);
-            });
-        } catch (\Symfony\Component\Process\Exception\ProcessFailedException $exception) {
-            $this->error('Composer command failed: ' . $exception->getMessage());
-            return;
-        }
     }
 
     protected function runCommands($commands) {
