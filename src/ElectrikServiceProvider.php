@@ -2,41 +2,53 @@
 
 namespace Electrik;
 
-use App\Livewire\HelloWorld;
-use App\Models\Team;
-use Illuminate\Contracts\Support\CanBeEscapedWhenCastToString;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\View\Compilers\BladeCompiler;
-use Livewire\Livewire;
-use ReflectionClass;
-use Illuminate\Support\Str;
-use SplFileInfo;
-use Cashier;
 
+class ElectrikServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any package services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->mergeConfigFrom(__DIR__.'/../config/electrik.php', 'electrik');
+    }
 
-class ElectrikServiceProvider extends ServiceProvider {
-    
-	/**
-	 * Bootstrap any package services.
-	 *
-	 * @return void
-	 */
-	public function boot() {
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        // Register commands
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Electrik\Console\InstallCommand::class,
+                \Electrik\Console\MakeCommand::class,
+                \Electrik\Console\SyncStripeCommand::class,
+            ]);
+        }
 
-		if ($this->app->runningInConsole()) {
-			$this->commands([
-				\Electrik\Console\InstallCommand::class,
-				\Electrik\Console\MakeCommand::class,
-			]);
-		}
-	}
+        // Publish migrations
+        $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'electrik-migrations');
 
-	public function register() {
+        // Publish config files
+        $this->publishes([
+            __DIR__.'/../config/electrik.php' => config_path('electrik.php'),
+        ], 'electrik-config');
 
-		$this->mergeConfigFrom(__DIR__.'/../config/electrik.php', 'electrik');
-		
-	}
+        // Publish views
+        $this->publishes([
+            __DIR__.'/../resources/views' => resource_path('views/vendor/electrik'),
+        ], 'electrik-views');
 
+        // Load routes
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+    }
 }
+

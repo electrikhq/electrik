@@ -1,71 +1,162 @@
-# Electrik
+# Electrik 4.x
 
-Electrik is a robust, fully-featured open-source starter kit designed to accelerate the development of your next SaaS application. Built on Laravel and enhanced with Livewire, Tailwind CSS, and the custom Electrik Slate UI, it offers a ready-to-use foundation for SaaS platforms with a focus on ease of use and extensibility.
+> Electrik 4.x is under active development. APIs may evolve, but the project is alive and progressing.
 
+Electrik is a **source-available SaaS starter kit** designed to accelerate building modern SaaS applications with Laravel.
 
-[![CI/CD workflow](https://github.com/electrikhq/electrik/actions/workflows/ci.yml/badge.svg)](https://github.com/electrikhq/electrik/actions/workflows/ci.yml) ![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/electrikhq/electrik?include_prereleases) ![Packagist Downloads](https://img.shields.io/packagist/dt/electrik/electrik)  ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/electrikhq/electrik) ![GitHub](https://img.shields.io/github/license/electrikhq/electrik) 
+It provides a solid, opinionated foundation for authentication, teams, billing, and dashboards — so you can focus on your product instead of rebuilding the basics.
 
-**IMPORTANT NOTE**
+Built with **Laravel 12**, **Livewire 3**, and **Tailwind CSS 4**.
 
->Since Laravel 11 has been released, I am working on making Electrik compatible with L11.x. Currently, the packages Electrik uses as dependencies; some of them have not released 11x support. Hence, the current version 3.x of Electik is unstable. Till the time this issue is not resolved, I would suggest you either wait for the full 11.x support of use L9.x
+---
 
-<br/>
+## Features
 
-![Dashboard](art/dashboard.png "Dashboard after successful installation").
+- **Team Management**  
+  Multi-user and multi-team support out of the box
 
-## 🌟 Features
-Electrik simplifies SaaS development with these core functionalities:
+- **Subscription Billing**  
+  Stripe-based recurring billing and plan management
 
-* Team Management: Build applications that support multiple users and teams out of the box.
-* Subscription Billing: Integrated Stripe support for handling recurring billing.
-* User Management: Robust user management capabilities to handle different user roles and permissions.
-* Profile Management: Allow users to manage their profiles effortlessly.
-* Scalable Dashboard: A minimalistic yet expandable dashboard.
-* Open Source: Fully open source and free for both personal and commercial use.
+- **User & Access Management**  
+  Roles, permissions, and profile management
 
-## 🚀 Quick Start
+- **Scalable Dashboard**  
+  Clean, minimal dashboard that grows with your product
 
-Getting started with Electrik is straightforward:
+- **Modern Architecture**  
+  Event-driven, maintainable, and easy to extend
 
-Electrik is meant to be used on a fresh laravel installation. It does not support integration with existing laravel applications. 
+---
 
-To install electrik to your project, use the following steps:
+## Requirements
 
-1. Create a fresh laravel application
+- PHP 8.3+
+- Laravel 12.x
+- Composer
+- Node.js & NPM
+
+---
+
+## Quick Start
+
+Electrik is intended to be installed on a fresh Laravel application.
+
+1. Create a new Laravel project:
 ```bash
-composer create-project laravel/laravel <awesome-saas-project> --prefer-dist
-```
+composer create-project laravel/laravel your-saas-app
+````
 
-2. Require Electrik via composer
+2. Install Electrik:
+
 ```bash
 composer require electrik/electrik
 ```
 
-3. Install Electrik
+3. Run the installer:
+
 ```bash
 php artisan electrik:install
 ```
 
-4. Start the development server
+4. Configure Stripe in `.env`:
+
+```env
+STRIPE_KEY=your_stripe_key
+STRIPE_SECRET=your_stripe_secret
+```
+
+5. Sync plans from Stripe:
+
+```bash
+php artisan electrik:stripe:sync
+```
+
+6. Start the development server:
+
 ```bash
 php artisan serve
 ```
 
-That's all! Now go to [https://localhost:8000/dashboard](https://localhost:8000/dashboard) and enjoy!
+Visit: [http://localhost:8000/dashboard](http://localhost:8000/dashboard)
 
+> **Note**
+> Subscription plans are synced from Stripe and stored locally.
+> Re-run `php artisan electrik:stripe:sync` whenever plans change.
 
-## Why another Starter kit?
+---
 
-It's true that there are a lot of starter kits available for SaaS applications. They all have great features. What seperates Electrik from any other starter kits out there is that it's 100% open source. Electrik does not have tired pricing or pro features like almost every other starter kit provides and then asks for a premium to use these features. Electrik will always stay open source and free. Even for commercial usage.
+## Architecture
 
-## What's the catch?
+Electrik follows modern Laravel best practices:
 
-There is no catch :)
+* **Event-driven** — side effects handled via listeners
+* **12-factor principles** — environment-based configuration
+* **KISS** — simple, readable, intentional code
+* **DRY** — reusable components, minimal duplication
 
-## 🙏 Sponsors
-Special thanks to our sponsors who made this project possible:
+---
 
-* [Netsouls](https://www.studionetsouls.com/)
-* [Quick Brown Fox](https://qbf.company)
-* [Arkreach](https://arkreach.com)
-* [Digital Ocean](https://m.do.co/c/c7b14ea05587)
+## Package Structure
+
+```
+electrik/
+├── src/
+│   ├── Actions/          # Single-purpose actions
+│   ├── Events/           # Domain events
+│   ├── Listeners/        # Event listeners
+│   ├── Services/         # Business logic
+│   ├── Repositories/     # Data access
+│   ├── Models/           # Eloquent models
+│   ├── Livewire/         # UI components
+│   ├── Requests/         # Validation
+│   ├── Notifications/   # Notifications
+│   └── Console/          # Artisan commands
+├── config/
+├── database/
+├── resources/
+└── routes/
+```
+
+---
+
+## Contributing
+
+Contributions are welcome — especially bug fixes, documentation improvements, and discussions.
+
+If you're using Electrik for learning, experimentation, or open-source work, feel free to fork and explore.
+
+---
+
+## License
+
+Electrik is licensed under the **Business Source License (BSL)**.
+
+**In short:**
+
+* Free for:
+
+  * Personal projects
+  * Indie hackers and solo developers
+  * Open-source projects
+  * Educational use
+  * Pre-revenue experimentation
+
+* A commercial license is required for:
+
+  * Companies or organizations
+  * Client, freelance, or agency work
+  * Internal business tools
+  * Commercial products or services
+  * Any use as part of paid employment
+
+Each released version of Electrik automatically becomes **fully open source (Apache 2.0)** four years after its release.
+
+See the [`LICENSE`](./LICENSE) file for full terms.
+
+---
+
+## Sponsors
+
+If Electrik helps your business, consider supporting its continued development by purchasing a commercial license.
+

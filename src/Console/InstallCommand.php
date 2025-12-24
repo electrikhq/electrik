@@ -3,15 +3,11 @@
 namespace Electrik\Console;
 
 use Illuminate\Console\Command;
-use RuntimeException;
-use Symfony\Component\Process\PhpExecutableFinder;
-use Symfony\Component\Process\Process;
-use Illuminate\Support\Facades\File;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\File;
 
-
-class InstallCommand extends Command {
-
+class InstallCommand extends Command
+{
     /**
      * The name and signature of the console command.
      *
@@ -24,7 +20,7 @@ class InstallCommand extends Command {
      *
      * @var string
      */
-    protected $description = 'Installs Electrik resources';
+    protected $description = 'Install Electrik resources';
 
     /**
      * Execute the console command.
@@ -33,235 +29,250 @@ class InstallCommand extends Command {
      */
     public function handle()
     {
-
         $this->info('
     ________          __       _ __  
    / ____/ /__  _____/ /______(_) /__
   / __/ / / _ \/ ___/ __/ ___/ / //_/
  / /___/ /  __/ /__/ /_/ /  / / ,<   
 /_____/_/\___/\___/\__/_/  /_/_/|_|  
-										 
-	');
+        ');
 
         $this->warn('IMPORTANT NOTE');
         $this->warn('1. Electrik is meant to be installed on a fresh Laravel project.');
         $this->warn('2. If you install it on existing project, unwanted issues may happen!');
         $this->warn('3. During installation, Electrik will also delete all existing tables in your database and install a fresh set!');
+        
         if (!$this->confirm('Do you wish to continue?')) {
             $this->line('Aborting...');
+            return 1;
         }
 
         $this->components->info('Installing Electrik...');
 
-        copy(__DIR__ . '/../../stubs/tailwind.config.js', base_path('tailwind.config.js'));
-        /* .js is not working with vite 4.3.9. workaround ref: https://github.com/BuilderIO/qwik/issues/836 */
-        copy(__DIR__ . '/../../stubs/postcss.config.js', base_path('postcss.config.cjs'));
-        copy(__DIR__ . '/../../stubs/vite.config.js', base_path('vite.config.js'));
-        copy(__DIR__ . '/../../stubs/resources/css/application.css', resource_path('css/application.css'));
-        copy(__DIR__ . '/../../stubs/resources/js/application.js', resource_path('js/application.js'));
-
-        $this->components->info('Installed Configurations.');
-
-        $this->updateNodePackages(function ($packages) {
-            return [
-                "@tailwindcss/forms" => "^0.5.2",
-                "@tailwindcss/typography" => "^0.5.7",
-                "alpinejs" => "^3.4.2",
-                "autoprefixer" => "^10.4.2",
-                "postcss" => "^8.4.6",
-                "tailwindcss" => "^3.1.0",
-                "tippy.js" => "^6.3.7",
-                "@alpinejs/collapse" => "^3.10.3",
-
-            ] + $packages;
-        });
-
-        $this->components->info('Installed Node Packages.');
-
-        $this->runCommands(['php artisan vendor:publish --provider="Mpociot\Teamwork\TeamworkServiceProvider"']);
-        $this->runCommands(['php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"']);
-        $this->runCommands(['php artisan vendor:publish --tag="cashier-migrations"']);
-        $this->runCommands(['php artisan vendor:publish --tag="cashier-config"']);
-        $this->runCommands(['php artisan livewire:publish --config']);
-
-        File::copyDirectory(__DIR__ . '/../Models/', app_path('Models'));
-
-        (new Filesystem)->ensureDirectoryExists(app_path('Livewire'));
-        File::copyDirectory(__DIR__ . '/../Livewire', app_path('Livewire'));
-
-        (new Filesystem)->ensureDirectoryExists(app_path('Listeners'));
-        File::copyDirectory(__DIR__ . '/../Listeners', app_path('Listeners'));
-
-        (new Filesystem)->ensureDirectoryExists(app_path('Notifications'));
-        File::copyDirectory(__DIR__ . '/../Notifications', app_path('Notifications'));
-
-        (new Filesystem)->ensureDirectoryExists(app_path('Traits'));
-        File::copyDirectory(__DIR__ . '/../Traits', app_path('Traits'));
-
-        File::copyDirectory(__DIR__ . '/../../resources/views/vendor/', resource_path('views/vendor'));
-        File::copyDirectory(__DIR__ . '/../../resources/views/includes', resource_path('views/includes'));
-        File::copyDirectory(__DIR__ . '/../../resources/views/layouts', resource_path('views/layouts'));
-        File::copyDirectory(__DIR__ . '/../../resources/views/livewire', resource_path('views/livewire'));
-
-        File::copy(__DIR__ . '/../../config/plans.php', base_path() . '/config/plans.php');
-        File::copy(__DIR__ . '/../../config/electrik.php', base_path() . '/config/electrik.php');
-        File::copy(__DIR__ . '/../../routes/web.php', base_path() . '/routes/web.php');
-
-
-        $this->components->info('Published third-party package migrations and assets.');
-
-
-        $this->replaceInFile("'permission' => Spatie\Permission\Models\Permission::class,", "'permission' => App\Models\Permission::class,", config_path('permission.php'));
-        $this->replaceInFile("'role' => Spatie\Permission\Models\Role::class,", "'role' => App\Models\Role::class,", config_path('permission.php'));
-        $this->replaceInFile("'user_model' => config('auth.providers.users.model', App\User::class),", "'user_model' => config('auth.providers.users.model', App\Models\User::class),", config_path('teamwork.php'));
-        $this->replaceInFile("'team_model' => Mpociot\Teamwork\TeamworkTeam::class,", "'team_model' => App\Models\Team::class,", config_path('teamwork.php'));
-        $this->replaceInFile("'invite_model' => Mpociot\Teamwork\TeamInvite::class,", "'invite_model' => App\Models\TeamInvite::class,", config_path('teamwork.php'));
-        $this->replaceInFile("'layout' => 'components.layouts.app',", "'layout' => 'layouts.livewire.app',", config_path('livewire.php'));
-        $this->replaceInFile("'teams' => false,", "'teams' => true,", config_path('permission.php'));
-
-        $stripeKey = $this->ask('Please enter your stripe key');
-        $stripeSecret = $this->ask('Please enter your stripe secret');
-
-
-        file_put_contents(
-            base_path() . '/.env',
-            <<<EOF
-
-STRIPE_KEY="$stripeKey"
-STRIPE_SECRET="$stripeSecret"
-
-EOF,
-            FILE_APPEND
-        );
-
-        file_put_contents(
-            app_path() . '/Providers/AppServiceProvider.php',
-            <<<EOF
-<?php
-
-namespace App\Providers;
-
-use Illuminate\Support\ServiceProvider;
-use Laravel\Cashier\Cashier;
-use App\Models\Team;
-
-class AppServiceProvider extends ServiceProvider
-{
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        //
-    }
-
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-		Cashier::useCustomerModel(Team::class);
-    }
-}
-EOF
-        );
-
-        $timestamp = date('Y_m_d_His', time());
-
-        /* added x prefix to make sure our migrations run at the end */
-        copy(__DIR__ . '/../../database/migrations/2022_09_29_000000_add_cols_to_users_table.php', database_path('migrations/' . $timestamp++ . '_xx_add_cols_to_users_table.php'));
-        copy(__DIR__ . '/../../database/migrations/2022_09_29_000001_create_customer_columns.php', database_path('migrations/' . $timestamp++ . '_xx_create_customer_columns.php'));
-        copy(__DIR__ . '/../../database/migrations/2022_09_29_000002_update_subscriptions_table.php', database_path('migrations/' . $timestamp++ . '_xx_update_subscriptions_table.php'));
-        copy(__DIR__ . '/../../database/migrations/2022_09_29_063626_create_configurations_tables.php', database_path('migrations/' . $timestamp++ . '_xx_create_configurations_tables.php'));
-        copy(__DIR__ . '/../../database/migrations/2022_09_29_195017_create_addresses_table.php', database_path('migrations/' . $timestamp++ . '_xx_create_addresses_table.php'));
-        copy(__DIR__ . '/../../database/migrations/2022_09_29_090000_add_cols_to_team_invites_table.php', database_path('migrations/' . $timestamp++ . '_xx_add_cols_to_team_invites_table.php'));
-        copy(__DIR__ . '/../../database/migrations/2022_10_02_1950170_add_display_names_to_roles_and_permissions.php', database_path('migrations/' . $timestamp++ . '_xx_add_display_names_to_roles_and_permissions.php'));
-        copy(__DIR__ . '/../../database/migrations/2024_03_24_105924_create_world_database.php', database_path('migrations/' . $timestamp++ . '_xx_create_world_database.php'));
-        copy(__DIR__ . '/../../database/migrations/2024_03_26_112537_create_stripe_products_table.php', database_path('migrations/' . $timestamp++ . '_xx_create_stripe_products_table.php'));
-        copy(__DIR__ . '/../../database/migrations/2024_03_26_112601_create_stripe_plans_table.php', database_path('migrations/' . $timestamp++ . '_xx_112601_create_stripe_plans_table.php'));
+        // Copy configuration files
+        $this->copyConfigFiles();
         
-        $this->components->info('Published Electrik migrations.');
+        // Copy migrations
+        $this->copyMigrations();
         
-        copy(__DIR__ . '/../../database/seeders/WorldDataSeeder.php', database_path('seeders/WorldDataSeeder.php'));
-        (new Filesystem)->ensureDirectoryExists(database_path('json'));
-        copy(__DIR__ . '/../../database/json/world.json', database_path('json/world.json'));
+        // Copy models, Livewire components, etc.
+        $this->copyApplicationFiles();
+        
+        // Copy views
+        $this->copyViews();
+        
+        // Update configuration files
+        $this->updateConfigurations();
+        
+        // Run migrations
+        $this->runMigrations();
 
-        $this->components->info('Published Electrik seeders.');
-
-        $this->runCommands(['npm install', 'npm run build']);
-
-        $this->components->info('Built Electrik assets.');
-        $this->runCommands(['php artisan migrate:fresh']);
-        $this->components->info('Database installed.');
-        $this->components->info('Running database seeders.');
-        $this->runCommands(['php artisan db:seed --class=WorldDataSeeder']);
-        $this->components->info('Seeders installed.');
-
-
-        $this->line('');
-        $this->components->warn('Note: Do not forget to update the following for this app to run properly:');
-        $this->components->warn('1. electrik.php and plans.php in config folder');
-        $this->components->warn('2. CASHIER keys in your .env file');
         $this->line('');
         $this->components->info('Electrik installed successfully.');
+        $this->components->warn('Note: Do not forget to update the following:');
+        $this->components->warn('1. electrik.php in config folder');
+        $this->components->warn('2. Stripe keys in your .env file');
+        $this->components->warn('3. Run "php artisan electrik:stripe:sync" to sync plans from Stripe');
 
         return 0;
     }
 
-    protected function updateNodePackages(callable $callback, $dev = true) {
-        if (!file_exists(base_path('package.json'))) {
-            return;
-        }
-
-        $configurationKey = $dev ? 'devDependencies' : 'dependencies';
-
-        $packages = json_decode(file_get_contents(base_path('package.json')), true);
-
-        $packages[$configurationKey] = $callback(
-            array_key_exists($configurationKey, $packages) ? $packages[$configurationKey] : [],
-            $configurationKey
-        );
-
-        ksort($packages[$configurationKey]);
-
-        file_put_contents(
-            base_path('package.json'),
-            json_encode($packages, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL
-        );
+    protected function copyConfigFiles()
+    {
+        $this->components->info('Copying configuration files...');
+        
+        File::copy(__DIR__.'/../../config/electrik.php', config_path('electrik.php'));
     }
 
-    protected function runCommands($commands) {
-        $process = Process::fromShellCommandline(implode(' && ', $commands), null, null, null, null);
+    protected function copyMigrations()
+    {
+        $this->components->info('Copying migrations...');
+        
+        $filesystem = new Filesystem;
+        $filesystem->ensureDirectoryExists(database_path('migrations'));
+        
+        // Copy all migrations from package (if they exist)
+        if (File::exists(__DIR__.'/../../database/migrations') && File::isDirectory(__DIR__.'/../../database/migrations')) {
+            File::copyDirectory(
+                __DIR__.'/../../database/migrations',
+                database_path('migrations')
+            );
+        } else {
+            $this->warn('  ⚠ No migrations found in package. Skipping migration copy.');
+        }
+    }
 
-        if ('\\' !== DIRECTORY_SEPARATOR && file_exists('/dev/tty') && is_readable('/dev/tty')) {
-            try {
-                $process->setTty(true);
-            } catch (RuntimeException $e) {
-                $this->output->writeln('  <bg=yellow;fg=black> WARN </> ' . $e->getMessage() . PHP_EOL);
+    protected function copyApplicationFiles()
+    {
+        $this->components->info('Copying application files...');
+        
+        $filesystem = new Filesystem;
+        
+        // Copy models (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Models'));
+        if (File::exists(__DIR__.'/../Models') && File::isDirectory(__DIR__.'/../Models')) {
+            File::copyDirectory(__DIR__.'/../Models', app_path('Models'));
+        }
+        
+        // Copy Livewire components (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Livewire'));
+        if (File::exists(__DIR__.'/../Livewire') && File::isDirectory(__DIR__.'/../Livewire')) {
+            File::copyDirectory(__DIR__.'/../Livewire', app_path('Livewire'));
+        }
+        
+        // Copy Actions (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Actions'));
+        if (File::exists(__DIR__.'/../Actions') && File::isDirectory(__DIR__.'/../Actions')) {
+            File::copyDirectory(__DIR__.'/../Actions', app_path('Actions'));
+        }
+        
+        // Copy Events (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Events'));
+        if (File::exists(__DIR__.'/../Events') && File::isDirectory(__DIR__.'/../Events')) {
+            File::copyDirectory(__DIR__.'/../Events', app_path('Events'));
+        }
+        
+        // Copy Listeners (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Listeners'));
+        if (File::exists(__DIR__.'/../Listeners') && File::isDirectory(__DIR__.'/../Listeners')) {
+            File::copyDirectory(__DIR__.'/../Listeners', app_path('Listeners'));
+        }
+        
+        // Copy Services (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Services'));
+        if (File::exists(__DIR__.'/../Services') && File::isDirectory(__DIR__.'/../Services')) {
+            File::copyDirectory(__DIR__.'/../Services', app_path('Services'));
+        }
+        
+        // Copy Repositories (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Repositories'));
+        if (File::exists(__DIR__.'/../Repositories') && File::isDirectory(__DIR__.'/../Repositories')) {
+            File::copyDirectory(__DIR__.'/../Repositories', app_path('Repositories'));
+        }
+        
+        // Copy Requests (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Http/Requests'));
+        if (File::exists(__DIR__.'/../Requests') && File::isDirectory(__DIR__.'/../Requests')) {
+            File::copyDirectory(__DIR__.'/../Requests', app_path('Http/Requests'));
+        }
+        
+        // Copy Notifications (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Notifications'));
+        if (File::exists(__DIR__.'/../Notifications') && File::isDirectory(__DIR__.'/../Notifications')) {
+            File::copyDirectory(__DIR__.'/../Notifications', app_path('Notifications'));
+        }
+        
+        // Copy Traits (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Traits'));
+        if (File::exists(__DIR__.'/../Traits') && File::isDirectory(__DIR__.'/../Traits')) {
+            File::copyDirectory(__DIR__.'/../Traits', app_path('Traits'));
+        }
+    }
+
+    protected function copyViews()
+    {
+        $this->components->info('Copying views...');
+        
+        $filesystem = new Filesystem;
+        $filesystem->ensureDirectoryExists(resource_path('views'));
+        
+        // Copy views (if they exist)
+        if (File::exists(__DIR__.'/../../resources/views') && File::isDirectory(__DIR__.'/../../resources/views')) {
+            File::copyDirectory(__DIR__.'/../../resources/views', resource_path('views'));
+        } else {
+            $this->warn('  ⚠ No views found in package. Skipping view copy.');
+        }
+    }
+
+    protected function updateConfigurations()
+    {
+        $this->components->info('Updating configurations...');
+        
+        // Update permission config
+        $permissionConfig = config_path('permission.php');
+        if (File::exists($permissionConfig)) {
+            $content = File::get($permissionConfig);
+            $content = str_replace(
+                "'permission' => Spatie\Permission\Models\Permission::class,",
+                "'permission' => App\Models\Permission::class,",
+                $content
+            );
+            $content = str_replace(
+                "'role' => Spatie\Permission\Models\Role::class,",
+                "'role' => App\Models\Role::class,",
+                $content
+            );
+            $content = str_replace(
+                "'teams' => false,",
+                "'teams' => true,",
+                $content
+            );
+            File::put($permissionConfig, $content);
+        }
+        
+        // Update teamwork config
+        $teamworkConfig = config_path('teamwork.php');
+        if (File::exists($teamworkConfig)) {
+            $content = File::get($teamworkConfig);
+            $content = str_replace(
+                "'user_model' => config('auth.providers.users.model', App\User::class),",
+                "'user_model' => config('auth.providers.users.model', App\Models\User::class),",
+                $content
+            );
+            $content = str_replace(
+                "'team_model' => Mpociot\Teamwork\TeamworkTeam::class,",
+                "'team_model' => App\Models\Team::class,",
+                $content
+            );
+            $content = str_replace(
+                "'invite_model' => Mpociot\Teamwork\TeamInvite::class,",
+                "'invite_model' => App\Models\TeamInvite::class,",
+                $content
+            );
+            File::put($teamworkConfig, $content);
+        }
+        
+        // Update livewire config
+        $livewireConfig = config_path('livewire.php');
+        if (File::exists($livewireConfig)) {
+            $content = File::get($livewireConfig);
+            $content = str_replace(
+                "'layout' => 'components.layouts.app',",
+                "'layout' => 'layouts.livewire.app',",
+                $content
+            );
+            File::put($livewireConfig, $content);
+        }
+        
+        // Update AppServiceProvider for Cashier
+        $appServiceProvider = app_path('Providers/AppServiceProvider.php');
+        if (File::exists($appServiceProvider)) {
+            $content = File::get($appServiceProvider);
+            if (strpos($content, 'Cashier::useCustomerModel') === false) {
+                $content = str_replace(
+                    'public function boot()',
+                    "public function boot()\n    {\n        \Laravel\Cashier\Cashier::useCustomerModel(\App\Models\Team::class);\n    }",
+                    $content
+                );
+                File::put($appServiceProvider, $content);
             }
         }
-
-        $process->run(function ($type, $line) {
-            $this->output->write('    ' . $line);
-        });
     }
 
-    /**
-     * Replace a given string within a given file.
-     *
-     * @param  string  $search
-     * @param  string  $replace
-     * @param  string  $path
-     * @return void
-     */
-    protected function replaceInFile($search, $replace, $path) {
-        file_put_contents($path, str_replace($search, $replace, file_get_contents($path)));
+    protected function runMigrations()
+    {
+        $this->components->info('Running migrations...');
+        
+        // Only run migrations if there are any
+        $migrationPath = database_path('migrations');
+        $migrations = glob($migrationPath.'/*_*.php');
+        
+        if (empty($migrations)) {
+            $this->warn('  ⚠ No migrations found. Skipping migration run.');
+            return;
+        }
+        
+        $this->call('migrate:fresh');
     }
-
-
 }
 
