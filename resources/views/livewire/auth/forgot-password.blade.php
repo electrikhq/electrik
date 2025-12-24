@@ -1,5 +1,5 @@
 <div>
-    <x-slate::form wire:submit="sendResetLink">
+    <x-slate::form wire:submit.prevent="sendResetLink">
         @if ($status)
             <x-slate::alert color="success">
                 {{ $status }}

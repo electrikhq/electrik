@@ -1,5 +1,5 @@
 <div>
-    <x-slate::form wire:submit="resetPassword">
+    <x-slate::form wire:submit.prevent="resetPassword">
         @if (session('status'))
             <x-slate::alert color="success">
                 {{ session('status') }}
