@@ -1,92 +1,114 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Electrik\Middleware\EnsureTeamSelected;
+use Electrik\Middleware\EnsureSubscriptionActive;
 
-Route::middleware(['web'])->group(function () {
+/*
+|--------------------------------------------------------------------------
+| Electrik Routes
+|--------------------------------------------------------------------------
+|
+| These routes are loaded by the ElectrikServiceProvider. They handle
+| authentication, teams, billing, and dashboard functionality.
+|
+| Note: Routes are only registered if the corresponding Livewire components exist.
+| Components are copied to app/ during installation.
+|
+*/
 
-    // Guest routes
-    Route::middleware(['guest'])->group(function () {
-        Route::get('login', \App\Livewire\Auth\Login::class)->name('login');
-        Route::get('forgot-password', \App\Livewire\Auth\ForgotPassword::class)->name('forgot-password');
-        Route::get('reset-password/{token?}', \App\Livewire\Auth\ResetPassword::class)->name('password.reset');
-    });
-
-    // Dashboard
-    Route::get('dashboard', \App\Livewire\Dashboard\Index::class)->name('dashboard.index');
-
-    // Onboarding routes
-    Route::name('onboarding.')->prefix('onboarding')->group(function () {
-        Route::get('choose-plan', \App\Livewire\Onboarding\ChoosePlan::class)->name('choose.plan');
-        Route::get('register', \App\Livewire\Onboarding\Register::class)->name('register');
-        Route::get('confirm', \App\Livewire\Onboarding\Confirm::class)->name('confirm');
-    });
-
-    // Team invitation routes
-    Route::get('teams/accept/{token}', \App\Livewire\Auth\Teams\AcceptInvite::class)->name('teams.invite.accept');
-    Route::get('teams/register', \App\Livewire\Auth\Teams\Register::class)->name('teams.invite.register');
-    Route::get('teams/login', \App\Livewire\Auth\Teams\Login::class)->name('teams.invite.login');
-
-    // Authenticated routes
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/', function () {
-            return redirect()->route('dashboard.index');
-        })->name('home');
-
-        // Settings
-        Route::name('settings.')->prefix('settings')->group(function () {
-            Route::get('personal', \App\Livewire\Settings\Personal::class)->name('personal');
-            Route::get('email', \App\Livewire\Settings\Email::class)->name('email');
-        });
-
-        // Billing
-        Route::name('billing.')->prefix('billing')->group(function () {
-            Route::get('/', \App\Livewire\Billing\Index::class)->name('index');
-            Route::get('subscription', \App\Livewire\Billing\Subscription::class)->name('subscription');
-            Route::get('invoices', \App\Livewire\Billing\Invoices::class)->name('invoices');
-        });
-
-        // Teams
-        Route::name('teams.')->prefix('teams')->group(function () {
-            Route::get('create', \App\Livewire\Teams\Create::class)->name('create');
-            Route::get('settings', \App\Livewire\Teams\Settings::class)->name('settings');
-
-            Route::get('switch/{id}', function ($id) {
-                // TODO: Implement team switching when team management is built
-                // $teamModel = config('electrik.team_model', \App\Models\Team::class);
-                // $team = $teamModel::findOrFail($id);
-                // auth()->user()->switchTeam($team);
-                // return redirect()->back();
-                abort(501, 'Team switching not yet implemented');
-            })->name('switch');
-
-            // Team members
-            Route::name('members.')->prefix('members')->group(function () {
-                Route::get('/', \App\Livewire\Teams\Members\Index::class)->name('index');
-                Route::get('invited', \App\Livewire\Teams\Members\Invited::class)->name('invited');
-                Route::get('edit/{user}', \App\Livewire\Teams\Members\Edit::class)->name('edit');
-            });
-
-            // Roles
-            Route::name('roles.')->prefix('roles')->group(function () {
-                Route::get('/', \App\Livewire\Roles\Index::class)->name('index');
-                Route::get('create', \App\Livewire\Roles\Create::class)->name('create');
-                Route::get('edit/{role}', \App\Livewire\Roles\Edit::class)->name('edit');
-            });
-
-            // Permissions
-            Route::name('permissions.')->prefix('permissions')->group(function () {
-                Route::get('/', \App\Livewire\Permissions\Index::class)->name('index');
-                Route::get('edit/{permission}', \App\Livewire\Permissions\Edit::class)->name('edit');
-            });
-        });
-    });
-
-    // Logout
-    Route::get('logout', function (\Illuminate\Http\Request $request) {
-        \Illuminate\Support\Facades\Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/');
-    })->name('logout');
+// Guest routes (no authentication required)
+Route::middleware('guest')->group(function () {
+    if (class_exists('App\Livewire\Auth\Login')) {
+        Route::get('/login', 'App\Livewire\Auth\Login')->name('login');
+    }
+    if (class_exists('App\Livewire\Auth\Register')) {
+        Route::get('/register', 'App\Livewire\Auth\Register')->name('register');
+    }
+    if (class_exists('App\Livewire\Auth\ForgotPassword')) {
+        Route::get('/forgot-password', 'App\Livewire\Auth\ForgotPassword')->name('password.request');
+    }
+    if (class_exists('App\Livewire\Auth\ResetPassword')) {
+        Route::get('/reset-password/{token}', 'App\Livewire\Auth\ResetPassword')->name('password.reset');
+    }
 });
 
+// Authenticated routes (require authentication)
+Route::middleware('auth')->group(function () {
+    // Dashboard
+    if (class_exists('App\Livewire\Dashboard\Index')) {
+        Route::get('/dashboard', 'App\Livewire\Dashboard\Index')->name('dashboard.index');
+    }
+    
+    // Team routes (require team selection)
+    Route::middleware([EnsureTeamSelected::class])->prefix('teams')->name('teams.')->group(function () {
+        if (class_exists('App\Livewire\Teams\Index')) {
+            Route::get('/', 'App\Livewire\Teams\Index')->name('index');
+        }
+        if (class_exists('App\Livewire\Teams\Create')) {
+            Route::get('/create', 'App\Livewire\Teams\Create')->name('create');
+        }
+        if (class_exists('App\Livewire\Teams\Settings')) {
+            Route::get('/{team}/settings', 'App\Livewire\Teams\Settings')->name('settings');
+        }
+        if (class_exists('App\Livewire\Teams\Members\Index')) {
+            Route::get('/{team}/members', 'App\Livewire\Teams\Members\Index')->name('members.index');
+        }
+        if (class_exists('App\Livewire\Teams\Members\Invite')) {
+            Route::get('/{team}/members/invite', 'App\Livewire\Teams\Members\Invite')->name('members.invite');
+        }
+        Route::post('/switch/{team}', function ($team) {
+            if (class_exists('App\Actions\Teams\SwitchTeam') && class_exists('App\Models\Team')) {
+                $teamModel = \App\Models\Team::findOrFail($team);
+                $action = new \App\Actions\Teams\SwitchTeam();
+                $action->execute(auth()->user(), $teamModel);
+            }
+            return redirect()->back();
+        })->name('switch');
+    });
+    
+    // Team invitation acceptance (no team required)
+    if (class_exists('App\Livewire\Teams\Invite\Accept')) {
+        Route::get('/teams/invite/accept/{token}', 'App\Livewire\Teams\Invite\Accept')->name('teams.invite.accept');
+    }
+    
+    // Billing routes (require team selection)
+    Route::middleware([EnsureTeamSelected::class])->prefix('billing')->name('billing.')->group(function () {
+        if (class_exists('App\Livewire\Billing\Index')) {
+            Route::get('/', 'App\Livewire\Billing\Index')->name('index');
+        }
+        if (class_exists('App\Livewire\Billing\Plans')) {
+            Route::get('/plans', 'App\Livewire\Billing\Plans')->name('plans');
+        }
+        if (class_exists('App\Livewire\Billing\Subscription')) {
+            Route::get('/subscription', 'App\Livewire\Billing\Subscription')->name('subscription');
+        }
+        if (class_exists('App\Livewire\Billing\PaymentMethods')) {
+            Route::get('/payment-methods', 'App\Livewire\Billing\PaymentMethods')->name('payment-methods');
+        }
+        if (class_exists('App\Livewire\Billing\Address')) {
+            Route::get('/address', 'App\Livewire\Billing\Address')->name('address');
+        }
+        if (class_exists('App\Livewire\Billing\Invoices')) {
+            Route::get('/invoices', 'App\Livewire\Billing\Invoices')->name('invoices');
+        }
+    });
+    
+    // Settings routes
+    Route::prefix('settings')->name('settings.')->group(function () {
+        if (class_exists('App\Livewire\Settings\Profile')) {
+            Route::get('/profile', 'App\Livewire\Settings\Profile')->name('profile');
+        }
+        if (class_exists('App\Livewire\Settings\Security')) {
+            Route::get('/security', 'App\Livewire\Settings\Security')->name('security');
+        }
+    });
+});
+
+// Logout route
+Route::post('/logout', function () {
+    auth()->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect()->route('login');
+})->middleware('auth')->name('logout');

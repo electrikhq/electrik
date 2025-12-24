@@ -39,7 +39,7 @@
             name="timezone" 
             label="Timezone"
             wire:model="timezone"
-            :options="\App\Helpers\timezones()"
+            :options="timezones()"
             required
         />
 

@@ -61,8 +61,14 @@ class InstallCommand extends Command
         // Copy views
         $this->copyViews();
         
+        // Copy routes
+        $this->copyRoutes();
+        
         // Update configuration files
         $this->updateConfigurations();
+        
+        // Publish Spatie Permission migrations
+        $this->publishSpatieMigrations();
         
         // Run migrations
         $this->runMigrations();
@@ -82,6 +88,11 @@ class InstallCommand extends Command
         $this->components->info('Copying configuration files...');
         
         File::copy(__DIR__.'/../../config/electrik.php', config_path('electrik.php'));
+        
+        // Copy breadcrumbs config if it exists
+        if (File::exists(__DIR__.'/../../config/breadcrumbs.php')) {
+            File::copy(__DIR__.'/../../config/breadcrumbs.php', config_path('breadcrumbs.php'));
+        }
     }
 
     protected function copyMigrations()
@@ -167,6 +178,13 @@ class InstallCommand extends Command
         if (File::exists(__DIR__.'/../Traits') && File::isDirectory(__DIR__.'/../Traits')) {
             File::copyDirectory(__DIR__.'/../Traits', app_path('Traits'));
         }
+        
+        // Copy Helpers (if they exist)
+        $filesystem->ensureDirectoryExists(app_path('Helpers'));
+        $helpersPath = __DIR__.'/../../src/Helpers';
+        if (File::exists($helpersPath) && File::isDirectory($helpersPath)) {
+            File::copyDirectory($helpersPath, app_path('Helpers'));
+        }
     }
 
     protected function copyViews()
@@ -184,9 +202,64 @@ class InstallCommand extends Command
         }
     }
 
+    protected function copyRoutes()
+    {
+        $this->components->info('Copying routes...');
+        
+        $filesystem = new Filesystem;
+        $filesystem->ensureDirectoryExists(base_path('routes'));
+        
+        // Copy breadcrumbs routes if they exist
+        if (File::exists(__DIR__.'/../../routes/breadcrumbs.php')) {
+            File::copy(__DIR__.'/../../routes/breadcrumbs.php', base_path('routes/breadcrumbs.php'));
+        }
+    }
+
+    protected function updateComposerJson()
+    {
+        $composerJsonPath = base_path('composer.json');
+        if (!File::exists($composerJsonPath)) {
+            return;
+        }
+        
+        $composer = json_decode(File::get($composerJsonPath), true);
+        
+        // Ensure autoload section exists
+        if (!isset($composer['autoload'])) {
+            $composer['autoload'] = [];
+        }
+        
+        // Ensure files array exists in autoload
+        if (!isset($composer['autoload']['files'])) {
+            $composer['autoload']['files'] = [];
+        }
+        
+        // Add timezones helper if not already present
+        $helperPath = 'app/Helpers/timezones.php';
+        if (!in_array($helperPath, $composer['autoload']['files'])) {
+            $composer['autoload']['files'][] = $helperPath;
+            File::put($composerJsonPath, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            
+            // Run composer dump-autoload using shell_exec
+            $output = [];
+            $returnVar = 0;
+            exec('cd ' . escapeshellarg(base_path()) . ' && composer dump-autoload 2>&1', $output, $returnVar);
+            
+            if ($returnVar === 0) {
+                $this->line('  ✓ Helper file registered in composer.json');
+            } else {
+                $this->warn('  ⚠ Could not run composer dump-autoload automatically.');
+                $this->warn('  ⚠ Please run: composer dump-autoload');
+            }
+        }
+    }
+
     protected function updateConfigurations()
     {
         $this->components->info('Updating configurations...');
+        
+        // Update composer.json to autoload helpers
+        $this->updateComposerJson();
         
         // Update permission config
         $permissionConfig = config_path('permission.php');
@@ -249,13 +322,52 @@ class InstallCommand extends Command
         if (File::exists($appServiceProvider)) {
             $content = File::get($appServiceProvider);
             if (strpos($content, 'Cashier::useCustomerModel') === false) {
-                $content = str_replace(
-                    'public function boot()',
-                    "public function boot()\n    {\n        \Laravel\Cashier\Cashier::useCustomerModel(\App\Models\Team::class);\n    }",
-                    $content
-                );
+                // Handle both with and without return type
+                if (preg_match('/public function boot\(\)(?:\s*:\s*void)?\s*\{/', $content, $matches)) {
+                    // Find the boot method and add Cashier configuration
+                    $content = preg_replace(
+                        '/(public function boot\(\)(?:\s*:\s*void)?\s*\{)([^}]*)(\})/s',
+                        '$1$2        \Laravel\Cashier\Cashier::useCustomerModel(\App\Models\Team::class);$3',
+                        $content,
+                        1
+                    );
+                } else {
+                    // Fallback: add before the closing brace of the class
+                    $content = preg_replace(
+                        '/(public function boot\(\)(?:\s*:\s*void)?\s*\{[^}]*)(\})/s',
+                        '$1        \Laravel\Cashier\Cashier::useCustomerModel(\App\Models\Team::class);$2',
+                        $content
+                    );
+                }
                 File::put($appServiceProvider, $content);
             }
+        }
+    }
+
+    protected function publishSpatieMigrations()
+    {
+        $this->components->info('Publishing Spatie Permission migrations...');
+        
+        // Publish Spatie Permission migrations if not already published
+        $spatieMigrationsPath = database_path('migrations');
+        $hasSpatieMigrations = glob($spatieMigrationsPath.'/*_create_permission_tables.php');
+        
+        if (empty($hasSpatieMigrations)) {
+            // Try publishing without tag first (publishes all resources)
+            $this->call('vendor:publish', [
+                '--provider' => 'Spatie\Permission\PermissionServiceProvider',
+            ]);
+            
+            // Check again if migrations were published
+            $hasSpatieMigrations = glob($spatieMigrationsPath.'/*_create_permission_tables.php');
+            if (empty($hasSpatieMigrations)) {
+                $this->warn('  ⚠ Spatie Permission migrations could not be published automatically.');
+                $this->warn('  ⚠ Please run: php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"');
+            } else {
+                $this->line('  ✓ Spatie Permission migrations published');
+            }
+        } else {
+            $this->line('  ✓ Spatie Permission migrations already published');
         }
     }
 

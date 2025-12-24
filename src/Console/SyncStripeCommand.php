@@ -81,7 +81,8 @@ class SyncStripeCommand extends Command
                     'interval_count' => $stripePrice->recurring->interval_count ?? 1,
                 ]
             );
-            $this->line("  ✓ Synced plan: {$stripePrice->nickname ?? $product->name}");
+            $planName = $stripePrice->nickname ?? $product->name;
+            $this->line("  ✓ Synced plan: {$planName}");
         }
 
         $this->info('Stripe data synchronized successfully.');

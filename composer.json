@@ -20,7 +20,8 @@
         "rappasoft/laravel-livewire-tables": "^3.0",
         "spatie/laravel-permission": "^6.4",
         "usernotnull/tall-toasts": "^2.1",
-        "wire-elements/modal": "^2.0"
+        "wire-elements/modal": "^2.0",
+        "diglactic/laravel-breadcrumbs": "^10.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
