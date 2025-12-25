@@ -28,7 +28,12 @@ class EnsureTeamSelected
 
         // If user has no current team selected, set the first team
         if (!$user->currentTeam) {
-            $user->update(['current_team_id' => $user->teams()->first()->id]);
+            $firstTeam = $user->teams()->first();
+            if ($firstTeam) {
+                $user->update(['current_team_id' => $firstTeam->id]);
+                // Refresh the user model to ensure currentTeam relationship is loaded
+                $user->refresh();
+            }
         }
 
         return $next($request);

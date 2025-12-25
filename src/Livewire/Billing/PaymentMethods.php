@@ -10,6 +10,14 @@ class PaymentMethods extends Component
 {
     public $paymentMethodId;
 
+    public function mount()
+    {
+        if (!Auth::user()->currentTeam) {
+            return redirect()->route('teams.index')
+                ->with('error', 'Please select a team first.');
+        }
+    }
+
     public function setDefaultPaymentMethod($paymentMethodId)
     {
         $team = Auth::user()->currentTeam;

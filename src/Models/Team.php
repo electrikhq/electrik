@@ -157,14 +157,23 @@ class Team extends Model
     }
 
     /**
-     * Get the maximum number of team members allowed.
+     * Get the owner type for Cashier subscriptions.
      *
-     * @return int
+     * @return string
      */
-    public function allowedMaxTeamMembers()
+    public function ownerType()
     {
-        // TODO: Make this dynamic based on subscription plan
-        return 99;
+        return 'team';
+    }
+
+    /**
+     * Get the owner ID for Cashier subscriptions.
+     *
+     * @return string
+     */
+    public function ownerId()
+    {
+        return 'team_id';
     }
 }
 

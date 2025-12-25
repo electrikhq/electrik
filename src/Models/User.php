@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'timezone',
         'original_plan',
+        'current_team_id',
     ];
 
     /**

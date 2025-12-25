@@ -22,7 +22,20 @@ class TeamInvite extends Model
         'token',
         'role_id',
         'user_id',
+        'expires_at',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'expires_at' => 'datetime',
+        ];
+    }
 
     /**
      * Get the team that owns the invite.
@@ -61,7 +74,11 @@ class TeamInvite extends Model
      */
     public function isValid()
     {
-        // TODO: Add expiration logic
+        // Check if invite has expired
+        if ($this->expires_at && $this->expires_at->isPast()) {
+            return false;
+        }
+
         return true;
     }
 }

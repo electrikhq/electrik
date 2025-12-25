@@ -26,5 +26,13 @@ return [
      */
     'stripe_plan_model' => env('ELECTRIK_STRIPE_PLAN_MODEL', \App\Models\StripePlan::class),
 
+    /**
+     * Routes that should not show the secondary sidebar.
+     * These routes will only show the primary sidebar (if authenticated).
+     */
+    'routes_without_sidebar' => [
+        'dashboard.index',
+    ],
+
 ];
 

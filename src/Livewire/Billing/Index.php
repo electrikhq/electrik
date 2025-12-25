@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\Auth;
 
 class Index extends Component
 {
+    public function mount()
+    {
+        if (!Auth::user()->currentTeam) {
+            return redirect()->route('teams.index')
+                ->with('error', 'Please select a team first.');
+        }
+    }
+
     public function render()
     {
         $team = Auth::user()->currentTeam;

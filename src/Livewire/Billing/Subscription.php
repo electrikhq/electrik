@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\Auth;
 
 class Subscription extends Component
 {
+    public function mount()
+    {
+        if (!Auth::user()->currentTeam) {
+            return redirect()->route('teams.index')
+                ->with('error', 'Please select a team first.');
+        }
+    }
+
     public function cancel()
     {
         $team = Auth::user()->currentTeam;

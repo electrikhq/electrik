@@ -27,7 +27,6 @@ class CreateTeam
         // Attach owner to team
         $team->users()->attach($owner->id, ['role' => 'owner']);
 
-        // Fire event
         event(new TeamCreated($team));
 
         return $team;

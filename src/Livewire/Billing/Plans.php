@@ -10,13 +10,18 @@ class Plans extends Component
 {
     public function render()
     {
+        $team = Auth::user()->currentTeam;
+        
+        if (!$team) {
+            return redirect()->route('teams.index');
+        }
+        
         $plans = StripePlan::with('product')
             ->orderBy('price')
             ->get()
             ->groupBy('product.name');
 
         $currentPlan = null;
-        $team = Auth::user()->currentTeam;
         $subscription = $team->subscription(config('electrik.default_subscription_name', 'electrik'));
         
         if ($subscription) {

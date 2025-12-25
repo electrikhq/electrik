@@ -13,7 +13,7 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'electrik:install';
+    protected $signature = 'electrik:install {--force : Skip confirmation and use default credentials}';
 
     /**
      * The console command description.
@@ -37,24 +37,46 @@ class InstallCommand extends Command
 /_____/_/\___/\___/\__/_/  /_/_/|_|  
         ');
 
-        $this->warn('IMPORTANT NOTE');
-        $this->warn('1. Electrik is meant to be installed on a fresh Laravel project.');
-        $this->warn('2. If you install it on existing project, unwanted issues may happen!');
-        $this->warn('3. During installation, Electrik will also delete all existing tables in your database and install a fresh set!');
+        $force = $this->option('force');
         
-        if (!$this->confirm('Do you wish to continue?')) {
-            $this->line('Aborting...');
-            return 1;
+        if (!$force) {
+            $this->warn('IMPORTANT NOTE');
+            $this->warn('1. Electrik is meant to be installed on a fresh Laravel project.');
+            $this->warn('2. If you install it on existing project, unwanted issues may happen!');
+            $this->warn('3. During installation, Electrik will also delete all existing tables in your database and install a fresh set!');
+            
+            if (!$this->confirm('Do you wish to continue?')) {
+                $this->line('Aborting...');
+                return 1;
+            }
         }
 
-        // Ask for default user credentials
-        $email = $this->ask('Enter email for default user (or press Enter for hello@example.com)', 'hello@example.com');
-        $password = $this->secret('Enter password for default user (or press Enter for "password")');
-        if (empty($password)) {
+        // Ask for default user credentials (skip if --force flag is used)
+        if ($force) {
+            $email = 'hello@example.com';
             $password = 'password';
+            $this->line('Using default credentials: ' . $email);
+        } else {
+            $email = $this->ask('Enter email for default user (or press Enter for hello@example.com)', 'hello@example.com');
+            $password = $this->secret('Enter password for default user (or press Enter for "password")');
+            if (empty($password)) {
+                $password = 'password';
+            }
         }
 
         $this->components->info('Installing Electrik...');
+
+        // Stash any local changes to ensure fresh installation
+        $this->components->info('Stashing local changes...');
+        $output = [];
+        $returnVar = 0;
+        exec('cd ' . escapeshellarg(base_path()) . ' && git stash -u 2>&1', $output, $returnVar);
+        if ($returnVar === 0) {
+            $this->line('  ✓ Local changes stashed');
+        }
+
+        // Clean composer.json FIRST to remove stale file references before any autoloading
+        $this->cleanComposerJson();
 
         // Copy configuration files
         $this->copyConfigFiles();
@@ -71,17 +93,29 @@ class InstallCommand extends Command
         // Copy routes
         $this->copyRoutes();
         
+        // Regenerate autoloader after copying all files
+        $this->regenerateAutoloader();
+        
+        // Update Tailwind CSS sources
+        $this->updateTailwindSources();
+        
         // Update configuration files
         $this->updateConfigurations();
         
         // Publish Spatie Permission migrations
         $this->publishSpatieMigrations();
         
+        // Publish Laravel Cashier migrations
+        $this->publishCashierMigrations();
+        
         // Run migrations
         $this->runMigrations();
 
         // Create default user and team
         $this->createDefaultUserAndTeam($email, $password);
+
+        // Build frontend assets
+        $this->buildAssets();
 
         $this->line('');
         $this->components->info('Electrik installed successfully.');
@@ -197,6 +231,37 @@ class InstallCommand extends Command
         }
     }
 
+    protected function regenerateAutoloader()
+    {
+        $this->components->info('Regenerating autoloader...');
+        
+        $output = [];
+        $returnVar = 0;
+        exec('cd ' . escapeshellarg(base_path()) . ' && composer dump-autoload --no-interaction 2>&1', $output, $returnVar);
+        
+        if ($returnVar === 0) {
+            $this->line('  ✓ Autoloader regenerated');
+            
+            // Reload the autoloader class map in the current PHP process
+            $classMapFile = base_path('vendor/composer/autoload_classmap.php');
+            if (file_exists($classMapFile)) {
+                // Get the existing loader instance (already loaded by Laravel)
+                $loader = require base_path('vendor/autoload.php');
+                
+                // Load the newly generated class map
+                $newClassMap = require $classMapFile;
+                
+                // Add the new class map to the existing loader
+                if (is_array($newClassMap) && method_exists($loader, 'addClassMap')) {
+                    $loader->addClassMap($newClassMap);
+                }
+            }
+        } else {
+            $this->warn('  ⚠ Could not regenerate autoloader automatically.');
+            $this->warn('  ⚠ Please run: composer dump-autoload');
+        }
+    }
+
     protected function copyViews()
     {
         $this->components->info('Copying views...');
@@ -225,6 +290,55 @@ class InstallCommand extends Command
         }
     }
 
+    protected function cleanComposerJson()
+    {
+        $composerJsonPath = base_path('composer.json');
+        if (!File::exists($composerJsonPath)) {
+            return;
+        }
+        
+        $composer = json_decode(File::get($composerJsonPath), true);
+        $changed = false;
+        
+        // Ensure autoload section exists
+        if (!isset($composer['autoload'])) {
+            $composer['autoload'] = [];
+        }
+        
+        // Ensure files array exists in autoload
+        if (!isset($composer['autoload']['files'])) {
+            $composer['autoload']['files'] = [];
+        }
+        
+        // Remove any file references that don't exist
+        $originalFiles = $composer['autoload']['files'];
+        $composer['autoload']['files'] = array_filter($composer['autoload']['files'], function($path) use (&$changed) {
+            $fullPath = base_path($path);
+            if (!file_exists($fullPath)) {
+                $changed = true;
+                return false;
+            }
+            return true;
+        });
+        $composer['autoload']['files'] = array_values($composer['autoload']['files']); // Re-index array
+        
+        // Save if changed
+        if ($changed) {
+            File::put($composerJsonPath, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            
+            // Regenerate autoloader immediately to clear stale references
+            $output = [];
+            $returnVar = 0;
+            exec('cd ' . escapeshellarg(base_path()) . ' && composer dump-autoload --no-interaction 2>&1', $output, $returnVar);
+            
+            if ($returnVar === 0) {
+                $this->line('  ✓ Cleaned composer.json and regenerated autoloader');
+            } else {
+                $this->warn('  ⚠ Could not regenerate autoloader. Please run: composer dump-autoload');
+            }
+        }
+    }
+
     protected function updateComposerJson()
     {
         $composerJsonPath = base_path('composer.json');
@@ -244,16 +358,16 @@ class InstallCommand extends Command
             $composer['autoload']['files'] = [];
         }
         
-        // Add timezones helper if not already present
+        // Add timezones helper if file exists and not already present
         $helperPath = 'app/Helpers/timezones.php';
-        if (!in_array($helperPath, $composer['autoload']['files'])) {
+        if (file_exists(base_path($helperPath)) && !in_array($helperPath, $composer['autoload']['files'])) {
             $composer['autoload']['files'][] = $helperPath;
             File::put($composerJsonPath, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
             
-            // Run composer dump-autoload using shell_exec
+            // Run composer dump-autoload
             $output = [];
             $returnVar = 0;
-            exec('cd ' . escapeshellarg(base_path()) . ' && composer dump-autoload 2>&1', $output, $returnVar);
+            exec('cd ' . escapeshellarg(base_path()) . ' && composer dump-autoload --no-interaction 2>&1', $output, $returnVar);
             
             if ($returnVar === 0) {
                 $this->line('  ✓ Helper file registered in composer.json');
@@ -262,6 +376,48 @@ class InstallCommand extends Command
                 $this->warn('  ⚠ Please run: composer dump-autoload');
             }
         }
+    }
+
+    protected function updateTailwindSources()
+    {
+        $this->components->info('Updating Tailwind CSS sources...');
+        
+        $appCssPath = resource_path('css/app.css');
+        
+        if (!File::exists($appCssPath)) {
+            $this->warn('  ⚠ app.css not found. Skipping Tailwind sources update.');
+            return;
+        }
+        
+        $content = File::get($appCssPath);
+        
+        // Check if Slate UI source is already added
+        if (strpos($content, 'vendor/electrik/slate') !== false) {
+            $this->line('  ✓ Slate UI components already in Tailwind sources');
+            return;
+        }
+        
+        // Add Slate UI source after Laravel Pagination source
+        $slateSource = "@source '../../vendor/electrik/slate/resources/views/**/*.blade.php';";
+        
+        // Try to add after Laravel Pagination source
+        if (strpos($content, '@source \'../../vendor/laravel/framework') !== false) {
+            $content = preg_replace(
+                '/(@source \'\.\.\/\.\.\/vendor\/laravel\/framework[^\']+\';\s*\n)/',
+                '$1' . $slateSource . "\n",
+                $content
+            );
+        } else {
+            // If Laravel source not found, add after @import
+            $content = preg_replace(
+                '/(@import \'tailwindcss\';\s*\n)/',
+                '$1' . "\n" . $slateSource . "\n",
+                $content
+            );
+        }
+        
+        File::put($appCssPath, $content);
+        $this->line('  ✓ Added Slate UI components to Tailwind CSS sources');
     }
 
     protected function updateConfigurations()
@@ -381,6 +537,39 @@ class InstallCommand extends Command
         }
     }
 
+    protected function publishCashierMigrations()
+    {
+        $this->components->info('Publishing Laravel Cashier migrations...');
+        
+        // Publish Cashier migrations if not already published
+        $migrationsPath = database_path('migrations');
+        $hasCashierMigrations = glob($migrationsPath.'/*_create_subscriptions_table.php') || 
+                                 glob($migrationsPath.'/*_create_subscription_items_table.php');
+        
+        if (empty($hasCashierMigrations)) {
+            try {
+                $this->call('vendor:publish', [
+                    '--tag' => 'cashier-migrations',
+                ]);
+                
+                // Check again if migrations were published
+                $hasCashierMigrations = glob($migrationsPath.'/*_create_subscriptions_table.php') || 
+                                         glob($migrationsPath.'/*_create_subscription_items_table.php');
+                if (!empty($hasCashierMigrations)) {
+                    $this->line('  ✓ Laravel Cashier migrations published');
+                } else {
+                    $this->warn('  ⚠ Laravel Cashier migrations could not be published automatically.');
+                    $this->warn('  ⚠ Please run: php artisan vendor:publish --tag="cashier-migrations"');
+                }
+            } catch (\Exception $e) {
+                $this->warn('  ⚠ Could not publish Cashier migrations: ' . $e->getMessage());
+                $this->warn('  ⚠ Please run: php artisan vendor:publish --tag="cashier-migrations"');
+            }
+        } else {
+            $this->line('  ✓ Laravel Cashier migrations already published');
+        }
+    }
+
     protected function runMigrations()
     {
         $this->components->info('Running migrations...');
@@ -402,6 +591,9 @@ class InstallCommand extends Command
         $this->components->info('Creating default user and team...');
 
         try {
+            // Ensure autoloader is up to date before checking classes
+            $this->regenerateAutoloader();
+            
             // Check if actions exist
             if (!class_exists('App\Actions\Auth\CreateUser') || !class_exists('App\Actions\Teams\CreateTeam')) {
                 $this->warn('  ⚠ Actions not found. Skipping default user/team creation.');
@@ -417,7 +609,7 @@ class InstallCommand extends Command
                 }
             }
 
-            // Create user
+            // Create user - use fully qualified class name to avoid autoload issues
             $createUserAction = new \App\Actions\Auth\CreateUser();
             $user = $createUserAction->execute([
                 'name' => 'Default User',
@@ -433,12 +625,59 @@ class InstallCommand extends Command
             $team = $createTeamAction->execute($user, 'My Team');
 
             // Set current team
-            $user->update(['current_team_id' => $team->id]);
+            $user->current_team_id = $team->id;
+            $user->save();
+            $user->refresh();
 
             $this->line('  ✓ Created team: ' . $team->name);
             $this->line('  ✓ Set as current team for user');
+            
+            // Verify the team was set correctly
+            if ($user->currentTeam && $user->currentTeam->id === $team->id) {
+                $this->line('  ✓ Verified current team is set correctly');
+            } else {
+                $this->warn('  ⚠ Warning: Current team may not be set correctly');
+            }
         } catch (\Exception $e) {
             $this->warn('  ⚠ Could not create default user/team: ' . $e->getMessage());
+        }
+    }
+
+    protected function buildAssets()
+    {
+        $this->components->info('Building frontend assets...');
+        
+        // Check if package.json exists
+        if (!file_exists(base_path('package.json'))) {
+            $this->warn('  ⚠ package.json not found. Skipping asset build.');
+            return;
+        }
+
+        // Check if node_modules exists, if not run npm install first
+        if (!is_dir(base_path('node_modules'))) {
+            $this->components->info('Installing npm dependencies...');
+            $output = [];
+            $returnVar = 0;
+            exec('cd ' . escapeshellarg(base_path()) . ' && npm install --no-audit --no-fund 2>&1', $output, $returnVar);
+            
+            if ($returnVar !== 0) {
+                $this->warn('  ⚠ Could not install npm dependencies automatically.');
+                $this->warn('  ⚠ Please run: npm install && npm run build');
+                return;
+            }
+            $this->line('  ✓ npm dependencies installed');
+        }
+
+        // Run npm run build
+        $output = [];
+        $returnVar = 0;
+        exec('cd ' . escapeshellarg(base_path()) . ' && npm run build 2>&1', $output, $returnVar);
+        
+        if ($returnVar === 0) {
+            $this->line('  ✓ Frontend assets built successfully');
+        } else {
+            $this->warn('  ⚠ Could not build frontend assets automatically.');
+            $this->warn('  ⚠ Please run: npm run build');
         }
     }
 }

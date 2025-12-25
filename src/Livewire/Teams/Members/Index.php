@@ -41,7 +41,10 @@ class Index extends Component
 
     public function render()
     {
-        $members = $this->team->users()->with('roles')->get();
+        // Load members with roles scoped to this team
+        $members = $this->team->users()->with(['roles' => function ($query) {
+            $query->where('roles.team_id', $this->team->id);
+        }])->get();
 
         return view('livewire.teams.members.index', [
             'members' => $members,

@@ -40,12 +40,6 @@ class Invite extends Component
             return;
         }
 
-        // Check team member limit
-        if ($this->team->users()->count() >= $this->team->allowedMaxTeamMembers()) {
-            $this->addError('email', 'Team member limit reached.');
-            return;
-        }
-
         $role = $this->role_id ? Role::find($this->role_id) : null;
 
         $action = new InviteMember();

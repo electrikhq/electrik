@@ -25,7 +25,6 @@ class CreateUser
             'original_plan' => $data['original_plan'] ?? null,
         ]);
 
-        // Fire event
         event(new UserRegistered($user));
 
         return $user;

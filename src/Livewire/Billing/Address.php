@@ -20,6 +20,11 @@ class Address extends Component
 
     public function mount()
     {
+        if (!Auth::user()->currentTeam) {
+            return redirect()->route('teams.index')
+                ->with('error', 'Please select a team first.');
+        }
+        
         $team = Auth::user()->currentTeam;
         $address = $team->billingAddress;
 

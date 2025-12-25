@@ -11,4 +11,3 @@
         <a class="hover:underline block mt-3 {{ $currentRouteName === 'settings.security' ? 'underline text-primary-600 dark:text-primary-700' : '' }}" href="{{ route('settings.security') }}">Security</a>
     </div>
 </div>
-

@@ -2,7 +2,7 @@ Electrik Commercial License
 
 Version 1.0
 
-Copyright (c) 2025 Neeraj Sohal
+Copyright (c) 2025 Neeraj Kumar
 
 -------------------------------------------------------------------------------
 
