@@ -22,15 +22,14 @@
                     size="md" 
                 />
             </a>
-            {{-- Temporarily disabled until Billing components are created --}}
-            {{-- <a href="{{ route('billing.index') }}" class="flex justify-center">
+            <a href="{{ route('billing.index') }}" class="flex justify-center">
                 <x-slate::icon 
                     data-tippy-content="<small>Billing</small>"
                     icon="carbon-receipt" 
                     :color="(request()->routeIs('billing.*')) ? 'primary' : ''"
                     size="md" 
                 />
-            </a> --}}
+            </a>
         </div>
     </div>
     <div class="foot mb-6">
@@ -70,10 +69,9 @@
             {{--<a href="{{ route('settings.profile') }}" class="flex items-center text-black hover:text-primary-600">
                 <x-slate::icon color="black" icon="carbon-user" size="xs" class="mr-2" /> Your Account
             </a>--}}
-            {{-- Temporarily disabled until Billing components are created --}}
-            {{-- <a href="{{ route('billing.index') }}" class="flex items-center text-black hover:text-primary-600">
+            <a href="{{ route('billing.index') }}" class="flex items-center text-black hover:text-primary-600">
                 <x-slate::icon color="black" icon="carbon-purchase" size="xs" class="mr-2" /> Billing
-            </a> --}}
+            </a>
         </div>
         <hr class="border-neutral-300" />
         <div class="py-3">
