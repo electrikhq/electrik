@@ -22,14 +22,15 @@
                     size="md" 
                 />
             </a>
-            <a href="{{ route('billing.index') }}" class="flex justify-center">
+            {{-- Temporarily disabled until Billing components are created --}}
+            {{-- <a href="{{ route('billing.index') }}" class="flex justify-center">
                 <x-slate::icon 
                     data-tippy-content="<small>Billing</small>"
                     icon="carbon-receipt" 
                     :color="(request()->routeIs('billing.*')) ? 'primary' : ''"
                     size="md" 
                 />
-            </a>
+            </a> --}}
         </div>
     </div>
     <div class="foot mb-6">
@@ -54,7 +55,7 @@
             <strong>{{ auth()->user()->name }}</strong>
         </div>
         <hr />
-        @if(auth()->user()->teams()->exists())
+        @if(auth()->user()->teams()->exists() && auth()->user()->currentTeam)
         <div class="hover:cursor-pointer settings-menu-popover-menu-trigger py-6 space-y-2 flex justify-between items-center" data-template="nested">
             <div>
                 {{ auth()->user()->currentTeam->name }}<br/>
@@ -66,12 +67,13 @@
         @endif
         
         <div class="py-6 space-y-3">
-            <a href="{{ route('settings.profile') }}" class="flex items-center text-black hover:text-primary-600">
+            {{--<a href="{{ route('settings.profile') }}" class="flex items-center text-black hover:text-primary-600">
                 <x-slate::icon color="black" icon="carbon-user" size="xs" class="mr-2" /> Your Account
-            </a>
-            <a href="{{ route('billing.index') }}" class="flex items-center text-black hover:text-primary-600">
+            </a>--}}
+            {{-- Temporarily disabled until Billing components are created --}}
+            {{-- <a href="{{ route('billing.index') }}" class="flex items-center text-black hover:text-primary-600">
                 <x-slate::icon color="black" icon="carbon-purchase" size="xs" class="mr-2" /> Billing
-            </a>
+            </a> --}}
         </div>
         <hr class="border-neutral-300" />
         <div class="py-3">
@@ -97,7 +99,11 @@
             @endif
         </div>
         <div class="">
-            <a href="{{ route('teams.settings', auth()->user()->currentTeam) }}" class="text-black hover:text-primary-600">Manage Team</a>
+            @if(auth()->user()->currentTeam)
+                <a href="{{ route('teams.settings', auth()->user()->currentTeam) }}" class="text-black hover:text-primary-600">Manage Team</a>
+            @else
+                <a href="{{ route('teams.index') }}" class="text-black hover:text-primary-600">Create Team</a>
+            @endif
         </div>
     </div>
 </template>

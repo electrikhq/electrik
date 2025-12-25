@@ -47,6 +47,13 @@ class InstallCommand extends Command
             return 1;
         }
 
+        // Ask for default user credentials
+        $email = $this->ask('Enter email for default user (or press Enter for hello@example.com)', 'hello@example.com');
+        $password = $this->secret('Enter password for default user (or press Enter for "password")');
+        if (empty($password)) {
+            $password = 'password';
+        }
+
         $this->components->info('Installing Electrik...');
 
         // Copy configuration files
@@ -72,6 +79,9 @@ class InstallCommand extends Command
         
         // Run migrations
         $this->runMigrations();
+
+        // Create default user and team
+        $this->createDefaultUserAndTeam($email, $password);
 
         $this->line('');
         $this->components->info('Electrik installed successfully.');
@@ -385,6 +395,51 @@ class InstallCommand extends Command
         }
         
         $this->call('migrate:fresh');
+    }
+
+    protected function createDefaultUserAndTeam($email, $password)
+    {
+        $this->components->info('Creating default user and team...');
+
+        try {
+            // Check if actions exist
+            if (!class_exists('App\Actions\Auth\CreateUser') || !class_exists('App\Actions\Teams\CreateTeam')) {
+                $this->warn('  ⚠ Actions not found. Skipping default user/team creation.');
+                return;
+            }
+
+            // Check if user already exists
+            if (class_exists('App\Models\User')) {
+                $existingUser = \App\Models\User::where('email', $email)->first();
+                if ($existingUser) {
+                    $this->line('  ✓ User already exists with email: ' . $email);
+                    return;
+                }
+            }
+
+            // Create user
+            $createUserAction = new \App\Actions\Auth\CreateUser();
+            $user = $createUserAction->execute([
+                'name' => 'Default User',
+                'email' => $email,
+                'password' => $password,
+                'timezone' => 'UTC',
+            ]);
+
+            $this->line('  ✓ Created user: ' . $email);
+
+            // Create team
+            $createTeamAction = new \App\Actions\Teams\CreateTeam();
+            $team = $createTeamAction->execute($user, 'My Team');
+
+            // Set current team
+            $user->update(['current_team_id' => $team->id]);
+
+            $this->line('  ✓ Created team: ' . $team->name);
+            $this->line('  ✓ Set as current team for user');
+        } catch (\Exception $e) {
+            $this->warn('  ⚠ Could not create default user/team: ' . $e->getMessage());
+        }
     }
 }
 
