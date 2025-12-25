@@ -1,4 +1,4 @@
-## Unreleased
+## 4.0.0-b1 (2025-12-25)
 
 ### Feat
 
@@ -9,6 +9,7 @@
 
 ### Fix
 
+- added changelog
 - **install**: properly reload autoloader and add asset build
 - **livewire**: add prevent modifier to form submissions and livewire script config
 - **install**: copy and register timezones helper function

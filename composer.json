@@ -1,7 +1,7 @@
 {
     "name": "electrik/electrik",
     "description": "Starter kit for Laravel based SaaS projects",
-    "version": "4.0.0-beta.0",
+    "version": "4.0.0-b1",
     "license": "MIT",
     "authors": [
         {
