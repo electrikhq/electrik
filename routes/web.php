@@ -18,7 +18,7 @@ use Electrik\Middleware\EnsureSubscriptionActive;
 */
 
 // Guest routes (no authentication required)
-Route::middleware('guest')->group(function () {
+Route::middleware(['guest', 'web'])->group(function () {
     if (class_exists('App\Livewire\Auth\Login')) {
         Route::get('/login', 'App\Livewire\Auth\Login')->name('login');
     }
@@ -34,7 +34,7 @@ Route::middleware('guest')->group(function () {
 });
 
 // Authenticated routes (require authentication)
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'web'])->group(function () {
     // Dashboard
     if (class_exists('App\Livewire\Dashboard\Index')) {
         Route::get('/dashboard', 'App\Livewire\Dashboard\Index')->name('dashboard.index');

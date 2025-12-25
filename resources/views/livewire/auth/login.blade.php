@@ -1,5 +1,5 @@
 <div>
-    <x-slate::form wire:submit.prevent="login">
+    <x-slate::form wire:submit="login">
         @if ($error)
             <x-slate::alert color="danger" dismissible>
                 {{ $error }}

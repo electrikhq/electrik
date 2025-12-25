@@ -1,5 +1,5 @@
 <div>
-    <x-slate::form wire:submit.prevent="register">
+    <x-slate::form wire:submit="register">
         <x-slate::input 
             name="name" 
             label="Name"
