@@ -1,0 +1,57 @@
+{
+    "name": "electrik/electrik",
+    "description": "Laravel SaaS starter kit: auth, teams, and Stripe billing on Electrik Slate.",
+    "type": "library",
+    "version": "5.0.0-alpha.0",
+    "license": "BSL-1.1",
+    "keywords": [
+        "laravel",
+        "saas",
+        "starter-kit",
+        "livewire",
+        "billing",
+        "teams",
+        "electrik",
+        "slate"
+    ],
+    "authors": [
+        {
+            "name": "neerajsohal",
+            "email": "hello@neerajkumar.name"
+        }
+    ],
+    "homepage": "https://electrik.dev",
+    "support": {
+        "issues": "https://github.com/electrikhq/electrik/issues",
+        "source": "https://github.com/electrikhq/electrik"
+    },
+    "require": {
+        "php": "^8.3",
+        "electrik/slate": "^3.0@alpha",
+        "illuminate/support": "^12.0|^13.0",
+        "livewire/livewire": "^3.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Electrik\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Electrik\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Electrik\\ElectrikServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

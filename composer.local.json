@@ -1,0 +1,14 @@
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../slate",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "require": {
+        "electrik/slate": "@dev"
+    }
+}
