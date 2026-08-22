@@ -70,16 +70,38 @@
 
                 <div class="flex items-center gap-3">
                     @auth
-                        <div class="hidden items-center gap-2 sm:flex">
-                            <x-slate::avatar size="sm" :fallback="$initials" :alt="$user->name" />
-                            <span class="max-w-[10rem] truncate text-sm text-muted-foreground">{{ $user->name }}</span>
-                        </div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <x-slate::button type="submit" variant="ghost" size="sm">
-                                Sign out
-                            </x-slate::button>
-                        </form>
+                        @if (\Illuminate\Support\Facades\Schema::hasTable('notifications'))
+                            <livewire:electrik.notification-bell />
+                        @endif
+
+                        <x-slate::dropdown-menu class="hidden sm:inline-flex">
+                            <x-slate::dropdown-menu-trigger>
+                                <x-slate::button type="button" variant="ghost" size="sm" class="gap-2">
+                                    <x-slate::avatar size="sm" :fallback="$initials" :alt="$user->name" />
+                                    <span class="max-w-[10rem] truncate">{{ $user->name }}</span>
+                                </x-slate::button>
+                            </x-slate::dropdown-menu-trigger>
+                            <x-slate::dropdown-menu-content align="end" class="w-48">
+                                <x-slate::dropdown-menu-item as="a" href="{{ route('settings.profile') }}" wire:navigate>
+                                    Profile
+                                </x-slate::dropdown-menu-item>
+                                <x-slate::dropdown-menu-item as="a" href="{{ route('settings.security') }}" wire:navigate>
+                                    Security
+                                </x-slate::dropdown-menu-item>
+                                @if (class_exists(\Laravel\Sanctum\SanctumServiceProvider::class))
+                                    <x-slate::dropdown-menu-item as="a" href="{{ route('settings.api-tokens') }}" wire:navigate>
+                                        API tokens
+                                    </x-slate::dropdown-menu-item>
+                                @endif
+                                <x-slate::dropdown-menu-separator />
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <x-slate::dropdown-menu-item as="button" type="submit" variant="destructive">
+                                        Sign out
+                                    </x-slate::dropdown-menu-item>
+                                </form>
+                            </x-slate::dropdown-menu-content>
+                        </x-slate::dropdown-menu>
                     @endauth
                 </div>
             </div>
@@ -124,13 +146,42 @@
                 </nav>
 
                 <div class="mt-auto flex flex-col items-center gap-1">
-                    <x-electrik::rail-link
-                        :href="route('settings.profile')"
-                        :active="$navSection === 'account'"
-                        :label="__('Account')"
-                    >
-                        @svg('carbon-user', 'size-5')
-                    </x-electrik::rail-link>
+                    <x-slate::dropdown-menu>
+                        <x-slate::dropdown-menu-trigger>
+                            <button
+                                type="button"
+                                @class([
+                                    'inline-flex size-10 items-center justify-center rounded-lg transition-colors',
+                                    'bg-sidebar-accent text-sidebar-accent-foreground' => $navSection === 'account',
+                                    'text-muted-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground' => $navSection !== 'account',
+                                ])
+                                aria-label="{{ __('Account') }}"
+                                title="{{ __('Account') }}"
+                            >
+                                @svg('carbon-user', 'size-5')
+                            </button>
+                        </x-slate::dropdown-menu-trigger>
+                        <x-slate::dropdown-menu-content side="end" align="start" class="w-44">
+                            <x-slate::dropdown-menu-item as="a" href="{{ route('settings.profile') }}" wire:navigate>
+                                Profile
+                            </x-slate::dropdown-menu-item>
+                            <x-slate::dropdown-menu-item as="a" href="{{ route('settings.security') }}" wire:navigate>
+                                Security
+                            </x-slate::dropdown-menu-item>
+                            @if (class_exists(\Laravel\Sanctum\SanctumServiceProvider::class))
+                                <x-slate::dropdown-menu-item as="a" href="{{ route('settings.api-tokens') }}" wire:navigate>
+                                    API tokens
+                                </x-slate::dropdown-menu-item>
+                            @endif
+                            <x-slate::dropdown-menu-separator />
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <x-slate::dropdown-menu-item as="button" type="submit" variant="destructive">
+                                    Sign out
+                                </x-slate::dropdown-menu-item>
+                            </form>
+                        </x-slate::dropdown-menu-content>
+                    </x-slate::dropdown-menu>
                 </div>
             </aside>
         </x-slot:primary>
@@ -184,6 +235,13 @@
                                             >
                                                 Settings
                                             </x-electrik::nav-link>
+                                            <x-electrik::nav-link
+                                                :href="route('teams.activity', $sidebarTeam)"
+                                                :active="request()->routeIs('teams.activity')"
+                                                icon="report"
+                                            >
+                                                Activity
+                                            </x-electrik::nav-link>
                                         @endif
                                     @endif
                                 @endauth
@@ -201,6 +259,9 @@
                             <div class="space-y-1">
                                 <x-electrik::nav-link :href="route('settings.profile')" :active="request()->routeIs('settings.profile')" icon="user">Profile</x-electrik::nav-link>
                                 <x-electrik::nav-link :href="route('settings.security')" :active="request()->routeIs('settings.security')" icon="password">Security</x-electrik::nav-link>
+                                @if (class_exists(\Laravel\Sanctum\SanctumServiceProvider::class))
+                                    <x-electrik::nav-link :href="route('settings.api-tokens')" :active="request()->routeIs('settings.api-tokens')" icon="connect">API tokens</x-electrik::nav-link>
+                                @endif
                             </div>
                         @endif
                     @endunless
@@ -220,6 +281,7 @@
         </x-slot:sidebar>
 
         <x-slot:main>
+            <x-electrik::subscription-banner />
             <div class="min-h-full bg-muted/30">
                 <div class="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
                     {{ $slot }}

@@ -6,21 +6,26 @@ use Electrik\Actions\Teams\DeleteTeam;
 use Electrik\Actions\Teams\TransferTeamOwnership;
 use Electrik\Concerns\AuthorizesTeamAccess;
 use Electrik\Models\Team;
+use Electrik\Support\ActivityLogger;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('electrik::components.layouts.app')]
 #[Title('Team settings')]
 class Settings extends Component
 {
     use AuthorizesTeamAccess;
+    use WithFileUploads;
 
     #[Locked]
     public Team $team;
 
     public string $name = '';
+
+    public $avatar;
 
     public ?int $transferToUserId = null;
 
@@ -43,7 +48,39 @@ class Settings extends Component
 
         $this->team->update(['name' => $validated['name']]);
 
+        ActivityLogger::log($this->team, 'team.updated', auth()->user(), $this->team);
+
         session()->flash('status', __('Team updated.'));
+    }
+
+    public function updateAvatar(): void
+    {
+        $this->authorizeTeamPermission($this->team, 'teams.manage');
+
+        $this->validate([
+            'avatar' => ['required', 'image', 'max:2048'],
+        ]);
+
+        $path = $this->avatar->store('team-avatars/'.$this->team->id, 'public');
+
+        $this->team->update(['avatar_path' => $path]);
+        $this->reset('avatar');
+
+        ActivityLogger::log($this->team, 'team.avatar_updated', auth()->user(), $this->team);
+
+        session()->flash('status', __('Team avatar updated.'));
+    }
+
+    public function removeAvatar(): void
+    {
+        $this->authorizeTeamPermission($this->team, 'teams.manage');
+
+        if ($this->team->avatar_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($this->team->avatar_path);
+            $this->team->update(['avatar_path' => null]);
+        }
+
+        session()->flash('status', __('Team avatar removed.'));
     }
 
     public function transferOwnership(): void
@@ -64,6 +101,14 @@ class Settings extends Component
             $validated['demoteRole']
         );
 
+        ActivityLogger::log(
+            $this->team,
+            'team.ownership_transferred',
+            auth()->user(),
+            $newOwner,
+            ['demote_role' => $validated['demoteRole']]
+        );
+
         $this->team->refresh();
         $this->reset('transferToUserId');
 
@@ -75,6 +120,8 @@ class Settings extends Component
         abort_unless(auth()->user()->isOwnerOfTeam($this->team), 403);
 
         $team = $this->team;
+
+        ActivityLogger::log($team, 'team.deleted', auth()->user(), $team);
 
         app(DeleteTeam::class)->execute($team, auth()->user());
 

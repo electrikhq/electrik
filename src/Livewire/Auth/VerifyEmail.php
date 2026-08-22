@@ -2,6 +2,7 @@
 
 namespace Electrik\Livewire\Auth;
 
+use Electrik\Support\Onboarding;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -18,7 +19,7 @@ class VerifyEmail extends Component
         $user = Auth::user();
 
         if ($user->hasVerifiedEmail()) {
-            $this->redirect(config('electrik.auth.home', '/dashboard'), navigate: true);
+            $this->redirect(Onboarding::homePath(), navigate: true);
 
             return;
         }

@@ -1,7 +1,9 @@
 <div class="space-y-6">
     <x-electrik::page-header title="Roles" :description="$team->name">
         <x-slot:actions>
-            <x-slate::button as="a" href="{{ route('teams.roles.create', $team) }}" wire:navigate>New role</x-slate::button>
+            @if ($canCreateCustomRoles)
+                <x-slate::button as="a" href="{{ route('teams.roles.create', $team) }}" wire:navigate>New role</x-slate::button>
+            @endif
             <x-slate::button as="a" href="{{ route('teams.permissions.index', $team) }}" variant="outline" wire:navigate>Permissions</x-slate::button>
         </x-slot:actions>
     </x-electrik::page-header>

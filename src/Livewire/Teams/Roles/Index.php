@@ -5,6 +5,7 @@ namespace Electrik\Livewire\Teams\Roles;
 use Electrik\Concerns\AuthorizesTeamAccess;
 use Electrik\Models\Role;
 use Electrik\Models\Team;
+use Electrik\Support\PlanFeatures;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
@@ -51,6 +52,7 @@ class Index extends Component
 
         return view('electrik::livewire.teams.roles.index', [
             'roles' => Role::query()->forTeam($this->team->id)->orderBy('name')->get(),
+            'canCreateCustomRoles' => PlanFeatures::has($this->team, 'custom_roles'),
         ]);
     }
 }

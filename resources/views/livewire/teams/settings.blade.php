@@ -17,6 +17,31 @@
         </x-slate::card-content>
     </x-slate::card>
 
+    <x-slate::card class="border-border/80 shadow-xs">
+        <x-slate::card-header>
+            <x-slate::card-title>Team avatar</x-slate::card-title>
+        </x-slate::card-header>
+        <x-slate::card-content class="space-y-4">
+            <div class="flex items-center gap-4">
+                <x-slate::avatar
+                    size="lg"
+                    :src="$team->avatarUrl()"
+                    :fallback="mb_strtoupper(mb_substr($team->name, 0, 1))"
+                    :alt="$team->name"
+                />
+                @if ($team->avatar_path)
+                    <x-slate::button type="button" variant="outline" wire:click="removeAvatar">Remove</x-slate::button>
+                @endif
+            </div>
+
+            <x-slate::form wire:submit="updateAvatar" class="space-y-4">
+                <input type="file" wire:model="avatar" accept="image/*" class="block w-full text-sm" />
+                @error('avatar') <p class="text-sm text-destructive">{{ $message }}</p> @enderror
+                <x-slate::button type="submit" wire:loading.attr="disabled">Upload avatar</x-slate::button>
+            </x-slate::form>
+        </x-slate::card-content>
+    </x-slate::card>
+
     @if ($isOwner && $transferCandidates->isNotEmpty())
         <x-slate::card class="border-border/80 shadow-xs">
             <x-slate::card-header>

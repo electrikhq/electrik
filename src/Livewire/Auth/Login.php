@@ -2,8 +2,11 @@
 
 namespace Electrik\Livewire\Auth;
 
-use Electrik\Actions\Auth\AttemptLogin;
+use Electrik\Support\Onboarding;
 use Electrik\Support\TeamInviteContext;
+use Electrik\Support\TwoFactorAuth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -25,6 +28,10 @@ class Login extends Component
 
     public ?string $inviteTeamName = null;
 
+    public bool $requiresTwoFactor = false;
+
+    public string $twoFactorCode = '';
+
     public function mount(): void
     {
         $invite = TeamInviteContext::findValidAcceptInvite(TeamInviteContext::peekToken());
@@ -34,10 +41,18 @@ class Login extends Component
             $this->inviteLockedEmail = true;
             $this->inviteTeamName = $invite->team->name;
         }
+
+        $this->requiresTwoFactor = session()->has('login.two_factor.id');
     }
 
-    public function login(AttemptLogin $attemptLogin): void
+    public function login(): void
     {
+        if ($this->requiresTwoFactor) {
+            $this->verifyTwoFactor();
+
+            return;
+        }
+
         $invite = TeamInviteContext::findValidAcceptInvite(TeamInviteContext::peekToken());
         if ($invite) {
             $this->email = $invite->email;
@@ -56,12 +71,10 @@ class Login extends Component
 
         $this->ensureIsNotRateLimited();
 
-        $ok = $attemptLogin->execute([
-            'email' => $this->email,
-            'password' => $this->password,
-        ], $this->remember);
+        $userModel = config('auth.providers.users.model');
+        $user = is_string($userModel) ? $userModel::query()->where('email', $this->email)->first() : null;
 
-        if (! $ok) {
+        if (! $user || ! Hash::check($this->password, $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -69,17 +82,97 @@ class Login extends Component
             ]);
         }
 
-        RateLimiter::clear($this->throttleKey());
+        if (TwoFactorAuth::enabled($user)) {
+            session([
+                'login.two_factor.id' => $user->getAuthIdentifier(),
+                'login.two_factor.remember' => $this->remember,
+            ]);
+            $this->requiresTwoFactor = true;
+            $this->reset('password');
 
+            return;
+        }
+
+        RateLimiter::clear($this->throttleKey());
+        Auth::login($user, $this->remember);
         session()->regenerate();
 
+        $this->completeLogin();
+    }
+
+    public function verifyTwoFactor(): void
+    {
+        $this->validate([
+            'twoFactorCode' => ['required', 'string'],
+        ]);
+
+        $userId = session('login.two_factor.id');
+        $userModel = config('auth.providers.users.model');
+        $user = is_string($userModel) ? $userModel::query()->find($userId) : null;
+
+        if (! $user) {
+            session()->forget(['login.two_factor.id', 'login.two_factor.remember']);
+            $this->requiresTwoFactor = false;
+
+            throw ValidationException::withMessages([
+                'twoFactorCode' => __('Your session expired. Please sign in again.'),
+            ]);
+        }
+
+        $code = trim($this->twoFactorCode);
+        $verified = TwoFactorAuth::verify($user, $code);
+
+        if (! $verified && str_contains($code, '-')) {
+            $verified = $this->attemptRecoveryCode($user, $code);
+        }
+
+        if (! $verified) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'twoFactorCode' => __('The verification code is invalid.'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+
+        $remember = (bool) session('login.two_factor.remember', false);
+        session()->forget(['login.two_factor.id', 'login.two_factor.remember']);
+
+        Auth::login($user, $remember);
+        session()->regenerate();
+
+        $this->completeLogin();
+    }
+
+    protected function attemptRecoveryCode(object $user, string $code): bool
+    {
+        $codes = TwoFactorAuth::recoveryCodes($user);
+        $normalized = strtoupper(str_replace(' ', '', $code));
+
+        foreach ($codes as $index => $stored) {
+            if (hash_equals(strtoupper(str_replace(' ', '', $stored)), $normalized)) {
+                unset($codes[$index]);
+                $user->forceFill([
+                    'two_factor_recovery_codes' => TwoFactorAuth::encryptRecoveryCodes(array_values($codes)),
+                ])->save();
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function completeLogin(): void
+    {
         if ($token = TeamInviteContext::peekToken()) {
             $this->redirect(route('teams.invitations.accept', $token), navigate: true);
 
             return;
         }
 
-        $this->redirectIntended(default: config('electrik.auth.home', '/dashboard'), navigate: true);
+        $this->redirectIntended(default: Onboarding::homePath(), navigate: true);
     }
 
     protected function ensureIsNotRateLimited(): void

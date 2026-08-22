@@ -2,6 +2,7 @@
 
 namespace Electrik\Http\Controllers\Auth;
 
+use Electrik\Support\Onboarding;
 use Electrik\Support\TeamInviteContext;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -11,25 +12,26 @@ class VerifyEmailController
 {
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
-        $home = config('electrik.auth.home', '/dashboard');
-
         if ($request->user()->hasVerifiedEmail()) {
-            return $this->afterVerified($home);
+            return $this->afterVerified();
         }
 
         if ($request->user()->markEmailAsVerified()) {
             event(new Verified($request->user()));
         }
 
-        return $this->afterVerified($home);
+        return $this->afterVerified();
     }
 
-    protected function afterVerified(string $home): RedirectResponse
+    protected function afterVerified(): RedirectResponse
     {
         if ($token = TeamInviteContext::peekToken()) {
             return redirect()->to(route('teams.invitations.accept', $token));
         }
 
-        return redirect()->to($home.'?verified=1');
+        $path = Onboarding::homePath();
+        $suffix = str_contains($path, '?') ? '&verified=1' : '?verified=1';
+
+        return redirect()->to($path.$suffix);
     }
 }

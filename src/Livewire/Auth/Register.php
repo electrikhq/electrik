@@ -3,6 +3,7 @@
 namespace Electrik\Livewire\Auth;
 
 use Electrik\Actions\Auth\CreateNewUser;
+use Electrik\Support\Onboarding;
 use Electrik\Support\TeamInviteContext;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
@@ -78,7 +79,7 @@ class Register extends Component
             return;
         }
 
-        $this->redirect(config('electrik.auth.home', '/dashboard'), navigate: true);
+        $this->redirect(Onboarding::homePath(), navigate: true);
     }
 
     public function render()

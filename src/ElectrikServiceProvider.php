@@ -3,9 +3,12 @@
 namespace Electrik;
 
 use Electrik\Console\InstallCommand;
+use Electrik\Console\ResetOnboardingCommand;
+use Electrik\Console\SkipOnboardingForExistingCommand;
 use Electrik\Console\SyncPermissionsCommand;
 use Electrik\Console\SyncStripeCommand;
 use Electrik\Console\SyncSubscriptionsCommand;
+use Electrik\Http\Middleware\EnsurePlanFeature;
 use Electrik\Listeners\AssignTeamRoleOnJoin;
 use Electrik\Listeners\CreateDefaultTeam;
 use Electrik\Livewire\Auth\ForgotPassword;
@@ -20,8 +23,13 @@ use Electrik\Livewire\Billing\PaymentMethods as BillingPaymentMethods;
 use Electrik\Livewire\Billing\Plans as BillingPlans;
 use Electrik\Livewire\Billing\Subscription as BillingSubscription;
 use Electrik\Livewire\Dashboard;
+use Electrik\Livewire\NotificationBell;
+use Electrik\Livewire\Onboarding;
+use Electrik\Livewire\Pricing;
+use Electrik\Livewire\Settings\ApiTokens as SettingsApiTokens;
 use Electrik\Livewire\Settings\Profile as SettingsProfile;
 use Electrik\Livewire\Settings\Security as SettingsSecurity;
+use Electrik\Livewire\Teams\Activity as TeamsActivity;
 use Electrik\Livewire\Teams\AcceptInvitation;
 use Electrik\Livewire\Teams\Create;
 use Electrik\Livewire\Teams\DenyInvitation;
@@ -55,8 +63,10 @@ class ElectrikServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'electrik');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'electrik');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->configurePermissionModels();
+        $this->registerMiddleware();
         $this->registerBreadcrumbs();
         $this->registerLivewireComponents();
         $this->registerRoutes();
@@ -79,11 +89,22 @@ class ElectrikServiceProvider extends ServiceProvider
                 SyncStripeCommand::class,
                 SyncSubscriptionsCommand::class,
                 SyncPermissionsCommand::class,
+                ResetOnboardingCommand::class,
+                SkipOnboardingForExistingCommand::class,
             ]);
 
             $this->publishes([
                 __DIR__.'/../config/electrik.php' => config_path('electrik.php'),
             ], 'electrik-config');
+        }
+    }
+
+    protected function registerMiddleware(): void
+    {
+        $router = $this->app['router'];
+
+        if (method_exists($router, 'aliasMiddleware')) {
+            $router->aliasMiddleware('electrik.plan', EnsurePlanFeature::class);
         }
     }
 
@@ -122,6 +143,9 @@ class ElectrikServiceProvider extends ServiceProvider
     protected function registerLivewireComponents(): void
     {
         Livewire::component('electrik.dashboard', Dashboard::class);
+        Livewire::component('electrik.onboarding', Onboarding::class);
+        Livewire::component('electrik.pricing', Pricing::class);
+        Livewire::component('electrik.notification-bell', NotificationBell::class);
 
         Livewire::component('electrik.auth.login', Login::class);
         Livewire::component('electrik.auth.register', Register::class);
@@ -132,6 +156,7 @@ class ElectrikServiceProvider extends ServiceProvider
         Livewire::component('electrik.teams.index', Index::class);
         Livewire::component('electrik.teams.create', Create::class);
         Livewire::component('electrik.teams.settings', Settings::class);
+        Livewire::component('electrik.teams.activity', TeamsActivity::class);
         Livewire::component('electrik.teams.members', Members::class);
         Livewire::component('electrik.teams.invite', Invite::class);
         Livewire::component('electrik.teams.accept-invitation', AcceptInvitation::class);
@@ -151,6 +176,7 @@ class ElectrikServiceProvider extends ServiceProvider
 
         Livewire::component('electrik.settings.profile', SettingsProfile::class);
         Livewire::component('electrik.settings.security', SettingsSecurity::class);
+        Livewire::component('electrik.settings.api-tokens', SettingsApiTokens::class);
     }
 
     protected function registerRoutes(): void

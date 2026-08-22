@@ -53,6 +53,10 @@ class Index extends Component
             'team' => $team,
             'subscription' => $subscription,
             'plan' => $this->planForSubscription($subscription),
+            'trialLabel' => \Electrik\Support\BillingStatus::trialLabel($subscription),
+            'statusLabel' => \Electrik\Support\BillingStatus::statusLabel($subscription),
+            'healthChecks' => \Electrik\Support\BillingStatus::healthChecks(),
+            'healthOk' => \Electrik\Support\BillingStatus::healthOk(),
         ]);
     }
 }

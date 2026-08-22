@@ -4,7 +4,10 @@ namespace Electrik\Livewire\Teams;
 
 use Electrik\Concerns\AuthorizesTeamAccess;
 use Electrik\Models\Team;
+use Electrik\Notifications\DatabaseNotification;
 use Electrik\Notifications\TeamInvitationNotification;
+use Electrik\Support\ActivityLogger;
+use Electrik\Support\PlanFeatures;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -48,6 +51,12 @@ class Invite extends Component
             'role' => ['required', Rule::in($assignable)],
         ]);
 
+        if (! PlanFeatures::canInviteMember($this->team)) {
+            $this->addError('email', __('Your plan member limit has been reached.'));
+
+            return;
+        }
+
         if (strcasecmp($validated['email'], (string) auth()->user()->email) === 0) {
             $this->addError('email', __('You cannot invite yourself.'));
 
@@ -80,6 +89,22 @@ class Invite extends Component
             Notification::route('mail', $invite->email)
                 ->notify(new TeamInvitationNotification($invite));
         });
+
+        ActivityLogger::log(
+            $this->team,
+            'member.invited',
+            auth()->user(),
+            properties: ['email' => $validated['email'], 'role' => $validated['role']]
+        );
+
+        if ($owner = $this->team->users()->whereKey($this->team->owner_id)->first()) {
+            DatabaseNotification::send(
+                $owner,
+                __('Member invited'),
+                __(':email was invited to :team.', ['email' => $validated['email'], 'team' => $this->team->name]),
+                route('teams.members', $this->team)
+            );
+        }
 
         session()->flash('status', __('Invitation sent.'));
 

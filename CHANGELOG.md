@@ -2,6 +2,40 @@
 
 All notable changes to Electrik are documented in this file.
 
+## [5.0.0-alpha.13] - 2026-08-22
+
+### Added
+
+- Plan features and limits (`custom_roles`, `max_members`) with `EnsurePlanFeature` middleware.
+- Seat billing sync via `SyncTeamSeats` when plans use per-seat pricing.
+- Team activity log page and `ActivityLogger` for invites, membership, settings, and ownership changes.
+- In-app notification bell (database notifications).
+- Two-factor authentication (TOTP + recovery codes) on Security settings and login challenge.
+- Sanctum API tokens UI at `/settings/api-tokens`; install wires `HasApiTokens`.
+- Public pricing page at `/pricing`.
+- Team avatar upload on team settings.
+- Account menu on the primary rail and header dropdown.
+
+### Changed
+
+- Roles create route gated by `custom_roles` plan feature; invite flow respects member limits.
+- `electrik:install` publishes Sanctum when available.
+
+## [5.0.0-alpha.12] - 2026-08-22
+
+### Added
+
+- Onboarding wizard at `/onboarding` (team name → plan → invite).
+- Subscription gate banner when `ELECTRIK_REQUIRE_SUBSCRIPTION=true`.
+- Dashboard widgets: members, billing/trial status, pending invites.
+- Billing setup health card (Stripe keys + webhook URL).
+- Trial countdown on dashboard and billing overview.
+
+### Changed
+
+- New users redirect to onboarding after register/login/verify (skips for invite accept).
+- `electrik:install` documents webhook URL and stubs onboarding/subscription env vars.
+
 ## [5.0.0-alpha.11] - 2026-08-22
 
 ### Added

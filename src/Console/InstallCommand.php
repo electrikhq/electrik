@@ -23,7 +23,9 @@ class InstallCommand extends Command
         $this->ensureTeamwork();
         $this->ensurePermissionTeams();
         $this->ensureUserModel();
+        $this->ensureSanctum();
         $this->ensureStripeEnv();
+        $this->printStripeWebhookHelp();
 
         if ($this->option('migrate')) {
             $this->call('migrate', ['--force' => true]);
@@ -34,6 +36,7 @@ class InstallCommand extends Command
         $this->line('  Auth:     /login /register /forgot-password');
         $this->line('  Teams:    /teams (via electrik/teamwork)');
         $this->line('  Billing:  /billing  — set STRIPE_* then electrik:stripe:sync');
+        $this->line('  Onboard:  /onboarding (disable with ELECTRIK_ONBOARDING=false)');
         $this->line('  Migrate:  php artisan migrate   (or --migrate)');
         $this->line('  UI:       <x-slate::*> — https://slate.electrik.dev');
 
@@ -301,6 +304,66 @@ class InstallCommand extends Command
         }
     }
 
+    protected function ensureSanctum(): void
+    {
+        if (! class_exists(\Laravel\Sanctum\SanctumServiceProvider::class)) {
+            $this->components->warn('laravel/sanctum missing; skip API token setup.');
+
+            return;
+        }
+
+        if (! File::exists(config_path('sanctum.php'))) {
+            $this->callSilent('vendor:publish', [
+                '--provider' => 'Laravel\\Sanctum\\SanctumServiceProvider',
+            ]);
+            $this->components->twoColumnDetail('sanctum config/migrations', 'published');
+        } else {
+            $this->components->twoColumnDetail('sanctum config', 'exists');
+        }
+
+        $model = config('auth.providers.users.model');
+
+        if (! is_string($model) || ! class_exists($model)) {
+            return;
+        }
+
+        try {
+            $path = (new ReflectionClass($model))->getFileName();
+        } catch (\ReflectionException) {
+            return;
+        }
+
+        if (! $path || ! File::isWritable($path)) {
+            return;
+        }
+
+        $contents = File::get($path);
+        $original = $contents;
+
+        if (! str_contains($contents, 'Laravel\\Sanctum\\HasApiTokens')) {
+            $contents = preg_replace(
+                '/(namespace App\\\\Models;\\s+)/',
+                "$1\nuse Laravel\\Sanctum\\HasApiTokens;\n",
+                $contents,
+                1
+            ) ?? $contents;
+        }
+
+        if (! str_contains($contents, 'HasApiTokens')) {
+            $contents = preg_replace(
+                '/use HasFactory, HasRoles, Notifiable, UserHasTeams;/',
+                'use HasApiTokens, HasFactory, HasRoles, Notifiable, UserHasTeams;',
+                $contents,
+                1
+            ) ?? $contents;
+        }
+
+        if ($contents !== $original) {
+            File::put($path, $contents);
+            $this->components->twoColumnDetail('User model', 'HasApiTokens added');
+        }
+    }
+
     protected function ensureStripeEnv(): void
     {
         $envPath = base_path('.env');
@@ -317,6 +380,8 @@ class InstallCommand extends Command
             'STRIPE_SECRET' => '',
             'STRIPE_WEBHOOK_SECRET' => '',
             'CASHIER_CURRENCY' => 'usd',
+            'ELECTRIK_ONBOARDING' => 'true',
+            'ELECTRIK_REQUIRE_SUBSCRIPTION' => 'false',
         ];
 
         $added = [];
@@ -336,5 +401,16 @@ class InstallCommand extends Command
 
         File::put($envPath, $contents."\n");
         $this->components->twoColumnDetail('Stripe .env', 'stubbed '.implode(', ', $added));
+    }
+
+    protected function printStripeWebhookHelp(): void
+    {
+        $url = url('/stripe/webhook');
+
+        $this->newLine();
+        $this->components->info('Stripe webhooks');
+        $this->line('  Endpoint: '.$url);
+        $this->line('  Local:    stripe listen --forward-to '.$url);
+        $this->line('  Repair:   php artisan electrik:stripe:sync-subscriptions');
     }
 }

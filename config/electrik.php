@@ -10,7 +10,7 @@ return [
 
     'name' => env('ELECTRIK_NAME', 'Electrik'),
 
-    'version' => '5.0.0-alpha.11',
+    'version' => '5.0.0-alpha.13',
 
     /*
     |--------------------------------------------------------------------------
@@ -24,6 +24,24 @@ return [
         'registration' => env('ELECTRIK_REGISTRATION', true),
 
         'email_verification' => env('ELECTRIK_EMAIL_VERIFICATION', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Onboarding
+    |--------------------------------------------------------------------------
+    */
+
+    'onboarding' => [
+        'enabled' => filter_var(env('ELECTRIK_ONBOARDING', true), FILTER_VALIDATE_BOOL),
+
+        'exempt_routes' => [
+            'onboarding',
+            'billing.*',
+            'teams.invitations.*',
+            'verification.*',
+            'logout',
+        ],
     ],
 
     /*
@@ -115,7 +133,17 @@ return [
 
         'cc_required_for_free_plan' => env('ELECTRIK_CC_REQUIRED_FOR_FREE_PLAN', false),
 
-        'require_subscription' => env('ELECTRIK_REQUIRE_SUBSCRIPTION', false),
+        'require_subscription' => filter_var(env('ELECTRIK_REQUIRE_SUBSCRIPTION', false), FILTER_VALIDATE_BOOL),
+
+        'plan_features' => [
+            'default' => [
+                'custom_roles' => false,
+                'max_members' => 5,
+            ],
+            'by_price_id' => [
+                // 'price_xxx' => ['custom_roles' => true, 'max_members' => 50],
+            ],
+        ],
 
         'product_model' => \Electrik\Models\StripeProduct::class,
 

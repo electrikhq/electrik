@@ -2,7 +2,10 @@
 
 namespace Electrik\Actions\Teams;
 
+use Electrik\Actions\Billing\SyncTeamSeats;
 use Electrik\Models\Role;
+use Electrik\Support\ActivityLogger;
+use Electrik\Support\Onboarding;
 use Electrik\Support\TeamInviteContext;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Mpociot\Teamwork\TeamInvite;
@@ -46,6 +49,13 @@ class AcceptTeamInvite
             $invite->delete();
             $user->switchTeam($teamId);
 
+            ActivityLogger::log($team, 'member.joined', $user, $user, ['name' => $user->name]);
+            app(SyncTeamSeats::class)->execute($team);
+
+            if (Onboarding::enabled()) {
+                Onboarding::markCompleted($user);
+            }
+
             return;
         }
 
@@ -56,5 +66,12 @@ class AcceptTeamInvite
         $user->switchTeam($teamId);
 
         TeamInviteContext::pullPendingRole();
+
+        ActivityLogger::log($team, 'member.joined', $user, $user, ['name' => $user->name]);
+        app(SyncTeamSeats::class)->execute($team);
+
+        if (Onboarding::enabled()) {
+            Onboarding::markCompleted($user);
+        }
     }
 }

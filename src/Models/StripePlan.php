@@ -15,6 +15,9 @@ class StripePlan extends Model
         'currency',
         'interval',
         'interval_count',
+        'features',
+        'max_seats',
+        'seat_billing',
     ];
 
     protected function casts(): array
@@ -22,6 +25,9 @@ class StripePlan extends Model
         return [
             'price' => 'integer',
             'interval_count' => 'integer',
+            'features' => 'array',
+            'max_seats' => 'integer',
+            'seat_billing' => 'boolean',
         ];
     }
 

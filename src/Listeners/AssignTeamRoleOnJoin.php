@@ -2,8 +2,10 @@
 
 namespace Electrik\Listeners;
 
+use Electrik\Actions\Billing\SyncTeamSeats;
 use Electrik\Models\Role;
 use Electrik\Models\Team;
+use Electrik\Support\ActivityLogger;
 use Electrik\Support\EnsuresTeamRoles;
 use Electrik\Support\TeamInviteContext;
 use Mpociot\Teamwork\Events\UserJoinedTeam;
@@ -45,5 +47,10 @@ class AssignTeamRoleOnJoin
         }
 
         $user->syncRoles([$role]);
+
+        if ($team) {
+            ActivityLogger::log($team, 'member.joined', $user, $user, ['name' => $user->name]);
+            app(SyncTeamSeats::class)->execute($team);
+        }
     }
 }

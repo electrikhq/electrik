@@ -3,6 +3,7 @@
 namespace Electrik\Http\Middleware;
 
 use Closure;
+use Electrik\Support\BillingStatus;
 use Electrik\Models\StripePlan;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +12,7 @@ class EnsureSubscriptionActive
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! config('electrik.billing.require_subscription', false)) {
+        if (! BillingStatus::subscriptionRequired()) {
             return $next($request);
         }
 
@@ -22,15 +23,7 @@ class EnsureSubscriptionActive
             return redirect()->route('teams.index');
         }
 
-        $name = config('electrik.billing.subscription_name', 'electrik');
-        $subscription = $team->subscription($name);
-
-        if ($subscription && ($subscription->active() || $subscription->onTrial() || $subscription->onGracePeriod())) {
-            return $next($request);
-        }
-
-        $planModel = config('electrik.billing.plan_model', StripePlan::class);
-        if ($planModel::query()->where('price', 0)->exists()) {
+        if (BillingStatus::teamHasAccess($team)) {
             return $next($request);
         }
 

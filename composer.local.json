@@ -6,9 +6,17 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "../teamwork",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "require": {
-        "electrik/slate": "@dev"
+        "electrik/slate": "@dev",
+        "electrik/teamwork": "@dev"
     }
 }

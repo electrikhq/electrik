@@ -2,7 +2,9 @@
 
 namespace Electrik\Livewire\Teams;
 
+use Electrik\Actions\Billing\SyncTeamSeats;
 use Electrik\Concerns\AuthorizesTeamAccess;
+use Electrik\Support\ActivityLogger;
 use Electrik\Models\Role;
 use Electrik\Models\Team;
 use Livewire\Attributes\Layout;
@@ -39,6 +41,11 @@ class Members extends Component
         }
 
         $member->detachTeam($this->team);
+
+        ActivityLogger::log($this->team, 'member.removed', auth()->user(), $member, [
+            'name' => $member->name,
+        ]);
+        app(SyncTeamSeats::class)->execute($this->team);
     }
 
     public function leave(): void
@@ -58,6 +65,9 @@ class Members extends Component
         }
 
         $user->detachTeam($this->team);
+
+        ActivityLogger::log($this->team, 'member.left', $user, $user, ['name' => $user->name]);
+        app(SyncTeamSeats::class)->execute($this->team);
 
         if ((int) $user->current_team_id === (int) $this->team->id) {
             $next = $user->teams()->first();
@@ -88,6 +98,14 @@ class Members extends Component
 
         $member = $this->team->users()->whereKey($userId)->firstOrFail();
         $member->syncRoles([$role]);
+
+        ActivityLogger::log(
+            $this->team,
+            'member.role_changed',
+            auth()->user(),
+            $member,
+            properties: ['name' => $member->name, 'role' => $role]
+        );
     }
 
     public function cancelInvite(int $inviteId): void

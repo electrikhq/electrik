@@ -6,6 +6,7 @@ use Electrik\Concerns\AuthorizesTeamAccess;
 use Electrik\Models\Permission;
 use Electrik\Models\Role;
 use Electrik\Models\Team;
+use Electrik\Support\PlanFeatures;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
@@ -32,6 +33,7 @@ class Create extends Component
     public function mount(Team $team): void
     {
         $this->authorizeTeamPermission($team, 'access.roles');
+        abort_unless(PlanFeatures::has($team, 'custom_roles'), 403);
         $this->team = $team;
     }
 

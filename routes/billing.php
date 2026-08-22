@@ -1,10 +1,11 @@
 <?php
 
+use Electrik\Http\Middleware\EnsureOnboardingComplete;
 use Electrik\Http\Middleware\EnsureTeamSelected;
 use Electrik\Http\Middleware\SetPermissionsTeamId;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', SetPermissionsTeamId::class, EnsureTeamSelected::class])
+Route::middleware(['auth', 'verified', SetPermissionsTeamId::class, EnsureTeamSelected::class, EnsureOnboardingComplete::class])
     ->prefix('billing')
     ->name('billing.')
     ->group(function () {
