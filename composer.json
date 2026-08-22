@@ -2,7 +2,7 @@
     "name": "electrik/electrik",
     "description": "Laravel SaaS starter kit: auth, teams, and Stripe billing on Electrik Slate.",
     "type": "library",
-    "version": "5.0.0-alpha.13",
+    "version": "5.0.0-alpha.14",
     "license": "BSL-1.1",
     "keywords": [
         "laravel",

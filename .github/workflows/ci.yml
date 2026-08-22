@@ -7,12 +7,12 @@ on:
     branches: [5.x, main, master]
 
 jobs:
-  sandbox:
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
     steps:
-      - name: Checkout monorepo (electrik + sandbox)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Run sandbox tests
+      - name: Run package and sandbox tests
         run: |
-          chmod +x electrik/scripts/ci-sandbox.sh
-          electrik/scripts/ci-sandbox.sh
+          chmod +x scripts/ci.sh scripts/ci-package.sh scripts/ci-sandbox.sh
+          scripts/ci.sh

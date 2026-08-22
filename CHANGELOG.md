@@ -2,6 +2,20 @@
 
 All notable changes to Electrik are documented in this file.
 
+## [5.0.0-alpha.14] - 2026-08-22
+
+### Added
+
+- Profile photo upload on `/settings/profile`.
+- Session management UI at `/settings/sessions` (requires `SESSION_DRIVER=database`).
+- `electrik:seed-demo` for a ready-to-login demo workspace.
+- Package-level PHPUnit suite and `scripts/ci-package.sh` (CI runs without monorepo sandbox).
+
+### Changed
+
+- `electrik:install` stubs `SESSION_DRIVER`, documents demo seed + storage link, runs permission sync with `--migrate`.
+- CI workflow runs package tests on every push; sandbox integration tests when present.
+
 ## [5.0.0-alpha.13] - 2026-08-22
 
 ### Added

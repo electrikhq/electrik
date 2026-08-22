@@ -23,6 +23,10 @@ fi
 php artisan migrate --force --ansi
 php artisan electrik:permissions:sync --teams --ansi
 
+if [[ ! -L public/storage ]]; then
+  php artisan storage:link --ansi || true
+fi
+
 if [[ -f package.json ]]; then
   npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
   npm run build

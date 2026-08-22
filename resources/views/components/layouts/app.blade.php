@@ -88,6 +88,9 @@
                                 <x-slate::dropdown-menu-item as="a" href="{{ route('settings.security') }}" wire:navigate>
                                     Security
                                 </x-slate::dropdown-menu-item>
+                                <x-slate::dropdown-menu-item as="a" href="{{ route('settings.sessions') }}" wire:navigate>
+                                    Sessions
+                                </x-slate::dropdown-menu-item>
                                 @if (class_exists(\Laravel\Sanctum\SanctumServiceProvider::class))
                                     <x-slate::dropdown-menu-item as="a" href="{{ route('settings.api-tokens') }}" wire:navigate>
                                         API tokens
@@ -167,6 +170,9 @@
                             </x-slate::dropdown-menu-item>
                             <x-slate::dropdown-menu-item as="a" href="{{ route('settings.security') }}" wire:navigate>
                                 Security
+                            </x-slate::dropdown-menu-item>
+                            <x-slate::dropdown-menu-item as="a" href="{{ route('settings.sessions') }}" wire:navigate>
+                                Sessions
                             </x-slate::dropdown-menu-item>
                             @if (class_exists(\Laravel\Sanctum\SanctumServiceProvider::class))
                                 <x-slate::dropdown-menu-item as="a" href="{{ route('settings.api-tokens') }}" wire:navigate>
@@ -259,6 +265,7 @@
                             <div class="space-y-1">
                                 <x-electrik::nav-link :href="route('settings.profile')" :active="request()->routeIs('settings.profile')" icon="user">Profile</x-electrik::nav-link>
                                 <x-electrik::nav-link :href="route('settings.security')" :active="request()->routeIs('settings.security')" icon="password">Security</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('settings.sessions')" :active="request()->routeIs('settings.sessions')" icon="devices">Sessions</x-electrik::nav-link>
                                 @if (class_exists(\Laravel\Sanctum\SanctumServiceProvider::class))
                                     <x-electrik::nav-link :href="route('settings.api-tokens')" :active="request()->routeIs('settings.api-tokens')" icon="connect">API tokens</x-electrik::nav-link>
                                 @endif

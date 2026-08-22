@@ -4,6 +4,7 @@ namespace Electrik;
 
 use Electrik\Console\InstallCommand;
 use Electrik\Console\ResetOnboardingCommand;
+use Electrik\Console\SeedDemoCommand;
 use Electrik\Console\SkipOnboardingForExistingCommand;
 use Electrik\Console\SyncPermissionsCommand;
 use Electrik\Console\SyncStripeCommand;
@@ -29,6 +30,7 @@ use Electrik\Livewire\Pricing;
 use Electrik\Livewire\Settings\ApiTokens as SettingsApiTokens;
 use Electrik\Livewire\Settings\Profile as SettingsProfile;
 use Electrik\Livewire\Settings\Security as SettingsSecurity;
+use Electrik\Livewire\Settings\Sessions as SettingsSessions;
 use Electrik\Livewire\Teams\Activity as TeamsActivity;
 use Electrik\Livewire\Teams\AcceptInvitation;
 use Electrik\Livewire\Teams\Create;
@@ -90,6 +92,7 @@ class ElectrikServiceProvider extends ServiceProvider
                 SyncSubscriptionsCommand::class,
                 SyncPermissionsCommand::class,
                 ResetOnboardingCommand::class,
+                SeedDemoCommand::class,
                 SkipOnboardingForExistingCommand::class,
             ]);
 
@@ -176,6 +179,7 @@ class ElectrikServiceProvider extends ServiceProvider
 
         Livewire::component('electrik.settings.profile', SettingsProfile::class);
         Livewire::component('electrik.settings.security', SettingsSecurity::class);
+        Livewire::component('electrik.settings.sessions', SettingsSessions::class);
         Livewire::component('electrik.settings.api-tokens', SettingsApiTokens::class);
     }
 

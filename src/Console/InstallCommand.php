@@ -24,11 +24,15 @@ class InstallCommand extends Command
         $this->ensurePermissionTeams();
         $this->ensureUserModel();
         $this->ensureSanctum();
+        $this->ensureCashier();
+        $this->ensureSessionDriver();
         $this->ensureStripeEnv();
+        $this->ensureStorageLink();
         $this->printStripeWebhookHelp();
 
         if ($this->option('migrate')) {
             $this->call('migrate', ['--force' => true]);
+            $this->call('electrik:permissions:sync', ['--teams' => true]);
         }
 
         $this->newLine();
@@ -37,6 +41,8 @@ class InstallCommand extends Command
         $this->line('  Teams:    /teams (via electrik/teamwork)');
         $this->line('  Billing:  /billing  — set STRIPE_* then electrik:stripe:sync');
         $this->line('  Onboard:  /onboarding (disable with ELECTRIK_ONBOARDING=false)');
+        $this->line('  Demo:     php artisan electrik:seed-demo');
+        $this->line('  Storage:  php artisan storage:link  (avatars & uploads)');
         $this->line('  Migrate:  php artisan migrate   (or --migrate)');
         $this->line('  UI:       <x-slate::*> — https://slate.electrik.dev');
 
@@ -362,6 +368,50 @@ class InstallCommand extends Command
             File::put($path, $contents);
             $this->components->twoColumnDetail('User model', 'HasApiTokens added');
         }
+    }
+
+    protected function ensureCashier(): void
+    {
+        if (! class_exists(\Laravel\Cashier\CashierServiceProvider::class)) {
+            $this->components->warn('laravel/cashier missing; skip Cashier setup.');
+
+            return;
+        }
+
+        $this->components->twoColumnDetail('Cashier', 'team billing via migrations');
+    }
+
+    protected function ensureSessionDriver(): void
+    {
+        $envPath = base_path('.env');
+
+        if (! File::exists($envPath)) {
+            return;
+        }
+
+        $contents = File::get($envPath);
+
+        if (preg_match('/^SESSION_DRIVER=/m', $contents)) {
+            $this->components->twoColumnDetail('SESSION_DRIVER', 'already set');
+
+            return;
+        }
+
+        File::put($envPath, rtrim($contents)."\nSESSION_DRIVER=database\n");
+        $this->components->twoColumnDetail('SESSION_DRIVER', 'database (for session list UI)');
+    }
+
+    protected function ensureStorageLink(): void
+    {
+        $link = public_path('storage');
+
+        if (File::exists($link)) {
+            $this->components->twoColumnDetail('public/storage', 'linked');
+
+            return;
+        }
+
+        $this->components->warn('Run php artisan storage:link for profile and team avatars.');
     }
 
     protected function ensureStripeEnv(): void
