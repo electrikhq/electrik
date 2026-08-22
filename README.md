@@ -12,9 +12,12 @@ Laravel SaaS starter kit: authentication, teams, and Stripe billing — as a **C
 
 - PHP 8.3+
 - Laravel 12+
-- Livewire 3
+- Livewire 4
 - Tailwind CSS v4
 - `electrik/slate` `^3.0@alpha`
+- `electrik/teamwork` `^11.0` (Electrik fork of Teamwork; Laravel 13 ready)
+- `spatie/laravel-permission` `^6.0`
+- `laravel/cashier` `^15.0`
 
 ## Install (alpha)
 
@@ -23,11 +26,25 @@ composer require electrik/electrik:^5.0@alpha
 php artisan electrik:install
 ```
 
-Local workspace (path-repo Slate):
+## Local sandbox
+
+From the lab root (`electrik/` workspace folder):
 
 ```bash
-# from this repo
-cp composer.local.json composer.json.merge   # or merge repositories manually
+./scripts/reset-electrik-sandbox.sh
+cd electrik-sandbox
+php artisan serve
+```
+
+That wipes `electrik-sandbox/`, creates a fresh Laravel app, path-links local `electrik` + `slate`, runs `electrik:install`, and builds assets.
+
+Auth smoke pages after reset: `/login`, `/register`, `/forgot-password`.
+Billing: `/billing` (set Stripe test keys in `.env`, then `php artisan electrik:stripe:sync`).
+
+Local workspace (path-repo Slate inside the package):
+
+```bash
+# merge composer.local.json repositories into a consumer app, or use the sandbox script above
 composer update electrik/slate
 ```
 
@@ -39,4 +56,4 @@ composer update electrik/slate
 
 ## Status
 
-`5.0.0-alpha.0` is a blank-line bootstrap. Auth, teams, and billing land in later alphas.
+`5.0.0-alpha.7` ships auth, teams, billing, and account profile/password settings.

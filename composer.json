@@ -2,7 +2,7 @@
     "name": "electrik/electrik",
     "description": "Laravel SaaS starter kit: auth, teams, and Stripe billing on Electrik Slate.",
     "type": "library",
-    "version": "5.0.0-alpha.0",
+    "version": "5.0.0-alpha.11",
     "license": "BSL-1.1",
     "keywords": [
         "laravel",
@@ -29,7 +29,12 @@
         "php": "^8.3",
         "electrik/slate": "^3.0@alpha",
         "illuminate/support": "^12.0|^13.0",
-        "livewire/livewire": "^3.0"
+        "laravel/cashier": "^15.0",
+        "livewire/livewire": "^4.0",
+        "electrik/teamwork": "^11.0",
+        "spatie/laravel-permission": "^6.0",
+        "diglactic/laravel-breadcrumbs": "^10.0",
+        "dompdf/dompdf": "^3.0"
     },
     "require-dev": {
         "orchestra/testbench": "^10.0|^11.0",

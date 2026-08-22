@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('electrik.name', 'Electrik') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
     @livewireStyles
 </head>
 <body class="min-h-screen bg-background text-foreground antialiased">
