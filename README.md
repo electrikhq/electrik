@@ -4,6 +4,8 @@
 
 Laravel SaaS starter kit: authentication, teams, and Stripe billing — as a **Composer package** (code stays under `Electrik\`, not copied into `App\`).
 
+**Coming from Slate?** Same UI kit — add the product shell: `composer require electrik/electrik:^5.0@alpha` → [install guide](https://electrik.dev/install) · [demo](https://demo.electrik.dev).
+
 ## License
 
 **Business Source License 1.1** with a free Additional Use Grant for personal, educational, open-source, and pre-revenue indie use. Commercial use by companies and client work requires a commercial license. See [LICENSE](LICENSE).
