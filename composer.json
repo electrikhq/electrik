@@ -2,7 +2,7 @@
     "name": "electrik/electrik",
     "description": "Laravel SaaS starter kit: auth, teams, and Stripe billing on Electrik Slate.",
     "type": "library",
-    "version": "5.0.0-alpha.14",
+    "version": "5.0.0-alpha.15",
     "license": "BUSL-1.1",
     "keywords": [
         "laravel",
@@ -27,6 +27,8 @@
     },
     "require": {
         "php": "^8.3",
+        "blade-ui-kit/blade-icons": "^1.6",
+        "codeat3/blade-carbon-icons": "^2.0",
         "electrik/slate": "^3.0@alpha",
         "illuminate/support": "^12.0|^13.0",
         "laravel/cashier": "^15.0",

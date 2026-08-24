@@ -2,6 +2,17 @@
 
 All notable changes to Electrik are documented in this file.
 
+## [5.0.0-alpha.15] - 2026-08-24
+
+### Added
+
+- Carbon icons as first-class dependencies (`blade-ui-kit/blade-icons`, `codeat3/blade-carbon-icons`).
+- Electrik welcome page stub published by `electrik:install` (replaces Laravel default when using `--force`).
+
+### Fixed
+
+- App shell and nav icons render via `@svg('carbon-…')` so consumer apps and the hosted demo match the sandbox icon set.
+
 ## [5.0.0-alpha.14] - 2026-08-22
 
 ### Added

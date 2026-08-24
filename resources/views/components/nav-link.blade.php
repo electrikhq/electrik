@@ -29,7 +29,7 @@
     ]) }}
 >
     @if ($icon)
-        <x-electrik::icon :name="$icon" class="size-4 shrink-0 opacity-70" />
+        @svg('carbon-'.$icon, 'size-4 shrink-0 opacity-70')
     @endif
     <span class="truncate">{{ $slot }}</span>
 </a>

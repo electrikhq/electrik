@@ -9,7 +9,7 @@ use ReflectionClass;
 class InstallCommand extends Command
 {
     protected $signature = 'electrik:install
-                            {--force : Overwrite published config if it exists}
+                            {--force : Overwrite published config and welcome view if they exist}
                             {--migrate : Run migrations after install}';
 
     protected $description = 'Install Electrik into a Laravel application';
@@ -20,6 +20,7 @@ class InstallCommand extends Command
         $this->components->info('Installing Electrik '.$this->electrikVersion());
 
         $this->ensureSlateCssImport();
+        $this->ensureWelcomeView();
         $this->ensureTeamwork();
         $this->ensurePermissionTeams();
         $this->ensureUserModel();
@@ -70,6 +71,28 @@ class InstallCommand extends Command
         ]);
 
         $this->components->twoColumnDetail('config/electrik.php', 'published');
+    }
+
+    protected function ensureWelcomeView(): void
+    {
+        $stub = dirname(__DIR__, 2).'/stubs/welcome.blade.php';
+        $target = resource_path('views/welcome.blade.php');
+
+        if (! File::exists($stub)) {
+            $this->components->warn('Electrik welcome stub missing; skip welcome.blade.php.');
+
+            return;
+        }
+
+        if (File::exists($target) && ! $this->option('force')) {
+            $this->components->twoColumnDetail('resources/views/welcome.blade.php', 'exists');
+
+            return;
+        }
+
+        File::ensureDirectoryExists(dirname($target));
+        File::copy($stub, $target);
+        $this->components->twoColumnDetail('resources/views/welcome.blade.php', 'published');
     }
 
     protected function ensureSlateCssImport(): void
