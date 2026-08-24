@@ -1,0 +1,47 @@
+name: Deploy hosted demo
+
+on:
+  push:
+    tags:
+      - "v5.*"
+      - "5.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Electrik version without v prefix (leave empty to use this tag / latest on demo)
+        required: false
+        type: string
+
+jobs:
+  dispatch-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            V="${{ github.event.inputs.version }}"
+          elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            V="${GITHUB_REF_NAME}"
+          else
+            V=""
+          fi
+          V="${V#v}"
+          echo "electrik=${V}" >> "$GITHUB_OUTPUT"
+          echo "Dispatching demo deploy for: ${V:-latest}"
+
+      - name: Trigger demo.electrik.dev deploy
+        env:
+          GH_TOKEN: ${{ secrets.DEMO_DISPATCH_TOKEN }}
+          VERSION: ${{ steps.version.outputs.electrik }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "DEMO_DISPATCH_TOKEN secret is missing on electrikhq/electrik" >&2
+            exit 1
+          fi
+          gh api --method POST \
+            -H "Accept: application/vnd.github+json" \
+            /repos/electrikhq/demo.electrik.dev/dispatches \
+            --input - <<EOF
+          {"event_type":"electrik-release","client_payload":{"version":"${VERSION}"}}
+          EOF
