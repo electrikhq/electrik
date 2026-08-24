@@ -1,7 +1,7 @@
 <x-slate::dropdown-menu class="relative">
     <x-slate::dropdown-menu-trigger>
         <x-slate::button type="button" variant="ghost" size="sm" class="relative" aria-label="{{ __('Notifications') }}">
-            @svg('carbon-notification', 'size-4')
+            <x-electrik::icon name="notification" class="size-4" />
             @if ($unreadCount > 0)
                 <span class="absolute end-1 top-1 flex size-2 rounded-full bg-destructive" aria-hidden="true"></span>
             @endif

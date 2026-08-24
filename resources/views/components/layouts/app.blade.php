@@ -128,7 +128,7 @@
                         :active="$navSection === 'dashboard'"
                         :label="__('Dashboard')"
                     >
-                        @svg('carbon-dashboard', 'size-5')
+                        <x-electrik::icon name="dashboard" class="size-5" />
                     </x-electrik::rail-link>
 
                     <x-electrik::rail-link
@@ -136,7 +136,7 @@
                         :active="$navSection === 'teams'"
                         :label="__('Teams')"
                     >
-                        @svg('carbon-enterprise', 'size-5')
+                        <x-electrik::icon name="enterprise" class="size-5" />
                     </x-electrik::rail-link>
 
                     <x-electrik::rail-link
@@ -144,7 +144,7 @@
                         :active="$navSection === 'billing'"
                         :label="__('Billing')"
                     >
-                        @svg('carbon-wallet', 'size-5')
+                        <x-electrik::icon name="wallet" class="size-5" />
                     </x-electrik::rail-link>
                 </nav>
 
@@ -161,7 +161,7 @@
                                 aria-label="{{ __('Account') }}"
                                 title="{{ __('Account') }}"
                             >
-                                @svg('carbon-user', 'size-5')
+                                <x-electrik::icon name="user" class="size-5" />
                             </button>
                         </x-slate::dropdown-menu-trigger>
                         <x-slate::dropdown-menu-content side="end" align="start" class="w-44">
