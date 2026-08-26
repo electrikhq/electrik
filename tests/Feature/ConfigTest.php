@@ -8,7 +8,8 @@ class ConfigTest extends TestCase
 {
     public function test_electrik_config_is_merged(): void
     {
-        $this->assertSame('5.0.0-alpha.14', config('electrik.version'));
+        $composer = json_decode((string) file_get_contents(dirname(__DIR__, 2).'/composer.json'), true);
+        $this->assertSame($composer['version'] ?? null, config('electrik.version'));
         $this->assertTrue(config('electrik.onboarding.enabled'));
         $this->assertContains('onboarding', config('electrik.onboarding.exempt_routes'));
     }
