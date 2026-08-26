@@ -60,6 +60,22 @@ class ElectrikServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/electrik.php', 'electrik');
+
+        // Always take version from this package's composer.json so release bumps
+        // cannot leave config (or CI) stuck on an old hardcoded string.
+        $this->app['config']->set('electrik.version', static::packageVersion());
+    }
+
+    public static function packageVersion(): string
+    {
+        $composerFile = dirname(__DIR__).'/composer.json';
+        if (! is_readable($composerFile)) {
+            return '5.x';
+        }
+
+        $composer = json_decode((string) file_get_contents($composerFile), true);
+
+        return is_string($composer['version'] ?? null) ? $composer['version'] : '5.x';
     }
 
     public function boot(): void

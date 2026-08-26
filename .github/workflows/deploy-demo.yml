@@ -36,8 +36,11 @@ jobs:
           VERSION: ${{ steps.version.outputs.electrik }}
         run: |
           if [ -z "${GH_TOKEN}" ]; then
-            echo "DEMO_DISPATCH_TOKEN secret is missing on electrikhq/electrik" >&2
-            exit 1
+            echo "::notice::Skipping auto demo rebuild — add repo secret DEMO_DISPATCH_TOKEN on electrikhq/electrik."
+            echo "That secret is a GitHub token that can POST repository_dispatch to electrikhq/demo.electrik.dev"
+            echo "(Contents: read + Actions: write on demo.electrik.dev, or a classic PAT with repo scope)."
+            echo "Until then, redeploy manually: Actions → Deploy demo.electrik.dev → Run workflow."
+            exit 0
           fi
           gh api --method POST \
             -H "Accept: application/vnd.github+json" \

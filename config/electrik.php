@@ -10,7 +10,8 @@ return [
 
     'name' => env('ELECTRIK_NAME', 'Electrik'),
 
-    'version' => '5.0.0-alpha.15',
+    // Overwritten at boot from this package's composer.json (single source of truth).
+    'version' => '5.x',
 
     /*
     |--------------------------------------------------------------------------
