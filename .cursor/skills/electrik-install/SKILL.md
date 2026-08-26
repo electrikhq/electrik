@@ -13,8 +13,8 @@ description: >-
 
 | Piece | Package | Docs |
 |---|---|---|
-| SaaS kit | `electrik/electrik` ^5.0@alpha | https://electrik.dev/install · https://electrik.dev/docs |
-| UI kit | `electrik/slate` ^3.0@alpha | https://slate.electrik.dev |
+| SaaS kit | `electrik/electrik` ^5.0 | https://electrik.dev/install · https://electrik.dev/docs |
+| UI kit | `electrik/slate` ^3.0 | https://slate.electrik.dev |
 | Blocks | `electrik/slate-blocks` ^0.1@alpha | https://slate.electrik.dev/blocks |
 | Demo | — | https://demo.electrik.dev (`demo@electrik.dev` / `password`) |
 
@@ -31,7 +31,7 @@ License: Electrik is **BSL 1.1** (free Additional Use Grant for indies; commerci
 ## Install sequence
 
 ```bash
-composer require electrik/electrik:^5.0@alpha
+composer require electrik/electrik:^5.0
 php artisan electrik:install --migrate --force
 ```
 

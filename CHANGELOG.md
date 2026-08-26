@@ -2,6 +2,19 @@
 
 All notable changes to Electrik are documented in this file.
 
+## [5.0.0] - 2026-08-26
+
+### Added
+
+- First stable `5.0.0` release of the Electrik Laravel SaaS starter kit.
+- Depends on stable `electrik/slate` `^3.0` (no `@alpha` stability flag).
+
+### Notes
+
+- Install with `composer require electrik/electrik:^5.0`.
+- Historical `5.0.0-alpha.*` tags remain available for pins.
+- Package version is derived from `composer.json` at boot (`ElectrikServiceProvider::packageVersion()`).
+
 ## [5.0.0-alpha.15] - 2026-08-24
 
 ### Added

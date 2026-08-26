@@ -28,7 +28,7 @@
 
 If you want a **product shell on Laravel** without a Jetstream-style dump into your app — and UI that stays on [Electrik Slate](https://slate.electrik.dev) — use Electrik.
 
-> **Status:** `5.x` is in active alpha (`5.0.0-alpha.15`). Auth, teams, billing, and the app shell ship; APIs can still change before stable.
+> **Status:** `5.0.0` stable. Auth, teams, Stripe billing on the team, onboarding, and Slate 3 UI as a Composer package.
 
 ## Table of contents
 
@@ -89,7 +89,7 @@ If you want a **product shell on Laravel** without a Jetstream-style dump into y
 ### 1. Require the package
 
 ```bash
-composer require electrik/electrik:^5.0@alpha
+composer require electrik/electrik:^5.0
 ```
 
 ### 2. Install
@@ -168,7 +168,7 @@ Slate and slate-blocks are **MIT**. Electrik is **BSL 1.1** (see below).
 - Laravel **12.x** or **13.x**
 - Livewire **4**
 - Tailwind CSS **v4**
-- `electrik/slate` `^3.0@alpha`
+- `electrik/slate` `^3.0`
 - `electrik/teamwork` `^11.0`
 - `spatie/laravel-permission` `^6.0`
 - `laravel/cashier` `^15.0`
