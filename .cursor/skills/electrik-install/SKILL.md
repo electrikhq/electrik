@@ -15,7 +15,7 @@ description: >-
 |---|---|---|
 | SaaS kit | `electrik/electrik` ^5.0 | https://electrik.dev/install · https://electrik.dev/docs |
 | UI kit | `electrik/slate` ^3.0 | https://slate.electrik.dev |
-| Blocks | `electrik/slate-blocks` ^0.1@alpha | https://slate.electrik.dev/blocks |
+| Blocks | `electrik/slate-blocks` ^0.1 | https://slate.electrik.dev/blocks |
 | Demo | — | https://demo.electrik.dev (`demo@electrik.dev` / `password`) |
 
 License: Electrik is **BSL 1.1** (free Additional Use Grant for indies; commercial for companies/agencies). Slate and slate-blocks are **MIT**.
@@ -38,7 +38,7 @@ php artisan electrik:install --migrate --force
 Optional blocks (marketing / app sections):
 
 ```bash
-composer require electrik/slate-blocks:^0.1@alpha
+composer require electrik/slate-blocks:^0.1
 ```
 
 Tailwind (if not already wired by install):
