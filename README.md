@@ -180,11 +180,11 @@ Slate and slate-blocks are **MIT**. Electrik is **BSL 1.1** (see below).
 
 | Tier | Price | For |
 | --- | --- | --- |
-| Solo | $249 one-time | One developer, one commercial product |
-| Studio | $599 one-time | Studio / agency, multiple products |
+| Solo | $149 one-time | One developer, one commercial product |
+| Studio | $399 one-time | Studio / agency, multiple products |
 | Agency | Custom | Org-wide rights |
 
-Details: [electrik.dev/license](https://electrik.dev/license) · [Pricing](https://electrik.dev/pricing) · [LICENSE](LICENSE).
+Buy Solo / Studio at [electrik.dev/pricing](https://electrik.dev/pricing) (instant checkout). Details: [License](https://electrik.dev/license) · [LICENSE](LICENSE).
 
 ## Documentation
 
