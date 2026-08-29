@@ -306,7 +306,11 @@ class SeedDemoCommand extends Command
 
     protected function attachWithRole(mixed $user, mixed $team, string $role): void
     {
-        if (method_exists($user, 'attachTeam') && ! $team->hasUser($user)) {
+        $onTeam = method_exists($team, 'users')
+            ? $team->users()->whereKey($user->getKey())->exists()
+            : false;
+
+        if (method_exists($user, 'attachTeam') && ! $onTeam) {
             $user->attachTeam($team);
         }
 
