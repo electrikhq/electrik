@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <x-electrik::page-header
-        title="Billing"
-        :description="'Subscription for '.$team->name.'.'"
+        title="{{ __('Billing') }}"
+        :description="__('Subscription for :team.', ['team' => $team->name])"
     />
 
     @if (session('status'))
@@ -13,6 +13,20 @@
 
     @if ($trialLabel)
         <x-slate::alert variant="default" :title="$trialLabel" />
+    @endif
+
+    @if ($pastDue)
+        <x-slate::alert
+            variant="destructive"
+            :title="__('Payment failed')"
+            :description="__('Your subscription is past due. Update your card to avoid losing access.')"
+        >
+            <div class="mt-3">
+                <x-slate::button as="a" href="{{ route('billing.payment-methods') }}" size="sm" wire:navigate>
+                    {{ __('Update payment method') }}
+                </x-slate::button>
+            </div>
+        </x-slate::alert>
     @endif
 
     @if (! $healthOk)
@@ -85,4 +99,24 @@
             </div>
         </div>
     </div>
+
+    @if ($webhookEvents->isNotEmpty())
+        <x-slate::card class="border-border/80 shadow-xs">
+            <x-slate::card-header>
+                <x-slate::card-title>{{ __('Recent Stripe events') }}</x-slate::card-title>
+                <x-slate::card-description>{{ __('Webhook activity related to this team.') }}</x-slate::card-description>
+            </x-slate::card-header>
+            <x-slate::card-content class="space-y-2">
+                @foreach ($webhookEvents as $event)
+                    <div class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/80 px-3 py-2 text-sm" wire:key="wh-{{ $event->id }}">
+                        <div class="min-w-0">
+                            <p class="font-medium truncate">{{ $event->type }}</p>
+                            <p class="text-xs text-muted-foreground">{{ $event->created_at?->diffForHumans() }}</p>
+                        </div>
+                        <x-slate::badge variant="secondary">{{ $event->status }}</x-slate::badge>
+                    </div>
+                @endforeach
+            </x-slate::card-content>
+        </x-slate::card>
+    @endif
 </div>

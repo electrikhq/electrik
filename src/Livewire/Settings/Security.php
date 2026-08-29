@@ -5,6 +5,7 @@ namespace Electrik\Livewire\Settings;
 use Electrik\Support\TwoFactorAuth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
@@ -30,10 +31,13 @@ class Security extends Component
     /** @var list<string> */
     public array $recoveryCodes = [];
 
+    public string $passkeyName = '';
+
     public function mount(): void
     {
         abort_unless(
-            \Illuminate\Support\Facades\Schema::hasColumn('users', 'two_factor_secret'),
+            Schema::hasColumn('users', 'two_factor_secret')
+                || $this->passkeysEnabled(),
             404
         );
     }
@@ -64,6 +68,8 @@ class Security extends Component
 
     public function beginTwoFactorSetup(): void
     {
+        abort_unless(Schema::hasColumn('users', 'two_factor_secret'), 404);
+
         $this->setupSecret = TwoFactorAuth::generateSecret();
         $this->showSetup = true;
         $this->reset('confirmationCode', 'recoveryCodes');
@@ -71,6 +77,8 @@ class Security extends Component
 
     public function confirmTwoFactorSetup(): void
     {
+        abort_unless(Schema::hasColumn('users', 'two_factor_secret'), 404);
+
         $this->validate([
             'confirmationCode' => ['required', 'string', 'size:6'],
         ]);
@@ -78,10 +86,7 @@ class Security extends Component
         abort_unless($this->setupSecret, 422);
 
         $user = Auth::user();
-        $valid = app(\PragmaRX\Google2FA\Google2FA::class)->verifyKey(
-            $this->setupSecret,
-            $this->confirmationCode
-        );
+        $valid = TwoFactorAuth::verifySecret($this->setupSecret, $this->confirmationCode);
 
         if (! $valid) {
             throw ValidationException::withMessages([
@@ -107,6 +112,8 @@ class Security extends Component
 
     public function disableTwoFactor(): void
     {
+        abort_unless(Schema::hasColumn('users', 'two_factor_secret'), 404);
+
         $this->validate([
             'current_password' => ['required', 'string'],
         ]);
@@ -130,15 +137,48 @@ class Security extends Component
         session()->flash('status', __('Two-factor authentication disabled.'));
     }
 
+    public function deletePasskey(string $passkeyId): void
+    {
+        abort_unless($this->passkeysEnabled(), 404);
+
+        $user = Auth::user();
+
+        abort_unless(method_exists($user, 'passkeys'), 404);
+
+        $passkey = $user->passkeys()->whereKey($passkeyId)->firstOrFail();
+        $passkey->delete();
+
+        session()->flash('status', __('Passkey removed.'));
+    }
+
+    public function passkeyRegistered(): void
+    {
+        $this->reset('passkeyName');
+        session()->flash('status', __('Passkey added.'));
+    }
+
+    protected function passkeysEnabled(): bool
+    {
+        return class_exists(\Laravel\Passkeys\PasskeysServiceProvider::class)
+            && Schema::hasTable('passkeys');
+    }
+
     public function render()
     {
         $user = Auth::user();
+        $passkeysEnabled = $this->passkeysEnabled();
+        $twoFactorAvailable = Schema::hasColumn('users', 'two_factor_secret');
 
         return view('electrik::livewire.settings.security', [
-            'twoFactorEnabled' => TwoFactorAuth::enabled($user),
-            'qrUrl' => ($this->showSetup && $this->setupSecret)
-                ? TwoFactorAuth::qrUrl($user, $this->setupSecret)
+            'twoFactorAvailable' => $twoFactorAvailable,
+            'twoFactorEnabled' => $twoFactorAvailable && TwoFactorAuth::enabled($user),
+            'qrInline' => ($this->showSetup && $this->setupSecret)
+                ? TwoFactorAuth::qrInline($user, $this->setupSecret)
                 : null,
+            'passkeysEnabled' => $passkeysEnabled,
+            'passkeys' => $passkeysEnabled && method_exists($user, 'passkeys')
+                ? $user->passkeys()->latest()->get()
+                : collect(),
         ]);
     }
 }

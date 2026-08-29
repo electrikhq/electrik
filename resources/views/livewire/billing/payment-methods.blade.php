@@ -1,8 +1,7 @@
 <div class="space-y-6">
-
     <x-electrik::page-header
-        title="Payment methods"
-        :description="'Cards on file for '.$team->name.'. Add via Stripe Customer Portal.'"
+        title="{{ __('Payment methods') }}"
+        :description="__('Cards on file for :team. Add via Stripe Customer Portal.', ['team' => $team->name])"
     />
 
     @if (session('status'))
@@ -20,33 +19,33 @@
                         {{ strtoupper($paymentMethod->card->brand) }} ···· {{ $paymentMethod->card->last4 }}
                     </p>
                     <p class="text-sm text-muted-foreground">
-                        Expires {{ $paymentMethod->card->exp_month }}/{{ $paymentMethod->card->exp_year }}
+                        {{ __('Expires :month/:year', ['month' => $paymentMethod->card->exp_month, 'year' => $paymentMethod->card->exp_year]) }}
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
                     @if ($defaultPaymentMethod && $defaultPaymentMethod->id === $paymentMethod->id)
-                        <x-slate::badge>Default</x-slate::badge>
+                        <x-slate::badge>{{ __('Default') }}</x-slate::badge>
                     @else
                         <x-slate::button type="button" variant="ghost" size="sm" wire:click="setDefault('{{ $paymentMethod->id }}')">
-                            Make default
+                            {{ __('Make default') }}
                         </x-slate::button>
                     @endif
                     <x-electrik::confirm
-                        title="Remove this payment method?"
-                        description="You can add another card later via the Stripe Customer Portal."
-                        confirm-label="Remove"
+                        :title="__('Remove this payment method?')"
+                        :description="__('You can add another card later via the Stripe Customer Portal.')"
+                        :confirm-label="__('Remove')"
                         wire-click="remove('{{ $paymentMethod->id }}')"
                     >
                         <x-slate::button type="button" variant="ghost" size="sm">
-                            Remove
+                            {{ __('Remove') }}
                         </x-slate::button>
                     </x-electrik::confirm>
                 </div>
             </div>
         @empty
-            <p class="text-sm text-muted-foreground">No payment methods yet.</p>
+            <p class="text-sm text-muted-foreground">{{ __('No payment methods yet.') }}</p>
         @endforelse
     </div>
 
-    <x-slate::button type="button" wire:click="openPortal">Manage in Stripe Portal</x-slate::button>
+    <x-slate::button type="button" wire:click="openPortal">{{ __('Manage in Stripe Portal') }}</x-slate::button>
 </div>

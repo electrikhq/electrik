@@ -55,8 +55,16 @@ class Index extends Component
             'plan' => $this->planForSubscription($subscription),
             'trialLabel' => \Electrik\Support\BillingStatus::trialLabel($subscription),
             'statusLabel' => \Electrik\Support\BillingStatus::statusLabel($subscription),
+            'pastDue' => \Electrik\Support\BillingStatus::isPastDue($team),
             'healthChecks' => \Electrik\Support\BillingStatus::healthChecks(),
             'healthOk' => \Electrik\Support\BillingStatus::healthOk(),
+            'webhookEvents' => \Illuminate\Support\Facades\Schema::hasTable('stripe_webhook_events')
+                ? \Electrik\Models\StripeWebhookEvent::query()
+                    ->where('team_id', $team->id)
+                    ->latest()
+                    ->limit(10)
+                    ->get()
+                : collect(),
         ]);
     }
 }

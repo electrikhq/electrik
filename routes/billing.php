@@ -5,7 +5,7 @@ use Electrik\Http\Middleware\EnsureTeamSelected;
 use Electrik\Http\Middleware\SetPermissionsTeamId;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', SetPermissionsTeamId::class, EnsureTeamSelected::class, EnsureOnboardingComplete::class])
+Route::middleware(['auth', 'verified', SetPermissionsTeamId::class, EnsureTeamSelected::class, EnsureOnboardingComplete::class, \Electrik\Http\Middleware\EnsureTeamIpAllowed::class])
     ->prefix('billing')
     ->name('billing.')
     ->group(function () {
@@ -15,4 +15,5 @@ Route::middleware(['auth', 'verified', SetPermissionsTeamId::class, EnsureTeamSe
         Route::livewire('/payment-methods', 'electrik.billing.payment-methods')->name('payment-methods');
         Route::livewire('/address', 'electrik.billing.address')->name('address');
         Route::livewire('/invoices', 'electrik.billing.invoices')->name('invoices');
+        Route::livewire('/usage', 'electrik.billing.usage')->name('usage');
     });

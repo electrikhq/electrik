@@ -36,7 +36,8 @@ class Onboarding extends Component
         }
 
         $team = auth()->user()?->currentTeam;
-        $this->teamName = $team?->name ?? trim((string) auth()->user()?->name)."'s Team";
+        $name = trim((string) auth()->user()?->name);
+        $this->teamName = $team?->name ?? __(':name\'s Team', ['name' => $name !== '' ? $name : __('My')]);
 
         if (request()->query('checkout') === 'success' && $team) {
             $sessionId = (string) request()->query('session_id', '');

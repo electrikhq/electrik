@@ -5,6 +5,7 @@ namespace Electrik\Livewire\Teams;
 use Electrik\Actions\Billing\SyncTeamSeats;
 use Electrik\Concerns\AuthorizesTeamAccess;
 use Electrik\Support\ActivityLogger;
+use Lab404\Impersonate\Services\ImpersonateManager;
 use Electrik\Models\Role;
 use Electrik\Models\Team;
 use Livewire\Attributes\Layout;
@@ -138,6 +139,19 @@ class Members extends Component
         session()->flash('status', __('Invitation resent.'));
     }
 
+    public function impersonate(int $userId): void
+    {
+        $this->authorizeTeamPermission($this->team, 'users.impersonate');
+        abort_if(app(ImpersonateManager::class)->isImpersonating(), 422);
+        abort_if((int) auth()->id() === $userId, 422);
+        abort_if((int) $this->team->owner_id === $userId && ! auth()->user()->isOwnerOfTeam($this->team), 403);
+
+        $member = $this->team->users()->whereKey($userId)->firstOrFail();
+        abort_unless(auth()->user()->impersonate($member), 422);
+
+        $this->redirect(route('dashboard'), navigate: true);
+    }
+
     public function render()
     {
         $this->bindTeamContext($this->team);
@@ -148,11 +162,15 @@ class Members extends Component
             return $member;
         });
 
+        $canImpersonate = ! app(ImpersonateManager::class)->isImpersonating()
+            && (auth()->user()->can('users.impersonate') || auth()->user()->isOwnerOfTeam($this->team));
+
         return view('electrik::livewire.teams.members', [
             'members' => $members,
             'invitations' => $this->team->invites()->orderByDesc('created_at')->get(),
             'assignableRoles' => $this->assignableRoleNamesFor($this->team),
             'canManageMembers' => auth()->user()->can('teams.members') || auth()->user()->isOwnerOfTeam($this->team),
+            'canImpersonate' => $canImpersonate,
         ]);
     }
 }

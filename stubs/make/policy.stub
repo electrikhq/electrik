@@ -1,0 +1,37 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ model }};
+use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User;
+
+class {{ class }}
+{
+    use HandlesAuthorization;
+
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
+    public function view(User $user, {{ modelBasename }} ${{ modelVar }}): bool
+    {
+        return true;
+    }
+
+    public function create(User $user): bool
+    {
+        return true;
+    }
+
+    public function update(User $user, {{ modelBasename }} ${{ modelVar }}): bool
+    {
+        return true;
+    }
+
+    public function delete(User $user, {{ modelBasename }} ${{ modelVar }}): bool
+    {
+        return true;
+    }
+}

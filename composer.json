@@ -2,7 +2,7 @@
     "name": "electrik/electrik",
     "description": "Laravel SaaS starter kit: auth, teams, and Stripe billing on Electrik Slate.",
     "type": "library",
-    "version": "5.0.0",
+    "version": "5.4.0",
     "license": "BUSL-1.1",
     "keywords": [
         "laravel",
@@ -27,22 +27,35 @@
     },
     "require": {
         "php": "^8.3",
+        "bacon/bacon-qr-code": "^2.0|^3.0",
         "blade-ui-kit/blade-icons": "^1.6",
         "codeat3/blade-carbon-icons": "^2.0",
         "electrik/slate": "^3.0",
         "illuminate/support": "^12.0|^13.0",
         "laravel/cashier": "^15.0",
+        "laravel/passkeys": "^0.2",
         "laravel/sanctum": "^4.0",
+        "laravel/socialite": "^5.0",
+        "lab404/laravel-impersonate": "^1.7",
         "livewire/livewire": "^4.0",
-        "pragmarx/google2fa": "^8.0",
+        "pragmarx/google2fa-laravel": "^2.0|^3.0",
+        "pragmarx/recovery": "^0.2",
+        "rappasoft/laravel-authentication-log": "^6.0",
         "electrik/teamwork": "^11.0",
+        "spatie/laravel-activitylog": "^4.12|^5.0",
         "spatie/laravel-permission": "^6.0",
+        "spatie/laravel-personal-data-export": "^4.3",
         "diglactic/laravel-breadcrumbs": "^10.0",
         "dompdf/dompdf": "^3.0"
     },
     "require-dev": {
         "orchestra/testbench": "^10.0|^11.0",
         "phpunit/phpunit": "^11.0"
+    },
+    "suggest": {
+        "dedoc/scramble": "Auto-generate OpenAPI docs for routes/api.php (electrik/me) and your own API routes.",
+        "socialiteproviders/apple": "Enable Apple Sign In via ELECTRIK_SOCIALITE_PROVIDERS=apple",
+        "socialiteproviders/microsoft": "Enable Microsoft login via ELECTRIK_SOCIALITE_PROVIDERS=microsoft"
     },
     "autoload": {
         "psr-4": {

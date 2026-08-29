@@ -3,9 +3,8 @@
 namespace Electrik\Support;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
-use PragmaRX\Google2FA\Google2FA;
+use PragmaRX\Recovery\Recovery;
 
 class TwoFactorAuth
 {
@@ -18,17 +17,19 @@ class TwoFactorAuth
 
     public static function generateSecret(): string
     {
-        return app(Google2FA::class)->generateSecretKey();
+        return static::engine()->generateSecretKey();
     }
 
-    public static function qrUrl(Authenticatable $user, string $secret): string
+    /**
+     * Inline QR (SVG/data URI) via pragmarx/google2fa-laravel + bacon/bacon-qr-code.
+     */
+    public static function qrInline(Authenticatable $user, string $secret): string
     {
-        $company = config('electrik.name', 'Electrik');
-
-        return app(Google2FA::class)->getQRCodeUrl(
-            $company,
+        return static::engine()->getQRCodeInline(
+            (string) config('electrik.name', 'Electrik'),
             (string) $user->email,
-            $secret
+            $secret,
+            180,
         );
     }
 
@@ -40,7 +41,12 @@ class TwoFactorAuth
 
         $secret = Crypt::decryptString($user->two_factor_secret);
 
-        return app(Google2FA::class)->verifyKey($secret, $code);
+        return (bool) static::engine()->verifyKey($secret, $code);
+    }
+
+    public static function verifySecret(string $secret, string $code): bool
+    {
+        return (bool) static::engine()->verifyKey($secret, $code);
     }
 
     /**
@@ -48,9 +54,11 @@ class TwoFactorAuth
      */
     public static function generateRecoveryCodes(): array
     {
-        return Collection::times(8, fn () => strtoupper(bin2hex(random_bytes(4))))
-            ->map(fn (string $code) => substr($code, 0, 4).'-'.substr($code, 4))
-            ->all();
+        return (new Recovery)
+            ->setCount(8)
+            ->setBlocks(2)
+            ->setChars(4)
+            ->toArray();
     }
 
     public static function encryptSecret(string $secret): string
@@ -60,7 +68,7 @@ class TwoFactorAuth
 
     public static function encryptRecoveryCodes(array $codes): string
     {
-        return Crypt::encryptString(json_encode($codes));
+        return Crypt::encryptString(json_encode(array_values($codes)));
     }
 
     /**
@@ -74,6 +82,11 @@ class TwoFactorAuth
 
         $decoded = json_decode(Crypt::decryptString($user->two_factor_recovery_codes), true);
 
-        return is_array($decoded) ? $decoded : [];
+        return is_array($decoded) ? array_values($decoded) : [];
+    }
+
+    protected static function engine(): mixed
+    {
+        return app('pragmarx.google2fa');
     }
 }

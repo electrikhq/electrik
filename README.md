@@ -28,7 +28,7 @@
 
 If you want a **product shell on Laravel** without a Jetstream-style dump into your app — and UI that stays on [Electrik Slate](https://slate.electrik.dev) — use Electrik.
 
-> **Status:** `5.0.0` stable. Auth, teams, Stripe billing on the team, onboarding, and Slate 3 UI as a Composer package.
+> **Status:** `5.4.0` stable. Auth, teams, Stripe billing on the team, onboarding, ops console, and Slate 3 UI as a Composer package.
 
 ## Table of contents
 
@@ -74,22 +74,32 @@ If you want a **product shell on Laravel** without a Jetstream-style dump into y
 
 ![Profile settings](./art/gallery-profile.png)
 
+![Operations](./art/docs/docs-ops.png)
+
+![Team settings / branding](./art/docs/docs-team-settings.png)
+
+![Sessions](./art/docs/docs-sessions.png)
+
 ## Features
 
-- **Auth** — login, register, verification, password reset, remember me, 2FA, sessions
-- **Teams** — create/switch, invites, roles, Spatie permissions (team-scoped)
-- **Billing** — Laravel Cashier on the team, plans, invoices, payment methods, webhooks
-- **Shell** — dashboard, onboarding wizard, profile, API tokens, notifications, activity log
+- **Auth** — login, register, verification, password reset, remember me, 2FA, passkeys, sessions, magic link, Socialite (Google / GitHub / Apple / Microsoft)
+- **Teams** — create/switch, invites, roles, Spatie permissions, activity log, branding, archive, outbound webhooks, IP allowlist, impersonation
+- **Billing** — Laravel Cashier on the team, plans, add-ons, metered usage, invoices, tax IDs, payment methods, Stripe webhooks
+- **Ops** — `/ops` operator console (`ELECTRIK_OPERATOR_EMAILS`): users, teams, metrics, plan features, announcements, email preview
+- **Shell** — Studio dashboard, onboarding, sample Clients/Projects/Tasks (`ELECTRIK_SAMPLE_PROJECTS`), profile (locale + timezone), API tokens (personal + team-scoped), notifications
+- **API** — `/api/electrik/me`, `/team`, `/members`, `POST /usage` (Sanctum abilities + throttle)
+- **i18n** — `en`, `es`, `fr`, `ar` (RTL), `hi`; user language on Profile; guests use `APP_LOCALE`
+- **Team data** — `BelongsToTeam` trait; `electrik:make:model` / `make:resource` team-scoped by default (`--no-team` to opt out)
 - **UI** — Electrik Slate 3 (`<x-slate::*>`); optional [slate-blocks](https://slate.electrik.dev/blocks) for marketing sections
 - **Installer** — `php artisan electrik:install` wires config, Slate CSS/`@source`, permissions
-- **Demo seed** — `php artisan electrik:seed-demo` for a clickable local dataset
+- **Demo seed** — `php artisan electrik:seed-demo` for users, teams, Studio sample data, and activity
 
 ## Quick start
 
 ### 1. Require the package
 
 ```bash
-composer require electrik/electrik:^5.0
+composer require electrik/electrik:^5.4
 ```
 
 ### 2. Install
@@ -204,11 +214,13 @@ From the Electrik lab workspace, reset a path-linked sandbox:
 
 ```bash
 ./scripts/reset-electrik-sandbox.sh
-cd electrik-sandbox
-php artisan serve
 ```
 
-That creates a fresh Laravel app, path-links local `electrik` + `slate`, runs `electrik:install`, and builds assets.
+That creates a fresh Laravel app, path-links local `electrik` + `slate` + `teamwork`, runs `electrik:install`, syncs permissions, seeds multi-persona demo users, builds assets, and starts `composer dev`.
+
+Demo logins (password `password`): `demo@electrik.dev` (owner), `admin@electrik.dev`, `member@electrik.dev`.
+
+Useful flags: `--skip-seed`, `--skip-npm`, `--no-dev`.
 
 Or link a local clone into a consumer app:
 

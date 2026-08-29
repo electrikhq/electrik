@@ -14,6 +14,15 @@ class VerifyEmail extends Component
 {
     public ?string $status = null;
 
+    public function mount(): void
+    {
+        $user = Auth::user();
+
+        if ($user?->hasVerifiedEmail()) {
+            $this->redirect(Onboarding::homePath(), navigate: true);
+        }
+    }
+
     public function resend(): void
     {
         $user = Auth::user();

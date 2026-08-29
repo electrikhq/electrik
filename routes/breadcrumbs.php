@@ -2,11 +2,27 @@
 
 use Diglactic\Breadcrumbs\Breadcrumbs;
 use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
+use Electrik\Models\Announcement;
 use Electrik\Models\Role;
 use Electrik\Models\Team;
 
 Breadcrumbs::for('dashboard', function (BreadcrumbTrail $trail) {
     $trail->push('Dashboard', route('dashboard'));
+});
+
+Breadcrumbs::for('projects.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push('Projects', route('projects.index'));
+});
+
+Breadcrumbs::for('projects.show', function (BreadcrumbTrail $trail, \Electrik\Models\Project $project) {
+    $trail->parent('projects.index');
+    $trail->push($project->name, route('projects.show', $project));
+});
+
+Breadcrumbs::for('clients.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push('Clients', route('clients.index'));
 });
 
 Breadcrumbs::for('teams.index', function (BreadcrumbTrail $trail) {
@@ -91,4 +107,18 @@ Breadcrumbs::for('settings.profile', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('settings.security', function (BreadcrumbTrail $trail) {
     $trail->push('Account', route('settings.profile'));
     $trail->push('Security', route('settings.security'));
+});
+
+Breadcrumbs::for('ops.announcements.index', function (BreadcrumbTrail $trail) {
+    $trail->push('Announcements', route('ops.announcements.index'));
+});
+
+Breadcrumbs::for('ops.announcements.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('ops.announcements.index');
+    $trail->push('Create', route('ops.announcements.create'));
+});
+
+Breadcrumbs::for('ops.announcements.edit', function (BreadcrumbTrail $trail, Announcement $announcement) {
+    $trail->parent('ops.announcements.index');
+    $trail->push($announcement->title, route('ops.announcements.edit', $announcement));
 });

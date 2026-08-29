@@ -2,14 +2,16 @@
 
 namespace Electrik\Support;
 
+use Electrik\Models\Activity;
 use Electrik\Models\Team;
-use Electrik\Models\TeamActivityLog;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 
 class ActivityLogger
 {
     /**
+     * Thin wrapper around spatie/laravel-activitylog scoped to a team.
+     *
      * @param  array<string, mixed>  $properties
      */
     public static function log(
@@ -18,14 +20,24 @@ class ActivityLogger
         ?Authenticatable $actor = null,
         ?Model $subject = null,
         array $properties = [],
-    ): TeamActivityLog {
-        return TeamActivityLog::query()->create([
-            'team_id' => $team->id,
-            'user_id' => $actor?->getAuthIdentifier(),
-            'action' => $action,
-            'subject_type' => $subject ? $subject->getMorphClass() : null,
-            'subject_id' => $subject?->getKey(),
-            'properties' => $properties === [] ? null : $properties,
-        ]);
+    ): ?Activity {
+        $logger = activity('team')
+            ->performedOn($subject ?? $team)
+            ->event($action)
+            ->withProperties($properties)
+            ->tap(function (Activity $activity) use ($team): void {
+                $activity->team_id = $team->getKey();
+            });
+
+        if ($actor instanceof Model) {
+            $logger->causedBy($actor);
+        } else {
+            $logger->causedByAnonymous();
+        }
+
+        /** @var Activity|null $activity */
+        $activity = $logger->log($action);
+
+        return $activity;
     }
 }

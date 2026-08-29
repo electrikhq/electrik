@@ -34,9 +34,21 @@ class BillingStatus
             return true;
         }
 
+        // past_due still has a subscription but payment failed — deny gated features.
+        if ($subscription && in_array($subscription->stripe_status, ['past_due', 'unpaid'], true)) {
+            return false;
+        }
+
         $planModel = config('electrik.billing.plan_model', StripePlan::class);
 
         return $planModel::query()->where('price', 0)->exists();
+    }
+
+    public static function isPastDue(?Team $team): bool
+    {
+        $subscription = static::subscriptionFor($team);
+
+        return $subscription && in_array($subscription->stripe_status, ['past_due', 'unpaid'], true);
     }
 
     public static function subscriptionRequired(): bool
@@ -46,11 +58,7 @@ class BillingStatus
 
     public static function shouldShowBanner(?Team $team, ?Request $request = null): bool
     {
-        if (! static::subscriptionRequired() || ! $team) {
-            return false;
-        }
-
-        if (static::teamHasAccess($team)) {
+        if (! $team) {
             return false;
         }
 
@@ -60,7 +68,43 @@ class BillingStatus
             return false;
         }
 
-        return ! $request->routeIs('billing.*', 'onboarding');
+        if ($request->routeIs('billing.*', 'onboarding')) {
+            return false;
+        }
+
+        if (static::isPastDue($team)) {
+            return true;
+        }
+
+        if (! static::subscriptionRequired()) {
+            return false;
+        }
+
+        return ! static::teamHasAccess($team);
+    }
+
+    public static function bannerMessage(?Team $team): string
+    {
+        if (static::isPastDue($team)) {
+            return __('Your last payment failed. Update your payment method to keep access.');
+        }
+
+        return __('You are not subscribed to a plan. Choose a plan to unlock the app.');
+    }
+
+    public static function bannerCta(?Team $team): array
+    {
+        if (static::isPastDue($team)) {
+            return [
+                'label' => __('Update payment method'),
+                'route' => 'billing.payment-methods',
+            ];
+        }
+
+        return [
+            'label' => __('View plans'),
+            'route' => 'billing.plans',
+        ];
     }
 
     public static function planFor(?Team $team): ?StripePlan

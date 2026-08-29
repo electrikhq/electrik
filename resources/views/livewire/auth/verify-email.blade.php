@@ -1,9 +1,9 @@
 <div>
     <x-slate::card>
         <x-slate::card-header>
-            <x-slate::card-title>Verify your email</x-slate::card-title>
+            <x-slate::card-title>{{ __('Verify your email') }}</x-slate::card-title>
             <x-slate::card-description>
-                We sent a verification link to your inbox. Open it to continue.
+                {{ __('We sent a verification link to your inbox. Open it to continue.') }}
             </x-slate::card-description>
         </x-slate::card-header>
 
@@ -13,12 +13,12 @@
             @endif
 
             <p class="text-sm text-muted-foreground">
-                Didn’t get the email? Check spam, or request another link.
+                {{ __('Didn’t get the email? Check spam, or request another link.') }}
             </p>
 
             <x-slate::button type="button" class="w-full" size="lg" wire:click="resend" wire:loading.attr="disabled">
-                <span wire:loading.remove wire:target="resend">Resend verification email</span>
-                <span wire:loading wire:target="resend">Sending…</span>
+                <span wire:loading.remove wire:target="resend">{{ __('Resend verification email') }}</span>
+                <span wire:loading wire:target="resend">{{ __('Sending…') }}</span>
             </x-slate::button>
         </x-slate::card-content>
 
@@ -26,7 +26,7 @@
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="text-sm text-muted-foreground underline-offset-4 hover:underline">
-                    Sign out
+                    {{ __('Sign out') }}
                 </button>
             </form>
         </x-slate::card-footer>

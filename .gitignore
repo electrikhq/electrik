@@ -7,3 +7,5 @@ composer.lock
 *.log
 .phpunit.result.cache
 /coverage/
+
+mcp/node_modules/

@@ -37,7 +37,14 @@ class PlanFeatures
         $fromPlan = is_array($plan->features) ? $plan->features : [];
         $fromConfig = config('electrik.billing.plan_features.by_price_id.'.$plan->stripe_price_id, []);
 
-        return array_merge($defaults, $fromConfig, $fromPlan);
+        $merged = array_merge($defaults, $fromConfig, $fromPlan);
+
+        // Column max_seats wins when seat billing is on and features omit max_members.
+        if ($plan->seat_billing && filled($plan->max_seats) && ! array_key_exists('max_members', $fromPlan) && ! array_key_exists('max_members', $fromConfig)) {
+            $merged['max_members'] = (int) $plan->max_seats;
+        }
+
+        return $merged;
     }
 
     public static function has(?Team $team, string $feature): bool

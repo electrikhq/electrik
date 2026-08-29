@@ -15,10 +15,12 @@ class StripePlan extends Model
         'currency',
         'interval',
         'interval_count',
-        'features',
-        'max_seats',
-        'seat_billing',
-    ];
+            'features',
+            'max_seats',
+            'seat_billing',
+            'is_addon',
+            'metered',
+        ];
 
     protected function casts(): array
     {
@@ -28,6 +30,8 @@ class StripePlan extends Model
             'features' => 'array',
             'max_seats' => 'integer',
             'seat_billing' => 'boolean',
+            'is_addon' => 'boolean',
+            'metered' => 'boolean',
         ];
     }
 

@@ -7,16 +7,22 @@ use Electrik\Models\Team;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('electrik::components.layouts.app')]
 #[Title('Activity')]
 class Activity extends Component
 {
     use AuthorizesTeamAccess;
+    use WithPagination;
 
     #[Locked]
     public Team $team;
+
+    #[Url]
+    public string $actionFilter = '';
 
     public function mount(Team $team): void
     {
@@ -28,10 +34,28 @@ class Activity extends Component
         $this->team = $team;
     }
 
+    public function updatingActionFilter(): void
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
+        $query = $this->team->activityLogs()->with('causer')->latest();
+
+        if ($this->actionFilter !== '') {
+            $query->where('event', $this->actionFilter);
+        }
+
+        $actions = $this->team->activityLogs()
+            ->select('event')
+            ->distinct()
+            ->orderBy('event')
+            ->pluck('event');
+
         return view('electrik::livewire.teams.activity', [
-            'entries' => $this->team->activityLogs()->with('user')->latest()->limit(50)->get(),
+            'entries' => $query->paginate(20),
+            'actions' => $actions,
         ]);
     }
 }

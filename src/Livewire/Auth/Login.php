@@ -2,9 +2,11 @@
 
 namespace Electrik\Livewire\Auth;
 
+use Electrik\Support\Auth as ElectrikAuth;
 use Electrik\Support\Onboarding;
 use Electrik\Support\TeamInviteContext;
 use Electrik\Support\TwoFactorAuth;
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -75,10 +77,25 @@ class Login extends Component
         $user = is_string($userModel) ? $userModel::query()->where('email', $this->email)->first() : null;
 
         if (! $user || ! Hash::check($this->password, $user->password)) {
+            if ($user) {
+                // Keep password check separate from Auth::attempt so 2FA can gate login;
+                // still fire Failed so rappasoft/laravel-authentication-log records it.
+                event(new Failed('web', $user, [
+                    'email' => $this->email,
+                    'password' => $this->password,
+                ]));
+            }
+
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => __('These credentials do not match our records.'),
+            ]);
+        }
+
+        if (ElectrikAuth::isSuspended($user)) {
+            throw ValidationException::withMessages([
+                'email' => __('This account has been suspended.'),
             ]);
         }
 
@@ -116,6 +133,15 @@ class Login extends Component
 
             throw ValidationException::withMessages([
                 'twoFactorCode' => __('Your session expired. Please sign in again.'),
+            ]);
+        }
+
+        if (ElectrikAuth::isSuspended($user)) {
+            session()->forget(['login.two_factor.id', 'login.two_factor.remember']);
+            $this->requiresTwoFactor = false;
+
+            throw ValidationException::withMessages([
+                'twoFactorCode' => __('This account has been suspended.'),
             ]);
         }
 

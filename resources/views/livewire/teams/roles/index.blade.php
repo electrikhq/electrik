@@ -1,10 +1,10 @@
 <div class="space-y-6">
-    <x-electrik::page-header title="Roles" :description="$team->name">
+    <x-electrik::page-header title="{{ __('Roles') }}" :description="$team->name">
         <x-slot:actions>
             @if ($canCreateCustomRoles)
-                <x-slate::button as="a" href="{{ route('teams.roles.create', $team) }}" wire:navigate>New role</x-slate::button>
+                <x-slate::button as="a" href="{{ route('teams.roles.create', $team) }}" wire:navigate>{{ __('New role') }}</x-slate::button>
             @endif
-            <x-slate::button as="a" href="{{ route('teams.permissions.index', $team) }}" variant="outline" wire:navigate>Permissions</x-slate::button>
+            <x-slate::button as="a" href="{{ route('teams.permissions.index', $team) }}" variant="outline" wire:navigate>{{ __('Permissions') }}</x-slate::button>
         </x-slot:actions>
     </x-electrik::page-header>
 
@@ -23,21 +23,21 @@
             >
                 <div>
                     <p class="font-medium tracking-tight">{{ $role->display_name }}</p>
-                    <p class="text-xs text-muted-foreground">{{ $role->name }} · {{ $role->permissions->count() }} permissions</p>
+                    <p class="text-xs text-muted-foreground">{{ $role->name }} · {{ __(':count permissions', ['count' => $role->permissions->count()]) }}</p>
                 </div>
                 <div class="flex gap-2">
                     <x-slate::button as="a" href="{{ route('teams.roles.edit', [$team, $role]) }}" variant="outline" size="sm" wire:navigate>
-                        Edit
+                        {{ __('Edit') }}
                     </x-slate::button>
                     @unless ($role->isSystem())
                         <x-electrik::confirm
-                            title="Delete this role?"
-                            description="Members using this role must be reassigned first."
-                            confirm-label="Delete"
+                            :title="__('Delete this role?')"
+                            :description="__('Members using this role must be reassigned first.')"
+                            :confirm-label="__('Delete')"
                             wire-click="delete({{ $role->id }})"
                         >
                             <x-slate::button type="button" variant="ghost" size="sm">
-                                Delete
+                                {{ __('Delete') }}
                             </x-slate::button>
                         </x-electrik::confirm>
                     @endunless

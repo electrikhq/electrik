@@ -1,23 +1,23 @@
 <div class="space-y-6">
     <x-electrik::page-header
-        title="Members"
+        title="{{ __('Members') }}"
         :description="$team->name"
     >
         <x-slot:actions>
             @if ($canManageMembers)
                 <x-slate::button as="a" href="{{ route('teams.members.invite', $team) }}" wire:navigate>
-                    Invite
+                    {{ __('Invite') }}
                 </x-slate::button>
             @endif
             @if ((int) $team->owner_id !== (int) auth()->id())
                 <x-electrik::confirm
-                    title="Leave this team?"
-                    description="You will lose access until you are invited again."
-                    confirm-label="Leave team"
+                    :title="__('Leave this team?')"
+                    :description="__('You will lose access until you are invited again.')"
+                    :confirm-label="__('Leave team')"
                     wire-click="leave"
                 >
                     <x-slate::button type="button" variant="outline">
-                        Leave team
+                        {{ __('Leave team') }}
                     </x-slate::button>
                 </x-electrik::confirm>
             @endif
@@ -44,7 +44,7 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     @if ((int) $team->owner_id === (int) $member->id)
-                        <x-slate::badge>Owner</x-slate::badge>
+                        <x-slate::badge>{{ __('Owner') }}</x-slate::badge>
                     @elseif ($canManageMembers)
                         <x-slate::select
                             wire:change="updateRole({{ $member->id }}, $event.target.value)"
@@ -56,18 +56,28 @@
                                 </option>
                             @endforeach
                         </x-slate::select>
+                        @if ($canImpersonate && (int) $member->id !== (int) auth()->id())
+                            <x-slate::button type="button" variant="outline" size="sm" wire:click="impersonate({{ $member->id }})">
+                                {{ __('Impersonate') }}
+                            </x-slate::button>
+                        @endif
                         <x-electrik::confirm
-                            title="Remove this member?"
-                            description="They will lose access to {{ $team->name }}."
-                            confirm-label="Remove"
+                            :title="__('Remove this member?')"
+                            :description="__('They will lose access to :team.', ['team' => $team->name])"
+                            :confirm-label="__('Remove')"
                             wire-click="remove({{ $member->id }})"
                         >
                             <x-slate::button type="button" variant="ghost" size="sm">
-                                Remove
+                                {{ __('Remove') }}
                             </x-slate::button>
                         </x-electrik::confirm>
                     @else
                         <x-slate::badge variant="secondary">{{ ucfirst($member->electrik_role ?? 'member') }}</x-slate::badge>
+                        @if ($canImpersonate && (int) $member->id !== (int) auth()->id() && (int) $team->owner_id !== (int) $member->id)
+                            <x-slate::button type="button" variant="outline" size="sm" wire:click="impersonate({{ $member->id }})">
+                                {{ __('Impersonate') }}
+                            </x-slate::button>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -76,7 +86,7 @@
 
     @if ($invitations->isNotEmpty())
         <div class="space-y-2">
-            <h2 class="text-sm font-medium text-muted-foreground">Pending invitations</h2>
+            <h2 class="text-sm font-medium text-muted-foreground">{{ __('Pending invitations') }}</h2>
             @foreach ($invitations as $invitation)
                 <div
                     class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-card/50 px-4 py-3.5"
@@ -85,25 +95,25 @@
                     <div>
                         <p class="font-medium tracking-tight">{{ $invitation->email }}</p>
                         <p class="text-xs text-muted-foreground">
-                            {{ $invitation->role ? ucfirst($invitation->role) : 'Member' }}
+                            {{ $invitation->role ? ucfirst($invitation->role) : __('Member') }}
                             @if ($invitation->expires_at)
-                                · expires {{ \Illuminate\Support\Carbon::parse($invitation->expires_at)->diffForHumans() }}
+                                · {{ __('expires :date', ['date' => \Illuminate\Support\Carbon::parse($invitation->expires_at)->diffForHumans()]) }}
                             @endif
                         </p>
                     </div>
                     @if ($canManageMembers)
                         <div class="flex gap-2">
                             <x-slate::button type="button" variant="outline" size="sm" wire:click="resendInvite({{ $invitation->id }})">
-                                Resend
+                                {{ __('Resend') }}
                             </x-slate::button>
                             <x-electrik::confirm
-                                title="Cancel this invitation?"
-                                description="{{ $invitation->email }} will no longer be able to join with this link."
-                                confirm-label="Cancel invitation"
+                                :title="__('Cancel this invitation?')"
+                                :description="__(':email will no longer be able to join with this link.', ['email' => $invitation->email])"
+                                :confirm-label="__('Cancel invitation')"
                                 wire-click="cancelInvite({{ $invitation->id }})"
                             >
                                 <x-slate::button type="button" variant="ghost" size="sm">
-                                    Cancel
+                                    {{ __('Cancel') }}
                                 </x-slate::button>
                             </x-electrik::confirm>
                         </div>

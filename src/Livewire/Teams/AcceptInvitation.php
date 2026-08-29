@@ -45,7 +45,7 @@ class AcceptInvitation extends Component
 
         $this->teamName = $invite->team->name;
         $this->inviteEmail = $invite->email;
-        $this->inviteRole = $invite->role ? ucfirst($invite->role) : 'Member';
+        $this->inviteRole = $invite->role ? ucfirst($invite->role) : __('Member');
 
         TeamInviteContext::stashToken($token);
 

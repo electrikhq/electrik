@@ -1,7 +1,7 @@
 <div class="space-y-6">
-    <x-electrik::page-header title="Teams" description="Switch workspace or create a new team.">
+    <x-electrik::page-header title="{{ __('Teams') }}" description="{{ __('Switch workspace or create a new team.') }}">
         <x-slot:actions>
-            <x-slate::button as="a" href="{{ route('teams.create') }}" wire:navigate>New team</x-slate::button>
+            <x-slate::button as="a" href="{{ route('teams.create') }}" wire:navigate>{{ __('New team') }}</x-slate::button>
         </x-slot:actions>
     </x-electrik::page-header>
 
@@ -16,22 +16,22 @@
                 </div>
                 <div class="flex items-center gap-2">
                     @if ((int) $currentTeamId === (int) $team->id)
-                        <x-slate::badge>Current</x-slate::badge>
+                        <x-slate::badge>{{ __('Current') }}</x-slate::badge>
                     @else
                         <x-slate::button type="button" variant="outline" size="sm" wire:click="switch({{ $team->id }})">
-                            Switch
+                            {{ __('Switch') }}
                         </x-slate::button>
                     @endif
                     <x-slate::button as="a" href="{{ route('teams.members', $team) }}" variant="ghost" size="sm" wire:navigate>
-                        Members
+                        {{ __('Members') }}
                     </x-slate::button>
                     <x-slate::button as="a" href="{{ route('teams.settings', $team) }}" variant="ghost" size="sm" wire:navigate>
-                        Settings
+                        {{ __('Settings') }}
                     </x-slate::button>
                 </div>
             </div>
         @empty
-            <x-slate::alert variant="info" title="No teams yet" description="Create your first team to continue." />
+            <x-slate::alert variant="info" title="{{ __('No teams yet') }}" description="{{ __('Create your first team to continue.') }}" />
         @endforelse
     </div>
 </div>

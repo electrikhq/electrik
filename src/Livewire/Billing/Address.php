@@ -3,6 +3,8 @@
 namespace Electrik\Livewire\Billing;
 
 use Electrik\Concerns\ResolvesTeamBilling;
+use Electrik\Support\Countries;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -27,7 +29,14 @@ class Address extends Component
 
     public string $postal_code = '';
 
-    public string $country = '';
+    public string $country = 'US';
+
+    public string $taxIdType = '';
+
+    public string $taxIdValue = '';
+
+    /** @var list<array{id: string, type: string, value: string}> */
+    public array $taxIds = [];
 
     public function mount(): void
     {
@@ -60,8 +69,10 @@ class Address extends Component
                 $this->city = $address->city ?? '';
                 $this->state = $address->state ?? '';
                 $this->postal_code = $address->postal_code ?? '';
-                $this->country = $address->country ?? '';
+                $this->country = strtoupper((string) ($address->country ?: 'US'));
             }
+
+            $this->refreshTaxIds($team);
         } catch (\Throwable) {
             // Stripe customer may not exist yet
         }
@@ -88,7 +99,7 @@ class Address extends Component
             'city' => ['required', 'string', 'max:255'],
             'state' => ['required', 'string', 'max:255'],
             'postal_code' => ['required', 'string', 'max:32'],
-            'country' => ['required', 'string', 'size:2'],
+            'country' => ['required', 'string', 'size:2', Rule::in(array_keys(Countries::options()))],
         ]);
 
         try {
@@ -111,8 +122,87 @@ class Address extends Component
         }
     }
 
+    public function addTaxId(): void
+    {
+        $team = $this->currentTeamOrRedirect();
+
+        if (! $team) {
+            return;
+        }
+
+        abort_unless(
+            auth()->user()->can('billing.manage') || auth()->user()->isOwnerOfTeam($team),
+            403
+        );
+
+        $validated = $this->validate([
+            'taxIdType' => ['required', 'string', 'max:32'],
+            'taxIdValue' => ['required', 'string', 'max:64'],
+        ]);
+
+        try {
+            $team->createOrGetStripeCustomer();
+            $team->createTaxId($validated['taxIdType'], $validated['taxIdValue']);
+            $this->reset('taxIdType', 'taxIdValue');
+            $this->refreshTaxIds($team);
+            session()->flash('status', __('Tax ID added.'));
+        } catch (\Throwable $e) {
+            session()->flash('error', $e->getMessage());
+        }
+    }
+
+    public function removeTaxId(string $taxId): void
+    {
+        $team = $this->currentTeamOrRedirect();
+
+        if (! $team) {
+            return;
+        }
+
+        abort_unless(
+            auth()->user()->can('billing.manage') || auth()->user()->isOwnerOfTeam($team),
+            403
+        );
+
+        try {
+            $team->deleteTaxId($taxId);
+            $this->refreshTaxIds($team);
+            session()->flash('status', __('Tax ID removed.'));
+        } catch (\Throwable $e) {
+            session()->flash('error', $e->getMessage());
+        }
+    }
+
+    protected function refreshTaxIds($team): void
+    {
+        $this->taxIds = [];
+
+        try {
+            $ids = $team->taxIds();
+            foreach ($ids as $taxId) {
+                $this->taxIds[] = [
+                    'id' => $taxId->id,
+                    'type' => $taxId->type,
+                    'value' => $taxId->value,
+                ];
+            }
+        } catch (\Throwable) {
+            $this->taxIds = [];
+        }
+    }
+
     public function render()
     {
-        return view('electrik::livewire.billing.address');
+        return view('electrik::livewire.billing.address', [
+            'countries' => Countries::options(),
+            'taxIdTypes' => [
+                'eu_vat' => 'EU VAT',
+                'us_ein' => 'US EIN',
+                'gb_vat' => 'GB VAT',
+                'au_abn' => 'AU ABN',
+                'in_gst' => 'IN GST',
+                'ca_bn' => 'CA BN',
+            ],
+        ]);
     }
 }

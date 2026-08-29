@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ \Electrik\Support\Locales::direction() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? config('electrik.name', 'Electrik') }} — {{ config('electrik.name', 'Electrik') }}</title>
+    <x-electrik::brand-styles :team="auth()->user()?->currentTeam" />
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
@@ -27,6 +28,7 @@
         request()->routeIs('billing.*') => 'billing',
         request()->routeIs('settings.*') => 'account',
         request()->routeIs('teams.*') => 'teams',
+        request()->routeIs('ops.*') => 'ops',
         default => 'dashboard',
     };
 
@@ -34,10 +36,26 @@
         'billing' => __('Billing'),
         'account' => __('Account'),
         'teams' => $navTeam?->name ?? $currentTeam?->name ?? __('Teams'),
-        default => __('Workspace'),
+        'ops' => __('Operations'),
+        default => __('Studio'),
     };
+
+    $brandLogo = $currentTeam?->brandLogoUrl() ?: config('electrik.branding.logo_url');
 @endphp
 <body class="h-svh overflow-hidden bg-background text-foreground antialiased">
+    @impersonating
+        <div class="flex items-center justify-between gap-3 border-b border-amber-500/40 bg-amber-500/15 px-4 py-2 text-sm text-foreground">
+            <p>
+                {{ __('You are impersonating :name.', ['name' => auth()->user()?->name ?? __('a user')]) }}
+            </p>
+            <form method="POST" action="{{ route('impersonation.leave') }}">
+                @csrf
+                <x-slate::button type="submit" size="sm" variant="outline">
+                    {{ __('Stop impersonating') }}
+                </x-slate::button>
+            </form>
+        </div>
+    @endImpersonating
     <x-slate::app-shell :default-open="true">
         <x-slot:header>
             <div class="flex flex-1 items-center justify-between gap-4">
@@ -57,7 +75,7 @@
 
                     <div class="flex min-w-0 items-center gap-2 overflow-hidden">
                         <a href="{{ route('dashboard') }}" class="shrink-0 text-sm font-semibold tracking-tight text-foreground" wire:navigate>
-                            {{ config('electrik.name', 'Electrik') }}
+                            <x-electrik::brand-mark />
                         </a>
 
                         <span class="shrink-0 text-muted-foreground" aria-hidden="true">/</span>
@@ -74,33 +92,33 @@
                             <livewire:electrik.notification-bell />
                         @endif
 
-                        <x-slate::dropdown-menu class="hidden sm:inline-flex">
+                        <x-slate::dropdown-menu>
                             <x-slate::dropdown-menu-trigger>
                                 <x-slate::button type="button" variant="ghost" size="sm" class="gap-2">
                                     <x-slate::avatar size="sm" :fallback="$initials" :alt="$user->name" />
-                                    <span class="max-w-[10rem] truncate">{{ $user->name }}</span>
+                                    <span class="hidden max-w-[10rem] truncate sm:inline">{{ $user->name }}</span>
                                 </x-slate::button>
                             </x-slate::dropdown-menu-trigger>
                             <x-slate::dropdown-menu-content align="end" class="w-48">
                                 <x-slate::dropdown-menu-item as="a" href="{{ route('settings.profile') }}" wire:navigate>
-                                    Profile
+                                    {{ __('Profile') }}
                                 </x-slate::dropdown-menu-item>
                                 <x-slate::dropdown-menu-item as="a" href="{{ route('settings.security') }}" wire:navigate>
-                                    Security
+                                    {{ __('Security') }}
                                 </x-slate::dropdown-menu-item>
                                 <x-slate::dropdown-menu-item as="a" href="{{ route('settings.sessions') }}" wire:navigate>
-                                    Sessions
+                                    {{ __('Sessions') }}
                                 </x-slate::dropdown-menu-item>
                                 @if (class_exists(\Laravel\Sanctum\SanctumServiceProvider::class))
                                     <x-slate::dropdown-menu-item as="a" href="{{ route('settings.api-tokens') }}" wire:navigate>
-                                        API tokens
+                                        {{ __('API tokens') }}
                                     </x-slate::dropdown-menu-item>
                                 @endif
                                 <x-slate::dropdown-menu-separator />
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <x-slate::dropdown-menu-item as="button" type="submit" variant="destructive">
-                                        Sign out
+                                        {{ __('Sign out') }}
                                     </x-slate::dropdown-menu-item>
                                 </form>
                             </x-slate::dropdown-menu-content>
@@ -115,11 +133,15 @@
                 <a
                     href="{{ route('dashboard') }}"
                     wire:navigate
-                    class="mb-4 inline-flex size-9 items-center justify-center rounded-lg bg-foreground text-xs font-bold tracking-tight text-background"
+                    class="mb-4 inline-flex size-9 items-center justify-center overflow-hidden rounded-lg bg-foreground text-xs font-bold tracking-tight text-background"
                     aria-label="{{ config('electrik.name', 'Electrik') }}"
                     title="{{ config('electrik.name', 'Electrik') }}"
                 >
-                    {{ mb_strtoupper(mb_substr(config('electrik.name', 'E'), 0, 1)) }}
+                    @if (filled($brandLogo))
+                        <img src="{{ $brandLogo }}" alt="" class="size-9 object-cover" />
+                    @else
+                        {{ mb_strtoupper(mb_substr(config('electrik.name', 'E'), 0, 1)) }}
+                    @endif
                 </a>
 
                 <nav class="flex flex-1 flex-col items-center gap-1" aria-label="{{ __('Primary') }}">
@@ -146,49 +168,19 @@
                     >
                         @svg('carbon-wallet', 'size-5')
                     </x-electrik::rail-link>
-                </nav>
 
-                <div class="mt-auto flex flex-col items-center gap-1">
-                    <x-slate::dropdown-menu>
-                        <x-slate::dropdown-menu-trigger>
-                            <button
-                                type="button"
-                                @class([
-                                    'inline-flex size-10 items-center justify-center rounded-lg transition-colors',
-                                    'bg-sidebar-accent text-sidebar-accent-foreground' => $navSection === 'account',
-                                    'text-muted-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground' => $navSection !== 'account',
-                                ])
-                                aria-label="{{ __('Account') }}"
-                                title="{{ __('Account') }}"
+                    @auth
+                        @if (\Electrik\Support\Operators::check(auth()->user()))
+                            <x-electrik::rail-link
+                                :href="route('ops.dashboard')"
+                                :active="$navSection === 'ops'"
+                                :label="__('Operations')"
                             >
-                                @svg('carbon-user', 'size-5')
-                            </button>
-                        </x-slate::dropdown-menu-trigger>
-                        <x-slate::dropdown-menu-content side="end" align="start" class="w-44">
-                            <x-slate::dropdown-menu-item as="a" href="{{ route('settings.profile') }}" wire:navigate>
-                                Profile
-                            </x-slate::dropdown-menu-item>
-                            <x-slate::dropdown-menu-item as="a" href="{{ route('settings.security') }}" wire:navigate>
-                                Security
-                            </x-slate::dropdown-menu-item>
-                            <x-slate::dropdown-menu-item as="a" href="{{ route('settings.sessions') }}" wire:navigate>
-                                Sessions
-                            </x-slate::dropdown-menu-item>
-                            @if (class_exists(\Laravel\Sanctum\SanctumServiceProvider::class))
-                                <x-slate::dropdown-menu-item as="a" href="{{ route('settings.api-tokens') }}" wire:navigate>
-                                    API tokens
-                                </x-slate::dropdown-menu-item>
-                            @endif
-                            <x-slate::dropdown-menu-separator />
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <x-slate::dropdown-menu-item as="button" type="submit" variant="destructive">
-                                    Sign out
-                                </x-slate::dropdown-menu-item>
-                            </form>
-                        </x-slate::dropdown-menu-content>
-                    </x-slate::dropdown-menu>
-                </div>
+                                @svg('carbon-operations-record', 'size-5')
+                            </x-electrik::rail-link>
+                        @endif
+                    @endauth
+                </nav>
             </aside>
         </x-slot:primary>
 
@@ -208,12 +200,20 @@
                     @unless (isset($sidebar))
                         @if ($navSection === 'dashboard')
                             <div class="space-y-1">
-                                <x-electrik::nav-link :href="route('dashboard')" :exact="true" icon="dashboard">Dashboard</x-electrik::nav-link>
-                                <x-electrik::nav-link :href="route('teams.index')" icon="enterprise">All teams</x-electrik::nav-link>
+                                <p class="px-2.5 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{{ __('Studio') }}</p>
+                                <x-electrik::nav-link :href="route('dashboard')" :exact="true" icon="dashboard">{{ __('Overview') }}</x-electrik::nav-link>
+                                @if (\Electrik\Support\SampleStudio::enabled() && \Illuminate\Support\Facades\Route::has('clients.index'))
+                                    <x-electrik::nav-link :href="route('clients.index')" icon="user">{{ __('Clients') }}</x-electrik::nav-link>
+                                    <x-electrik::nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')" icon="folder">{{ __('Projects') }}</x-electrik::nav-link>
+                                @endif
+                            </div>
+                            <div class="space-y-1">
+                                <p class="px-2.5 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{{ __('Workspace') }}</p>
+                                <x-electrik::nav-link :href="route('teams.index')" icon="enterprise">{{ __('All teams') }}</x-electrik::nav-link>
                             </div>
                         @elseif ($navSection === 'teams')
                             <div class="space-y-1">
-                                <x-electrik::nav-link :href="route('teams.index')" :active="request()->routeIs('teams.index', 'teams.create')" icon="enterprise">All teams</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('teams.index')" :active="request()->routeIs('teams.index', 'teams.create')" icon="enterprise">{{ __('All teams') }}</x-electrik::nav-link>
                                 @auth
                                     @if ($navTeam ?? $currentTeam)
                                         @php($sidebarTeam = $navTeam ?? $currentTeam)
@@ -222,7 +222,7 @@
                                             :active="request()->routeIs('teams.members', 'teams.members.*')"
                                             icon="user-multiple"
                                         >
-                                            Members
+                                            {{ __('Members') }}
                                         </x-electrik::nav-link>
                                         @if (auth()->user()->can('access.roles') || auth()->user()->isOwnerOfTeam($sidebarTeam))
                                             <x-electrik::nav-link
@@ -230,7 +230,7 @@
                                                 :active="request()->routeIs('teams.roles.*', 'teams.permissions.*')"
                                                 icon="user-role"
                                             >
-                                                Roles
+                                                {{ __('Roles') }}
                                             </x-electrik::nav-link>
                                         @endif
                                         @if (auth()->user()->can('teams.manage') || auth()->user()->isOwnerOfTeam($sidebarTeam))
@@ -239,14 +239,21 @@
                                                 :active="request()->routeIs('teams.settings')"
                                                 icon="settings"
                                             >
-                                                Settings
+                                                {{ __('Settings') }}
                                             </x-electrik::nav-link>
                                             <x-electrik::nav-link
                                                 :href="route('teams.activity', $sidebarTeam)"
                                                 :active="request()->routeIs('teams.activity')"
                                                 icon="report"
                                             >
-                                                Activity
+                                                {{ __('Activity') }}
+                                            </x-electrik::nav-link>
+                                            <x-electrik::nav-link
+                                                :href="route('teams.webhooks', $sidebarTeam)"
+                                                :active="request()->routeIs('teams.webhooks')"
+                                                icon="connect"
+                                            >
+                                                {{ __('Webhooks') }}
                                             </x-electrik::nav-link>
                                         @endif
                                     @endif
@@ -254,21 +261,33 @@
                             </div>
                         @elseif ($navSection === 'billing')
                             <div class="space-y-1">
-                                <x-electrik::nav-link :href="route('billing.index')" :exact="true" icon="dashboard">Overview</x-electrik::nav-link>
-                                <x-electrik::nav-link :href="route('billing.plans')" icon="catalog">Plans</x-electrik::nav-link>
-                                <x-electrik::nav-link :href="route('billing.subscription')" icon="renew">Subscription</x-electrik::nav-link>
-                                <x-electrik::nav-link :href="route('billing.payment-methods')" icon="purchase">Payment methods</x-electrik::nav-link>
-                                <x-electrik::nav-link :href="route('billing.address')" icon="location">Address</x-electrik::nav-link>
-                                <x-electrik::nav-link :href="route('billing.invoices')" icon="receipt">Invoices</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('billing.index')" :exact="true" icon="dashboard">{{ __('Overview') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('billing.plans')" icon="catalog">{{ __('Plans') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('billing.subscription')" icon="renew">{{ __('Subscription') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('billing.payment-methods')" icon="purchase">{{ __('Payment methods') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('billing.address')" icon="location">{{ __('Address') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('billing.invoices')" icon="receipt">{{ __('Invoices') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('billing.usage')" icon="analytics">{{ __('Usage') }}</x-electrik::nav-link>
                             </div>
                         @elseif ($navSection === 'account')
                             <div class="space-y-1">
-                                <x-electrik::nav-link :href="route('settings.profile')" :active="request()->routeIs('settings.profile')" icon="user">Profile</x-electrik::nav-link>
-                                <x-electrik::nav-link :href="route('settings.security')" :active="request()->routeIs('settings.security')" icon="password">Security</x-electrik::nav-link>
-                                <x-electrik::nav-link :href="route('settings.sessions')" :active="request()->routeIs('settings.sessions')" icon="devices">Sessions</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('settings.profile')" :active="request()->routeIs('settings.profile')" icon="user">{{ __('Profile') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('settings.security')" :active="request()->routeIs('settings.security')" icon="password">{{ __('Security') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('settings.sessions')" :active="request()->routeIs('settings.sessions')" icon="devices">{{ __('Sessions') }}</x-electrik::nav-link>
                                 @if (class_exists(\Laravel\Sanctum\SanctumServiceProvider::class))
-                                    <x-electrik::nav-link :href="route('settings.api-tokens')" :active="request()->routeIs('settings.api-tokens')" icon="connect">API tokens</x-electrik::nav-link>
+                                    <x-electrik::nav-link :href="route('settings.api-tokens')" :active="request()->routeIs('settings.api-tokens')" icon="connect">{{ __('API tokens') }}</x-electrik::nav-link>
                                 @endif
+                            </div>
+                        @elseif ($navSection === 'ops')
+                            <div class="space-y-1">
+                                <x-electrik::nav-link :href="route('ops.dashboard')" :exact="true" icon="dashboard">{{ __('Dashboard') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('ops.users')" icon="user-multiple">{{ __('Users') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('ops.teams')" icon="enterprise">{{ __('Teams') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('ops.webhooks')" icon="connect">{{ __('Webhooks') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('ops.plans')" icon="catalog">{{ __('Plan features') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('ops.failed-jobs')" icon="renew">{{ __('Failed jobs') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('ops.announcements.index')" :active="request()->routeIs('ops.announcements.*')" icon="bullhorn">{{ __('Announcements') }}</x-electrik::nav-link>
+                                <x-electrik::nav-link :href="route('ops.mail-preview')" icon="email">{{ __('Email preview') }}</x-electrik::nav-link>
                             </div>
                         @endif
                     @endunless
@@ -289,6 +308,7 @@
 
         <x-slot:main>
             <x-electrik::subscription-banner />
+            <x-electrik::announcement-banner />
             <div class="min-h-full bg-muted/30">
                 <div class="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
                     {{ $slot }}

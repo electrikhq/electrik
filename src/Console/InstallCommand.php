@@ -23,10 +23,16 @@ class InstallCommand extends Command
         $this->ensureWelcomeView();
         $this->ensureTeamwork();
         $this->ensurePermissionTeams();
+        $this->ensureActivitylog();
         $this->ensureUserModel();
         $this->ensureSanctum();
+        $this->ensureImpersonate();
+        $this->ensurePersonalDataExport();
+        $this->ensurePasskeys();
+        $this->ensureAuthenticationLog();
         $this->ensureCashier();
         $this->ensureSessionDriver();
+        $this->ensureLocaleMiddleware();
         $this->ensureStripeEnv();
         $this->ensureStorageLink();
         $this->printStripeWebhookHelp();
@@ -46,6 +52,11 @@ class InstallCommand extends Command
         $this->line('  Storage:  php artisan storage:link  (avatars & uploads)');
         $this->line('  Migrate:  php artisan migrate   (or --migrate)');
         $this->line('  UI:       <x-slate::*> — https://slate.electrik.dev');
+        $this->line('  Activity: spatie/laravel-activitylog (team scoped)');
+        $this->line('  Auth log: rappasoft/laravel-authentication-log (Sessions)');
+        $this->line('  2FA:      pragmarx/google2fa-laravel + bacon/bacon-qr-code');
+        $this->line('  GDPR:     spatie/laravel-personal-data-export (profile export/delete)');
+        $this->line('  Passkeys: laravel/passkeys (security + login)');
 
         return self::SUCCESS;
     }
@@ -228,6 +239,30 @@ class InstallCommand extends Command
         ]);
     }
 
+    protected function ensureActivitylog(): void
+    {
+        if (! class_exists(\Spatie\Activitylog\ActivitylogServiceProvider::class)) {
+            $this->components->warn('spatie/laravel-activitylog missing; skip activity log setup.');
+
+            return;
+        }
+
+        if (! File::exists(config_path('activitylog.php'))) {
+            $this->callSilent('vendor:publish', [
+                '--provider' => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
+                '--tag' => 'activitylog-config',
+            ]);
+            $this->components->twoColumnDetail('activitylog config', 'published');
+        } else {
+            $this->components->twoColumnDetail('activitylog config', 'exists');
+        }
+
+        config([
+            'activitylog.activity_model' => \Electrik\Models\Activity::class,
+        ]);
+        $this->components->twoColumnDetail('activitylog.activity_model', 'Electrik\\Models\\Activity');
+    }
+
     protected function ensureUserModel(): void
     {
         $model = config('auth.providers.users.model');
@@ -393,6 +428,423 @@ class InstallCommand extends Command
         }
     }
 
+    protected function ensureImpersonate(): void
+    {
+        if (! class_exists(\Lab404\Impersonate\ImpersonateServiceProvider::class)) {
+            $this->components->warn('lab404/laravel-impersonate missing; skip impersonation setup.');
+
+            return;
+        }
+
+        $model = config('auth.providers.users.model');
+
+        if (! is_string($model) || ! class_exists($model)) {
+            return;
+        }
+
+        try {
+            $path = (new ReflectionClass($model))->getFileName();
+        } catch (\ReflectionException) {
+            return;
+        }
+
+        if (! $path || ! File::isWritable($path)) {
+            return;
+        }
+
+        $contents = File::get($path);
+        $original = $contents;
+
+        if (! str_contains($contents, 'Lab404\\Impersonate\\Models\\Impersonate')) {
+            $contents = preg_replace(
+                '/(namespace App\\\\Models;\\s+)/',
+                "$1\nuse Lab404\\Impersonate\\Models\\Impersonate;\n",
+                $contents,
+                1
+            ) ?? $contents;
+        }
+
+        $hasTrait = (bool) preg_match('/^\s*use Impersonate;/m', $contents)
+            || (bool) preg_match('/use [^;]*\bImpersonate\b[^;]*Notifiable/', $contents)
+            || (bool) preg_match('/use [^;]*\bImpersonate\b[^;]*UserHasTeams/', $contents);
+
+        if (! $hasTrait) {
+            if (preg_match('/use HasApiTokens, HasFactory, HasRoles, Notifiable, UserHasTeams;/', $contents)) {
+                $contents = preg_replace(
+                    '/use HasApiTokens, HasFactory, HasRoles, Notifiable, UserHasTeams;/',
+                    'use HasApiTokens, HasFactory, HasRoles, Impersonate, Notifiable, UserHasTeams;',
+                    $contents,
+                    1
+                ) ?? $contents;
+            } elseif (preg_match('/use HasFactory, HasRoles, Notifiable, UserHasTeams;/', $contents)) {
+                $withSanctum = str_contains($contents, 'Laravel\\Sanctum\\HasApiTokens')
+                    ? 'use HasApiTokens, HasFactory, HasRoles, Impersonate, Notifiable, UserHasTeams;'
+                    : 'use HasFactory, HasRoles, Impersonate, Notifiable, UserHasTeams;';
+                $contents = preg_replace(
+                    '/use HasFactory, HasRoles, Notifiable, UserHasTeams;/',
+                    $withSanctum,
+                    $contents,
+                    1
+                ) ?? $contents;
+            } else {
+                $contents = preg_replace(
+                    '/(class\s+User\s+extends\s+[^{]+\{)/',
+                    "$1\n    use Impersonate;\n",
+                    $contents,
+                    1
+                ) ?? $contents;
+            }
+        }
+
+        if ($contents !== $original) {
+            File::put($path, $contents);
+            $this->components->twoColumnDetail('User model', 'lab404 Impersonate trait added');
+        } else {
+            $this->components->twoColumnDetail('User model', 'Impersonate already wired');
+        }
+    }
+
+    protected function ensurePersonalDataExport(): void
+    {
+        if (! class_exists(\Spatie\PersonalDataExport\PersonalDataExportServiceProvider::class)) {
+            $this->components->warn('spatie/laravel-personal-data-export missing; skip GDPR export setup.');
+
+            return;
+        }
+
+        if (! File::exists(config_path('personal-data-export.php'))) {
+            $this->callSilent('vendor:publish', [
+                '--provider' => 'Spatie\\PersonalDataExport\\PersonalDataExportServiceProvider',
+                '--tag' => 'personal-data-export-config',
+            ]);
+            $this->components->twoColumnDetail('personal-data-export config', 'published');
+        } else {
+            $this->components->twoColumnDetail('personal-data-export config', 'exists');
+        }
+
+        $this->ensurePersonalDataExportsDisk();
+        $this->ensurePersonalDataExportAllowsEmailedDownloads();
+
+        $model = config('auth.providers.users.model');
+
+        if (! is_string($model) || ! class_exists($model)) {
+            return;
+        }
+
+        try {
+            $path = (new ReflectionClass($model))->getFileName();
+        } catch (\ReflectionException) {
+            return;
+        }
+
+        if (! $path || ! File::isWritable($path)) {
+            return;
+        }
+
+        $contents = File::get($path);
+        $original = $contents;
+
+        if (! str_contains($contents, 'Spatie\\PersonalDataExport\\ExportsPersonalData')) {
+            $contents = preg_replace(
+                '/(namespace App\\\\Models;\\s+)/',
+                "$1\nuse Spatie\\PersonalDataExport\\ExportsPersonalData;\n",
+                $contents,
+                1
+            ) ?? $contents;
+        }
+
+        if (! str_contains($contents, 'Electrik\\Concerns\\ExportsElectrikPersonalData')) {
+            $contents = preg_replace(
+                '/(namespace App\\\\Models;\\s+)/',
+                "$1\nuse Electrik\\Concerns\\ExportsElectrikPersonalData;\n",
+                $contents,
+                1
+            ) ?? $contents;
+        }
+
+        $contents = $this->ensureUserModelImplements($contents, 'ExportsPersonalData');
+        $contents = $this->ensureUserModelUsesTrait($contents, 'ExportsElectrikPersonalData');
+
+        if ($contents !== $original) {
+            File::put($path, $contents);
+            $this->components->twoColumnDetail('User model', 'ExportsPersonalData + ExportsElectrikPersonalData');
+        } else {
+            $this->components->twoColumnDetail('User model', 'personal data export already wired');
+        }
+    }
+
+    protected function ensurePersonalDataExportAllowsEmailedDownloads(): void
+    {
+        $path = config_path('personal-data-export.php');
+
+        if (! File::exists($path) || ! File::isWritable($path)) {
+            return;
+        }
+
+        $contents = File::get($path);
+
+        if (! preg_match("/['\"]authentication_required['\"]\\s*=>\\s*true/", $contents)) {
+            $this->components->twoColumnDetail('personal-data-export.authentication_required', 'ok');
+
+            return;
+        }
+
+        $updated = preg_replace(
+            "/(['\"]authentication_required['\"]\\s*=>\\s*)true/",
+            '${1}false',
+            $contents,
+            1
+        );
+
+        if (! is_string($updated) || $updated === $contents) {
+            return;
+        }
+
+        File::put($path, $updated);
+        $this->components->twoColumnDetail(
+            'personal-data-export.authentication_required',
+            'false (emailed download links)'
+        );
+    }
+
+    protected function ensurePersonalDataExportsDisk(): void
+    {
+        $path = config_path('filesystems.php');
+
+        if (! File::exists($path)) {
+            $this->components->warn('config/filesystems.php missing; add personal-data-exports disk manually.');
+
+            return;
+        }
+
+        $contents = File::get($path);
+
+        if (str_contains($contents, "'personal-data-exports'") || str_contains($contents, '"personal-data-exports"')) {
+            $this->components->twoColumnDetail('filesystems.disks.personal-data-exports', 'exists');
+
+            return;
+        }
+
+        $disk = <<<'PHP'
+
+        'personal-data-exports' => [
+            'driver' => 'local',
+            'root' => storage_path('app/personal-data-exports'),
+        ],
+
+PHP;
+
+        if (preg_match("/('disks'\\s*=>\\s*\\[)/", $contents)) {
+            $contents = preg_replace(
+                "/('disks'\\s*=>\\s*\\[)/",
+                "$1\n".$disk,
+                $contents,
+                1
+            ) ?? $contents;
+            File::put($path, $contents);
+            $this->components->twoColumnDetail('filesystems.disks.personal-data-exports', 'added');
+        } else {
+            $this->components->warn('Could not locate disks array in filesystems.php; add personal-data-exports manually.');
+        }
+    }
+
+    protected function ensurePasskeys(): void
+    {
+        if (! class_exists(\Laravel\Passkeys\PasskeysServiceProvider::class)) {
+            $this->components->warn('laravel/passkeys missing; skip passkey setup.');
+
+            return;
+        }
+
+        $published = collect(File::files(database_path('migrations')))
+            ->contains(fn ($file) => str_contains($file->getFilename(), 'create_passkeys_table'));
+
+        if (! $published) {
+            $this->callSilent('vendor:publish', [
+                '--tag' => 'passkeys-migrations',
+                '--force' => false,
+            ]);
+            $this->components->twoColumnDetail('passkeys migrations', 'published');
+        } else {
+            $this->components->twoColumnDetail('passkeys migrations', 'exists');
+        }
+
+        $model = config('auth.providers.users.model');
+
+        if (! is_string($model) || ! class_exists($model)) {
+            return;
+        }
+
+        try {
+            $path = (new ReflectionClass($model))->getFileName();
+        } catch (\ReflectionException) {
+            return;
+        }
+
+        if (! $path || ! File::isWritable($path)) {
+            return;
+        }
+
+        $contents = File::get($path);
+        $original = $contents;
+
+        if (! str_contains($contents, 'Laravel\\Passkeys\\Contracts\\PasskeyUser')) {
+            $contents = preg_replace(
+                '/(namespace App\\\\Models;\\s+)/',
+                "$1\nuse Laravel\\Passkeys\\Contracts\\PasskeyUser;\n",
+                $contents,
+                1
+            ) ?? $contents;
+        }
+
+        if (! str_contains($contents, 'Laravel\\Passkeys\\PasskeyAuthenticatable')) {
+            $contents = preg_replace(
+                '/(namespace App\\\\Models;\\s+)/',
+                "$1\nuse Laravel\\Passkeys\\PasskeyAuthenticatable;\n",
+                $contents,
+                1
+            ) ?? $contents;
+        }
+
+        $contents = $this->ensureUserModelImplements($contents, 'PasskeyUser');
+        $contents = $this->ensureUserModelUsesTrait($contents, 'PasskeyAuthenticatable');
+
+        if ($contents !== $original) {
+            File::put($path, $contents);
+            $this->components->twoColumnDetail('User model', 'PasskeyUser + PasskeyAuthenticatable');
+        } else {
+            $this->components->twoColumnDetail('User model', 'passkeys already wired');
+        }
+    }
+
+    protected function ensureAuthenticationLog(): void
+    {
+        if (! class_exists(\Rappasoft\LaravelAuthenticationLog\LaravelAuthenticationLogServiceProvider::class)) {
+            $this->components->warn('rappasoft/laravel-authentication-log missing; skip auth log setup.');
+
+            return;
+        }
+
+        if (! File::exists(config_path('authentication-log.php'))) {
+            $this->callSilent('vendor:publish', [
+                '--provider' => 'Rappasoft\\LaravelAuthenticationLog\\LaravelAuthenticationLogServiceProvider',
+                '--tag' => 'authentication-log-config',
+            ]);
+            $this->components->twoColumnDetail('authentication-log config', 'published');
+        } else {
+            $this->components->twoColumnDetail('authentication-log config', 'exists');
+        }
+
+        $model = config('auth.providers.users.model');
+
+        if (! is_string($model) || ! class_exists($model)) {
+            return;
+        }
+
+        try {
+            $path = (new ReflectionClass($model))->getFileName();
+        } catch (\ReflectionException) {
+            return;
+        }
+
+        if (! $path || ! File::isWritable($path)) {
+            return;
+        }
+
+        $contents = File::get($path);
+        $original = $contents;
+
+        if (! str_contains($contents, 'Rappasoft\\LaravelAuthenticationLog\\Traits\\AuthenticationLoggable')) {
+            $contents = preg_replace(
+                '/(namespace App\\\\Models;\\s+)/',
+                "$1\nuse Rappasoft\\LaravelAuthenticationLog\\Traits\\AuthenticationLoggable;\n",
+                $contents,
+                1
+            ) ?? $contents;
+        }
+
+        $contents = $this->ensureUserModelUsesTrait($contents, 'AuthenticationLoggable');
+
+        if ($contents !== $original) {
+            File::put($path, $contents);
+            $this->components->twoColumnDetail('User model', 'AuthenticationLoggable');
+        } else {
+            $this->components->twoColumnDetail('User model', 'auth log already wired');
+        }
+    }
+
+    /**
+     * Add an interface to `class User extends X implements …` without breaking multiline braces.
+     */
+    protected function ensureUserModelImplements(string $contents, string $interface): string
+    {
+        if (preg_match('/class\s+User\s+extends\s+[^{]*\bimplements\b[^{]*\b'.preg_quote($interface, '/').'\b/s', $contents)) {
+            return $contents;
+        }
+
+        if (preg_match('/class\s+User\s+extends\s+(\w+)\s+implements\s+([^\n{]+)/', $contents, $matches)) {
+            $interfaces = array_values(array_unique(array_filter(array_map(
+                static fn (string $part): string => trim($part, " \t,"),
+                explode(',', $matches[2])
+            ))));
+            $interfaces[] = $interface;
+            $interfaces = array_values(array_unique($interfaces));
+
+            return preg_replace(
+                '/class\s+User\s+extends\s+\w+\s+implements\s+[^\n{]+/',
+                'class User extends '.$matches[1].' implements '.implode(', ', $interfaces),
+                $contents,
+                1
+            ) ?? $contents;
+        }
+
+        return preg_replace(
+            '/class\s+User\s+extends\s+(\w+)/',
+            'class User extends $1 implements '.$interface,
+            $contents,
+            1
+        ) ?? $contents;
+    }
+
+    /**
+     * Ensure a trait appears in the primary `use …;` trait list inside the User class.
+     * Never touches file-level `use Foo\Bar;` imports (those contain `\`).
+     */
+    protected function ensureUserModelUsesTrait(string $contents, string $trait): string
+    {
+        if (! preg_match('/class\s+User\s+extends\s+[^{]+\{/s', $contents, $classMatch, PREG_OFFSET_CAPTURE)) {
+            return $contents;
+        }
+
+        $classBodyOffset = $classMatch[0][1] + strlen($classMatch[0][0]);
+        $before = substr($contents, 0, $classBodyOffset);
+        $after = substr($contents, $classBodyOffset);
+
+        // Indented trait imports only (no namespaces).
+        if (preg_match('/^\s{4}use\s+[^;\\\\]*\b'.preg_quote($trait, '/').'\b[^;\\\\]*;/m', $after)) {
+            return $contents;
+        }
+
+        if (preg_match('/^\s{4}use\s+([^;\\\\]+);/m', $after, $classUse, PREG_OFFSET_CAPTURE)) {
+            $traits = array_values(array_unique(array_filter(array_map(
+                static fn (string $part): string => trim($part),
+                explode(',', $classUse[1][0])
+            ))));
+            $traits[] = $trait;
+            $traits = array_values(array_unique($traits));
+            sort($traits);
+            $replacement = '    use '.implode(', ', $traits).';';
+
+            $lineStart = $classUse[0][1];
+            $lineLength = strlen($classUse[0][0]);
+            $after = substr($after, 0, $lineStart).$replacement.substr($after, $lineStart + $lineLength);
+
+            return $before.$after;
+        }
+
+        return $before."\n    use {$trait};\n".$after;
+    }
+
     protected function ensureCashier(): void
     {
         if (! class_exists(\Laravel\Cashier\CashierServiceProvider::class)) {
@@ -402,6 +854,54 @@ class InstallCommand extends Command
         }
 
         $this->components->twoColumnDetail('Cashier', 'team billing via migrations');
+    }
+
+    protected function ensureLocaleMiddleware(): void
+    {
+        $path = base_path('bootstrap/app.php');
+
+        if (! File::exists($path) || ! File::isWritable($path)) {
+            return;
+        }
+
+        $contents = File::get($path);
+
+        if (str_contains($contents, 'Electrik\\Http\\Middleware\\SetLocale')) {
+            $this->components->twoColumnDetail('SetLocale middleware', 'already wired');
+
+            return;
+        }
+
+        if (! str_contains($contents, '->withMiddleware(function (Middleware $middleware)')) {
+            $this->components->warn('Could not wire SetLocale into bootstrap/app.php automatically.');
+
+            return;
+        }
+
+        $snippet = <<<'PHP'
+        $middleware->web(append: [
+            \Electrik\Http\Middleware\SetLocale::class,
+        ]);
+        $middleware->api(append: [
+            \Electrik\Http\Middleware\BindTeamFromAccessToken::class,
+        ]);
+PHP;
+
+        $updated = preg_replace(
+            '/(->withMiddleware\(function\s*\(\s*Middleware\s+\$middleware\s*\)\s*(?::\s*void)?\s*\{\s*)/m',
+            '$1'."\n".$snippet."\n",
+            $contents,
+            1
+        );
+
+        if (! is_string($updated) || $updated === $contents) {
+            $this->components->warn('Could not insert SetLocale into bootstrap/app.php; append manually.');
+
+            return;
+        }
+
+        File::put($path, $updated);
+        $this->components->twoColumnDetail('SetLocale middleware', 'appended to web');
     }
 
     protected function ensureSessionDriver(): void
@@ -428,7 +928,19 @@ class InstallCommand extends Command
     {
         $link = public_path('storage');
 
-        if (File::exists($link)) {
+        if (File::exists($link) || is_link($link)) {
+            $this->components->twoColumnDetail('public/storage', 'linked');
+
+            return;
+        }
+
+        try {
+            $this->callSilent('storage:link');
+        } catch (\Throwable) {
+            //
+        }
+
+        if (File::exists($link) || is_link($link)) {
             $this->components->twoColumnDetail('public/storage', 'linked');
 
             return;
@@ -455,6 +967,8 @@ class InstallCommand extends Command
             'CASHIER_CURRENCY' => 'usd',
             'ELECTRIK_ONBOARDING' => 'true',
             'ELECTRIK_REQUIRE_SUBSCRIPTION' => 'false',
+            'ELECTRIK_BILLING_DRIVER' => 'stripe',
+            'ELECTRIK_OPERATOR_EMAILS' => 'demo@example.com,demo@electrik.dev',
         ];
 
         $added = [];

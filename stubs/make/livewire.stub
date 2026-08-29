@@ -1,0 +1,17 @@
+<?php
+
+namespace {{ namespace }};
+
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
+
+#[Layout('electrik::components.layouts.app')]
+#[Title('{{ class }}')]
+class {{ class }} extends Component
+{
+    public function render()
+    {
+        return view('{{ view }}');
+    }
+}

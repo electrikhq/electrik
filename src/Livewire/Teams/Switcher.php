@@ -24,7 +24,7 @@ class Switcher extends Component
     public function render()
     {
         return view('electrik::livewire.teams.switcher', [
-            'teams' => auth()->user()?->teams()->orderBy('name')->get() ?? collect(),
+            'teams' => auth()->user()?->teams()->whereNull('archived_at')->orderBy('name')->get() ?? collect(),
             'currentTeamId' => auth()->user()?->current_team_id,
         ]);
     }

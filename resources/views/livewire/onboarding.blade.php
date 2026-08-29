@@ -23,7 +23,7 @@
             </x-slate::card-header>
             <x-slate::card-content>
                 <x-slate::form wire:submit="saveTeam" class="space-y-4">
-                    <x-slate::input wire:model="teamName" label="Team name" required autofocus />
+                    <x-slate::input wire:model="teamName" label="{{ __('Team name') }}" required autofocus />
                     <x-slate::button type="submit" size="lg" class="w-full">
                         {{ __('Continue') }}
                     </x-slate::button>
@@ -77,8 +77,8 @@
                     <x-slate::input
                         wire:model="inviteEmail"
                         type="email"
-                        label="Email address"
-                        placeholder="colleague@company.com"
+                        label="{{ __('Email address') }}"
+                        placeholder="{{ __('colleague@company.com') }}"
                     />
                     @error('inviteEmail')
                         <p class="text-sm text-destructive">{{ $message }}</p>

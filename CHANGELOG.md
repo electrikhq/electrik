@@ -2,6 +2,80 @@
 
 All notable changes to Electrik are documented in this file.
 
+## [5.4.0] - 2026-08-29
+
+### Added
+
+- Sample **Studio** micro-app: Clients → Projects → Tasks (`/clients`, `/projects`, project show), gated by `ELECTRIK_SAMPLE_PROJECTS`.
+- Richer Studio dashboard: client/project/task stats, my tasks, overdue, recent activity.
+- `electrik:seed-demo` seeds a multi-client Studio dataset.
+- Team brand color picker + live CSS var apply (`electrik:brand-updated`); contrast-aware primary foreground.
+- Team archive/restore; optional login IP allowlist (`allowed_ips`) with `electrik.team-ip` middleware.
+- Session device rename (`session_labels`); new-login email/database alerts (`ELECTRIK_LOGIN_ALERTS`).
+- Apple / Microsoft Socialite providers (optional `socialiteproviders/*` packages).
+- Stripe tax IDs on Billing Address; metered usage UI + `POST /api/electrik/usage`; plan add-ons (`is_addon` / `metered`).
+- Outbound team webhooks (signed POST + deliveries); ops plan-features editor; ops email preview.
+- Ops metrics: signups 7d/30d, active subscriptions, estimated MRR stub.
+- API: `GET /api/electrik/team`, `GET /api/electrik/members` (token expiry / last_used on `/me`).
+
+### Changed
+
+- Package version `5.4.0`.
+- Paddle remains unsupported; docs/roadmap treat Stripe as the only billing path.
+
+### Fixed
+
+- RTL: `text-left` → `text-start` on team switcher and invoices table.
+
+## [5.3.0] - 2026-08-29
+
+### Added
+
+- Sanctum ability catalog on API token create UI; `tokens.manage` permission for team-scoped tokens; `electrik.ability` middleware.
+- Authentication log filters and pagination on Sessions (`rappasoft/laravel-authentication-log`).
+- Stripe Checkout promotion codes; past_due / unpaid dunning banner and Billing alert; `stripe_webhook_events` table + team webhook list.
+- Social login (Google / GitHub via `laravel/socialite`) and magic-link email sign-in.
+- Operator console at `/ops` (`ELECTRIK_OPERATOR_EMAILS`): users (suspend), teams, Stripe webhooks, failed jobs, announcements.
+- Announcement banner + publish fan-out notifications; once-per-day past-due billing notifications.
+- Per-team branding (`brand_logo_path`, `brand_primary`) on team settings and app chrome.
+- Package API route `GET /api/electrik/me` (Sanctum + team token bind + throttle); `dedoc/scramble` suggested for OpenAPI.
+
+### Changed
+
+- Package version target `5.3.0`.
+- `PlanFeatures` aligns seat-billed `max_seats` with member limits when features omit `max_members`.
+
+## [5.2.0] - 2026-08-27
+
+### Added
+
+- GDPR personal data export and account deletion via `spatie/laravel-personal-data-export` (profile Privacy section; queued export emailed with download link).
+- Passkeys via `laravel/passkeys` (Security settings management + login button; WebAuthn helper asset).
+- Authentication log via `rappasoft/laravel-authentication-log` (login/logout/failed attempts on Sessions).
+- MCP docs server ships in-repo under `mcp/` (`@electrik/electrik-mcp`).
+
+### Changed
+
+- Package version `5.2.0`.
+- `electrik:install` wires personal data export + passkeys on the User model when packages are present.
+- Billing remains Stripe (`laravel/cashier`) only; unfinished Paddle stub driver removed.
+
+## [5.1.0] - 2026-08-27
+
+### Added
+
+- `electrik:make:livewire`, `electrik:make:model`, and `electrik:make:resource` generators with Slate-styled stubs.
+- Multi-persona `electrik:seed-demo` (owner / admin / member + Demo Team and Acme Team + sample activity).
+- White-label branding config: `ELECTRIK_LOGO_URL`, `ELECTRIK_LOGO_DARK_URL`, `ELECTRIK_BRAND_PRIMARY`, `ELECTRIK_SHOW_POWERED_BY`.
+- Member impersonation via `lab404/laravel-impersonate` (`users.impersonate`) with stop banner and activity events.
+- Team activity filters and pagination.
+
+### Changed
+
+- Package `VERSION` file aligned to stable `5.0.0` line (now shipping `5.1.0`).
+- Team activity log now uses `spatie/laravel-activitylog` (`Electrik\Models\Activity` with `team_id`) instead of a custom `TeamActivityLog` table.
+- Two-factor auth QR generation uses `pragmarx/google2fa-laravel` + `bacon/bacon-qr-code` (inline QR) instead of a third-party QR image API.
+
 ## [5.0.0] - 2026-08-26
 
 ### Added

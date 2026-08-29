@@ -840,7 +840,9 @@
 
                 <div class="footer-left">
 
+                    @if (config('electrik.branding.show_powered_by', true))
                     Powered by {{ config('electrik.name', 'Electrik') }}
+                    @endif
 
                 </div>
 

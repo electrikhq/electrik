@@ -16,6 +16,10 @@ class CreateSubscription
      */
     public function execute(Team $team, StripePlan $plan): Checkout|Subscription
     {
+        if ($plan->is_addon) {
+            throw new \InvalidArgumentException(__('Use add-on flow for add-on plans.'));
+        }
+
         $name = config('electrik.billing.subscription_name', 'electrik');
 
         if ($existing = $team->subscription($name)) {
@@ -35,6 +39,7 @@ class CreateSubscription
         return $builder->checkout([
             'success_url' => route('billing.index', absolute: true).'?checkout=success&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('billing.plans', absolute: true).'?checkout=cancelled',
+            'allow_promotion_codes' => true,
         ]);
     }
 }
