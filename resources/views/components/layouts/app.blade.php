@@ -43,7 +43,7 @@
     $brandLogo = $currentTeam?->brandLogoUrl() ?: config('electrik.branding.logo_url');
 @endphp
 <body class="h-svh overflow-hidden bg-background text-foreground antialiased">
-    @impersonating
+    @if (auth()->check() && method_exists(auth()->user(), 'isImpersonated') && auth()->user()->isImpersonated())
         <div class="flex items-center justify-between gap-3 border-b border-amber-500/40 bg-amber-500/15 px-4 py-2 text-sm text-foreground">
             <p>
                 {{ __('You are impersonating :name.', ['name' => auth()->user()?->name ?? __('a user')]) }}
@@ -55,7 +55,7 @@
                 </x-slate::button>
             </form>
         </div>
-    @endImpersonating
+    @endif
     <x-slate::app-shell :default-open="true">
         <x-slot:header>
             <div class="flex flex-1 items-center justify-between gap-4">
