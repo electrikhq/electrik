@@ -40,7 +40,7 @@ If you want a **product shell on Laravel** without a Jetstream-style dump into y
 - [Ecosystem](#ecosystem)
 - [AI & agents](#ai--agents)
 - [Requirements](#requirements)
-- [License & commercial](#license--commercial)
+- [License](#license)
 - [Documentation](#documentation)
 - [Development](#development)
 - [Contributing](#contributing)
@@ -54,7 +54,7 @@ If you want a **product shell on Laravel** without a Jetstream-style dump into y
 | UI you already know from Slate | Anonymous `<x-slate::*>` components and tokens |
 | Roles that match multi-tenant reality | Spatie permissions scoped to teams |
 | Something agents can install correctly | `AGENTS.md`, install skill, docs, and `llms.txt` |
-| Clear commercial terms | BSL 1.1 + Solo / Studio / Agency licenses |
+| Open source, no license maze | MIT — use commercially without a paid kit license |
 
 **Not for you if** you only need a UI kit (use [Slate](https://slate.electrik.dev)), want React/Inertia scaffolding, or need a full admin CMS. Electrik is the **SaaS shell**, not a page builder.
 
@@ -159,7 +159,7 @@ Hosted proof: [demo.electrik.dev](https://demo.electrik.dev).
 | **Slate Blocks** | `electrik/slate-blocks` | [Blocks gallery](https://slate.electrik.dev/blocks) |
 | **Demo** | — | [demo.electrik.dev](https://demo.electrik.dev) |
 
-Slate and slate-blocks are **MIT**. Electrik is **BSL 1.1** (see below).
+Electrik, Slate, and slate-blocks are all **MIT**.
 
 ## AI & agents
 
@@ -185,20 +185,6 @@ Slate and slate-blocks are **MIT**. Electrik is **BSL 1.1** (see below).
 - `spatie/laravel-permission` `^6.0`
 - `laravel/cashier` `^15.0`
 - Stripe account (test mode is fine locally)
-
-## License & commercial
-
-**Business Source License 1.1** with a free Additional Use Grant for personal, educational, open-source, and pre-revenue indie use. Commercial use by companies and client work needs a commercial license.
-
-| Tier | Price | For |
-| --- | --- | --- |
-| Solo | $99 one-time | One developer, one commercial product · **5.x major line** |
-| Studio | $149 one-time | Studio / small team, multiple products · **5.x major line** |
-| Agency | Custom | Org-wide rights (major scope negotiated) |
-
-Commercial Solo/Studio covers the major version current at purchase (today 5.x) plus minors/patches. Next major needs a new grant or published upgrade — see [License](https://electrik.dev/license).
-
-Buy Solo / Studio at [electrik.dev/pricing](https://electrik.dev/pricing) (instant checkout). Details: [License](https://electrik.dev/license) · [LICENSE](LICENSE).
 
 ## Documentation
 
@@ -253,7 +239,13 @@ Report vulnerabilities privately to [hello@electrik.dev](mailto:hello@electrik.d
 
 ## License
 
-Business Source License 1.1. See [LICENSE](LICENSE).
+**MIT** for Electrik **5.5.0+** (and current `5.x` default). Use it for personal or commercial projects without a paid kit license.
+
+Older published tags that shipped under Business Source License 1.1 (for example `v5.0.0`) remain BSL for those specific releases. Prefer `^5.5` / the latest 5.x for MIT.
+
+Need a shipped multi-tenant SaaS in two weeks? See [Electrik Launch](https://electrik.dev/launch) ($6,900 / 14 days) — paid delivery on top of the free kit.
+
+Full text: [LICENSE](LICENSE) · [electrik.dev/license](https://electrik.dev/license).
 
 ---
 

@@ -16,12 +16,12 @@ Use these rules when installing or extending **Electrik** (`electrik/electrik` 5
 4. Customize via `config/electrik.php`, env, and narrowly published views.
 5. Use `<x-slate::*>` / optional `<x-slate-block::*>` for UI. Never invent `npx shadcn` / React for this stack.
 6. Treat Stripe **customer as the team** (Cashier on the team), not the user.
-7. Point commercial / agency use at https://electrik.dev/pricing and https://electrik.dev/license (BSL 1.1 + grant lane).
+7. Electrik is **MIT** (5.5+). For paid delivery, point at https://electrik.dev/launch — not kit license checkout.
 
 ## Install sequence
 
 ```bash
-composer require electrik/electrik:^5.0
+composer require electrik/electrik:^5.5
 php artisan electrik:install --migrate --force
 ```
 
@@ -36,7 +36,7 @@ After install: set `STRIPE_KEY` / `STRIPE_SECRET` / `STRIPE_WEBHOOK_SECRET`, `ph
 ## Don't
 
 - Copy Electrik controllers/models into `App\` “to own them”
-- Strip billing/teams for a fake free tier — grant vs commercial is **license**, not feature flags
+- Strip billing/teams “because OSS” — MIT covers use; product still includes teams + Stripe on the team
 - Generate Livewire pages that reimplement auth/teams already provided by Electrik
 - Invent Packagist versions — check https://packagist.org/packages/electrik/electrik
 
