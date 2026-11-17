@@ -3,9 +3,13 @@
 /.idea/
 /.vscode/
 composer.lock
-.DS_Store
 *.log
 .phpunit.result.cache
 /coverage/
 
 mcp/node_modules/
+
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
